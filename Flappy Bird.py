@@ -8,6 +8,7 @@ blue = (115, 200, 215)
 # Inicia o Pygame
 pygame.init()
 
+
 # Carregar as imagens
 class Img:
     # Atalho kj
@@ -36,12 +37,13 @@ isJumping = False  # "Está pulando?"
 class Bird:
     pos = [375, 275]  # Posição
     animFrame = 0  # Frame da animação
-    yspeed = 0 # Velocidade Y
+    yspeed = 0  # Velocidade Y
 
 
 # Classe de Input
 class Input:
-    # Pressed Keys: verdadeiro só no primeiro frame em que a tecla é pressionada. É bom para ações como pular, em que você aperta o botão uma vez e se segurar nãofaz diferença.
+    # Pressed Keys: verdadeiro só no primeiro frame em que a tecla é pressionada.
+    # É bom para ações como pular, em que você aperta o botão uma vez e se segurar nãofaz diferença.
     keyUpPressed = False  # Para cima
 
     # (Held) Keys: verdadeiro em qualquer momento que a tecla for pressionada.
@@ -76,7 +78,7 @@ while running:
     if not isJumping:
         if Input.keyUpPressed:
             isJumping = True
-            Bird.yspeed = -10
+            Bird.yspeed = -8
             print('(A) Jumped', timer)
 
     # Iterar a gravidade
@@ -84,10 +86,10 @@ while running:
     Bird.yspeed += 0.5
 
     # (E|I)ntalar no chão ou no céu
-    Bird.pos[1] = max(0, min(Bird.pos[1], 476-30))
+    Bird.pos[1] = max(0, min(Bird.pos[1], 476 - 30))
 
     # Morrer
-    #if (Bird.pos[1] == 476-30): running = False
+    # if Bird.pos[1] == 476-30: running = False
 
     ##########
     # POLISH #
@@ -109,8 +111,8 @@ while running:
     a = random.randint(0, 4)
     x = 400 - 50 * a
     y = 0 - 50 * a
-    screen.blit(Img.tube_bottom, (700, x))
-    screen.blit(Img.tube_top, (700, y))
+    screen.blit(Img.tube_bottom, (700, 400))
+    screen.blit(Img.tube_top, (700, 0))
 
     # Colocar o chão
     screen.blit(Img.floor, (0, 476))
