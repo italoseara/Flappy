@@ -8,7 +8,6 @@ blue = (115, 200, 215)
 # Inicia o Pygame
 pygame.init()
 
-
 # Carregar as imagens
 class Img:
     # Atalho kj
@@ -35,8 +34,9 @@ isJumping = False  # "Está pulando?"
 
 
 class Bird:
-    pos = (375, 275)  # Posição
+    pos = [375, 275]  # Posição
     animFrame = 0  # Frame da animação
+    yspeed = 0 # Velocidade Y
 
 
 # Classe de Input
@@ -50,7 +50,7 @@ class Input:
 
 # Outros componentes do jogo
 clock = pygame.time.Clock()
-tick = 10
+tick = 60
 timer = 0
 
 running = True
@@ -76,7 +76,18 @@ while running:
     if not isJumping:
         if Input.keyUpPressed:
             isJumping = True
+            Bird.yspeed = -10
             print('(A) Jumped', timer)
+
+    # Iterar a gravidade
+    Bird.pos[1] += Bird.yspeed
+    Bird.yspeed += 0.5
+
+    # (E|I)ntalar no chão ou no céu
+    Bird.pos[1] = max(0, min(Bird.pos[1], 476-30))
+
+    # Morrer
+    #if (Bird.pos[1] == 476-30): running = False
 
     ##########
     # POLISH #
