@@ -2,60 +2,112 @@ import pygame
 from pygame.locals import *
 import random
 
-STAY = 0
-JUMP = 1
-
+# Cores
 blue = (115, 200, 215)
 
+# Inicia o Pygame
 pygame.init()
+
+# Carregar as imagens
+class img:
+
+	# Atalho kj
+	load = pygame.image.load
+
+	# Imagens mesmo
+	icon = load('Models/Icon.bmp')
+	floor = load('Models/Floor.png')
+	bird = [load('Models/Bird_0.png'),
+			load('Models/Bird_1.png'),
+			load('Models/Bird_2.png')]
+	tube_top = load('Models/Tube_Top.png')
+	tube_bottom = load('Models/Tube_Bottom.png')
+
+# Título e ícone
 screen = pygame.display.set_mode((800, 600))
 pygame.display.set_caption('Flappy Bird')
-icon = pygame.image.load('Models//Icon.bmp')
-pygame.display.set_icon(icon)
+pygame.display.set_icon(img.icon)
 
-background = pygame.image.load('Models//Background.png')
+# Iniciar variáveis
+isJumping = False # "Está pulando?"
+class bird:
+	pos = (375, 275) # Posição
+	animFrame = 0 # Frame da animação
 
-my_direction = STAY
+# Classe de Input
+class Input:
 
-bird_pos = (375, 275)
-bird = [pygame.image.load('Models//Bird_0.png'),
-        pygame.image.load('Models//Bird_1.png'),
-        pygame.image.load('Models//Bird_2.png')]
+	# Pressed Keys: verdadeiro só no primeiro frame em que a tecla é pressionada. É bom para ações como pular, em que você aperta o botão uma vez e se segurar nãofaz diferença.
+	keyUpPressed = False # Para cima
 
-frame_bird = 0
-verify = False
+	# (Held) Keys: verdadeiro em qualquer momento que a tecla for pressionada.
+	keyUp = False # Para cima
 
-clock = pygame.time.Clock()
-tick = 10
+# Outros componentes do jogo
+clock = pygame.time.Clock(); tick = 10
+timer = 0
 
-while True:
-    clock.tick(tick)
-    for event in pygame.event.get():
-        if event.type == QUIT:
-            exit()
+running = True
+while running:
+	
+	# Limitar a quantidade de frames
+	clock.tick(tick)
 
-    if verify:
+	# Input etc.
+	_keyMap = pygame.key.get_pressed()
+	if _keyMap[pygame.K_UP]:
+		if Input.keyUp:
+			Input.keyUpPressed = False
+		else:
+			Input.keyUpPressed = True
+	Input.keyUp = _keyMap[pygame.K_UP]
 
-        if frame_bird == 2:
-            verify = False
-            frame_bird = 0
+	#################
+	# CD. PRINCIPAL #
+	#################
 
-        screen.blit(bird[frame_bird], bird_pos)
+	# Iniciar o pulo
+	if not isJumping:
+		if Input.keyUpPressed:
+			isJumping = True
+			print('(A) Jumped', timer)
 
-        frame_bird += 1
+	##########
+	# POLISH #
+	##########
 
-    if event.type == KEYDOWN:
-        if event.key == K_UP:
-            my_direction = JUMP
+	# Colocar o fundo
+	screen.fill(blue)
+	screen.blit(img.floor, (0, 0))
 
-            verify = True
+	# Colocar o pássaro
+	if isJumping:
+		bird.animFrame += 1
+		if bird.animFrame >= 2:
+			isJumping = False
+			bird.animFrame = 0
+	screen.blit(img.bird[bird.animFrame], bird.pos)
 
-            print('Jump')
+	# Colocar os tubos na tela
+	a = random.randint(0, 4)
+	x = 400 - 50 * a
+	y = 0 - 50 * a
+	screen.blit(img.tube_bottom, (700, x))
+	screen.blit(img.tube_top, (700, y))
 
-    else:
-        screen.blit(bird[0], bird_pos)
+	# Atualizar a tela
+	pygame.display.update()
 
-    screen.fill(blue)
-    screen.blit(background, (0, 0))
+	###################
+	# POST-PROCESSING #
+	###################
 
-    pygame.display.update()
+	# Processamento de eventos
+	for event in pygame.event.get():
+
+		if event.type == QUIT:
+			running = False
+
+	# Adicionar 1 ao timer
+	timer += 1
+
