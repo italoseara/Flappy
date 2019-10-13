@@ -17,6 +17,7 @@ class img:
 	# Imagens mesmo
 	icon = load('Models/Icon.bmp')
 	floor = load('Models/Floor.png')
+	bg = load('Models/Background.png')
 	bird = [load('Models/Bird_0.png'),
 			load('Models/Bird_1.png'),
 			load('Models/Bird_2.png')]
@@ -44,7 +45,7 @@ class Input:
 	keyUp = False # Para cima
 
 # Outros componentes do jogo
-clock = pygame.time.Clock(); tick = 10
+clock = pygame.time.Clock(); tick = 60
 timer = 0
 
 running = True
@@ -78,7 +79,7 @@ while running:
 
 	# Colocar o fundo
 	screen.fill(blue)
-	screen.blit(img.floor, (0, 0))
+	screen.blit(img.bg, (0, 0))
 
 	# Colocar o pássaro
 	if isJumping:
@@ -94,6 +95,9 @@ while running:
 	y = 0 - 50 * a
 	screen.blit(img.tube_bottom, (700, x))
 	screen.blit(img.tube_top, (700, y))
+
+	# Colocar o chão
+	screen.blit(img.floor, (0, 476))
 
 	# Atualizar a tela
 	pygame.display.update()
