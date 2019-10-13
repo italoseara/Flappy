@@ -10,7 +10,7 @@ pygame.init()
 
 
 # Carregar as imagens
-class img:
+class Img:
     # Atalho kj
     load = pygame.image.load
 
@@ -28,13 +28,13 @@ class img:
 # Título e ícone
 screen = pygame.display.set_mode((800, 600))
 pygame.display.set_caption('Flappy Bird')
-pygame.display.set_icon(img.icon)
+pygame.display.set_icon(Img.icon)
 
 # Iniciar variáveis
 isJumping = False  # "Está pulando?"
 
 
-class bird:
+class Bird:
     pos = (375, 275)  # Posição
     animFrame = 0  # Frame da animação
 
@@ -49,8 +49,8 @@ class Input:
 
 
 # Outros componentes do jogo
-clock = pygame.time.Clock();
-tick = 60
+clock = pygame.time.Clock()
+tick = 10
 timer = 0
 
 running = True
@@ -84,25 +84,25 @@ while running:
 
     # Colocar o fundo
     screen.fill(blue)
-    screen.blit(img.bg, (0, 0))
+    screen.blit(Img.bg, (0, 0))
 
     # Colocar o pássaro
     if isJumping:
-        bird.animFrame += 1
-        if bird.animFrame >= 2:
+        Bird.animFrame += 1
+        if Bird.animFrame >= 2:
             isJumping = False
-            bird.animFrame = 0
-    screen.blit(img.bird[bird.animFrame], bird.pos)
+            Bird.animFrame = 0
+    screen.blit(Img.bird[Bird.animFrame], Bird.pos)
 
     # Colocar os tubos na tela
     a = random.randint(0, 4)
     x = 400 - 50 * a
     y = 0 - 50 * a
-    screen.blit(img.tube_bottom, (700, x))
-    screen.blit(img.tube_top, (700, y))
+    screen.blit(Img.tube_bottom, (700, x))
+    screen.blit(Img.tube_top, (700, y))
 
     # Colocar o chão
-    screen.blit(img.floor, (0, 476))
+    screen.blit(Img.floor, (0, 476))
 
     # Atualizar a tela
     pygame.display.update()
@@ -114,7 +114,7 @@ while running:
     # Processamento de eventos
     for event in pygame.event.get():
 
-        if event.type==QUIT:
+        if event.type == QUIT:
             running = False
 
     # Adicionar 1 ao timer
