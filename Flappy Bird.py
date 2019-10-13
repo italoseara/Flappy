@@ -2,60 +2,67 @@ import pygame
 from pygame.locals import *
 import random
 
+# Variables
 STAY = 0
 JUMP = 1
-
 blue = (115, 200, 215)
 
+# Inicia o jogo
 pygame.init()
+
+# Prepara a aba
 screen = pygame.display.set_mode((800, 600))
 pygame.display.set_caption('Flappy Bird')
-icon = pygame.image.load('Models//Icon.bmp')
+icon = pygame.image.load('Models/Icon.bmp')
 pygame.display.set_icon(icon)
 
-background = pygame.image.load('Models//Background.png')
+# Background Image
+background = pygame.image.load('Models/Background.png')
+floor = pygame.image.load('Models/Floor.png')
 
-my_direction = STAY
+# Bird Jump
+isjumpping = False
 
+# Bird
 bird_pos = (375, 275)
-bird = [pygame.image.load('Models//Bird_0.png'),
-        pygame.image.load('Models//Bird_1.png'),
-        pygame.image.load('Models//Bird_2.png')]
+bird = pygame.image.load('Models/Bird_0.png')
 
-frame_bird = 0
-verify = False
+# Tubes
+tube_top = pygame.image.load('Models/Tube_Top.png')
+tube_bottom = pygame.image.load('Models/Tube_Bottom.png')
 
 clock = pygame.time.Clock()
 tick = 10
 
 while True:
+
+    # Limita os Frames
     clock.tick(tick)
+
+    # Sair do Jogo
     for event in pygame.event.get():
         if event.type == QUIT:
             exit()
 
-    if verify:
-
-        if frame_bird == 2:
-            verify = False
-            frame_bird = 0
-
-        screen.blit(bird[frame_bird], bird_pos)
-
-        frame_bird += 1
-
+    # Pular
     if event.type == KEYDOWN:
         if event.key == K_UP:
-            my_direction = JUMP
-
-            verify = True
+            isjumpping = True
 
             print('Jump')
 
-    else:
-        screen.blit(bird[0], bird_pos)
-
+    # Screen
     screen.fill(blue)
+    screen.blit(bird, bird_pos)
     screen.blit(background, (0, 0))
+
+    a = random.randint(0, 4)
+
+    x = 400 - (50 * a)
+    y = 0 - (50 * a)
+
+    screen.blit(tube_bottom, (700, x))
+    screen.blit(tube_top, (700, y))
+    screen.blit(floor, (0, 476))
 
     pygame.display.update()
