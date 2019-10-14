@@ -23,6 +23,7 @@ class Img:
             load('Models/Bird_2.png')]
     tube_top = load('Models/Tube_Top.png')
     tube_bottom = load('Models/Tube_Bottom.png')
+    tip = load('Models/Init.png')
 
 
 # Título e ícone
@@ -111,11 +112,16 @@ while running:
     a = random.randint(0, 4)
     x = 400 - 50 * a
     y = 0 - 50 * a
+
     screen.blit(Img.tube_bottom, (700, 400))
     screen.blit(Img.tube_top, (700, 0))
 
     # Colocar o chão
     screen.blit(Img.floor, (0, 476))
+
+    # Colocar dica inicial
+    if timer < 200:
+        screen.blit(Img.tip, (0, 0))
 
     # Atualizar a tela
     pygame.display.update()
