@@ -53,19 +53,18 @@ class Input:
 
 # Outros componentes do jogo
 clock = pygame.time.Clock()
-tick = 60
+FPS = 60
 timer = tube1 = tube2 = tube3 = tube4 = 0
-a = random.randint(0, 210)
-b = random.randint(0, 210)
-c = random.randint(0, 210)
-d = random.randint(0, 210)
+a = [random.randint(0, 210), random.randint(0, 210), random.randint(0, 210), random.randint(0, 210)]
+x = [430 - a[0], 430 - a[1], 430 - a[2], 430 - a[3]]
+y = [0 - a[0], 0 - a[1], 0 - a[2], 0 - a[3]]
 
 running = True
 
 while running:
 
     # Limitar a quantidade de frames
-    clock.tick(tick)
+    clock.tick(FPS)
 
     # Input etc.
     _keyMap = pygame.key.get_pressed()
@@ -105,70 +104,51 @@ while running:
     screen.fill(blue)
     screen.blit(Img.bg, (0, 0))
 
-    #####################################################################
     # Coloca os tubos na tela
 
     if timer >= 0:
-
         tube1 += 1
 
-        x = 430 - a
-        y = 0 - a
+        screen.blit(Img.tube_bottom, (800 - tube1, x[0]))
+        screen.blit(Img.tube_top, (800 - tube1, y[1]))
 
-        screen.blit(Img.tube_bottom, (800 - tube1, x))
-        screen.blit(Img.tube_top, (800 - tube1, y))
-
-    if tube1 == 850:
+    if tube1 == 860:
         tube1 = 0
 
-        a = random.randint(0, 210)
+        a[0] = random.randint(0, 210)
 
     if timer >= 210:
-
         tube2 += 1
 
-        x2 = 430 - b
-        y2 = 0 - b
+        screen.blit(Img.tube_bottom, (800 - tube2, x[1]))
+        screen.blit(Img.tube_top, (800 - tube2, y[1]))
 
-        screen.blit(Img.tube_bottom, (800 - tube2, x2))
-        screen.blit(Img.tube_top, (800 - tube2, y2))
-
-    if tube2 == 850:
+    if tube2 == 860:
         tube2 = 0
 
-        b = random.randint(0, 210)
+        a[1] = random.randint(0, 210)
 
     if timer >= 420:
-
         tube3 += 1
 
-        x3 = 430 - c
-        y3 = 0 - c
+        screen.blit(Img.tube_bottom, (800 - tube3, x[2]))
+        screen.blit(Img.tube_top, (800 - tube3, y[2]))
 
-        screen.blit(Img.tube_bottom, (800 - tube3, x3))
-        screen.blit(Img.tube_top, (800 - tube3, y3))
-
-    if tube3 == 850:
+    if tube3 == 860:
         tube3 = 0
 
-        c = random.randint(0, 210)
+        a[2] = random.randint(0, 210)
 
     if timer >= 630:
-
         tube4 += 1
 
-        x4 = 430 - d
-        y4 = 0 - d
+        screen.blit(Img.tube_bottom, (800 - tube4, x[3]))
+        screen.blit(Img.tube_top, (800 - tube4, y[3]))
 
-        screen.blit(Img.tube_bottom, (800 - tube4, x4))
-        screen.blit(Img.tube_top, (800 - tube4, y4))
-
-    if tube4 == 850:
+    if tube4 == 860:
         tube4 = 0
 
-        d = random.randint(0, 210)
-
-    #####################################################################
+        a[3] = random.randint(0, 210)
 
     # Colocar o pássaro
     if isJumping:
