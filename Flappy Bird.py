@@ -110,7 +110,7 @@ while running:
         tube1 += 1
 
         screen.blit(Img.tube_bottom, (800 - tube1, x[0]))
-        screen.blit(Img.tube_top, (800 - tube1, y[0]))
+        screen.blit(Img.tube_top, (800 - tube1, y[1]))
 
     if tube1 == 860:
         tube1 = 0
