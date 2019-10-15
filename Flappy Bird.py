@@ -54,9 +54,14 @@ class Input:
 # Outros componentes do jogo
 clock = pygame.time.Clock()
 tick = 60
-timer = 0
+timer = tube1 = tube2 = tube3 = tube4 = 0
+a = random.randint(0, 210)
+b = random.randint(0, 210)
+c = random.randint(0, 210)
+d = random.randint(0, 210)
 
 running = True
+
 while running:
 
     # Limitar a quantidade de frames
@@ -100,6 +105,71 @@ while running:
     screen.fill(blue)
     screen.blit(Img.bg, (0, 0))
 
+    #####################################################################
+    # Coloca os tubos na tela
+
+    if timer >= 0:
+
+        tube1 += 1
+
+        x = 430 - a
+        y = 0 - a
+
+        screen.blit(Img.tube_bottom, (800 - tube1, x))
+        screen.blit(Img.tube_top, (800 - tube1, y))
+
+    if tube1 == 850:
+        tube1 = 0
+
+        a = random.randint(0, 210)
+
+    if timer >= 210:
+
+        tube2 += 1
+
+        x2 = 430 - b
+        y2 = 0 - b
+
+        screen.blit(Img.tube_bottom, (800 - tube2, x2))
+        screen.blit(Img.tube_top, (800 - tube2, y2))
+
+    if tube2 == 850:
+        tube2 = 0
+
+        b = random.randint(0, 210)
+
+    if timer >= 420:
+
+        tube3 += 1
+
+        x3 = 430 - c
+        y3 = 0 - c
+
+        screen.blit(Img.tube_bottom, (800 - tube3, x3))
+        screen.blit(Img.tube_top, (800 - tube3, y3))
+
+    if tube3 == 850:
+        tube3 = 0
+
+        c = random.randint(0, 210)
+
+    if timer >= 630:
+
+        tube4 += 1
+
+        x4 = 430 - d
+        y4 = 0 - d
+
+        screen.blit(Img.tube_bottom, (800 - tube4, x4))
+        screen.blit(Img.tube_top, (800 - tube4, y4))
+
+    if tube4 == 850:
+        tube4 = 0
+
+        d = random.randint(0, 210)
+
+    #####################################################################
+
     # Colocar o pássaro
     if isJumping:
         Bird.animFrame += 1
@@ -107,14 +177,6 @@ while running:
             isJumping = False
             Bird.animFrame = 0
     screen.blit(Img.bird[Bird.animFrame], Bird.pos)
-
-    # Colocar os tubos na tela
-    a = random.randint(0, 4)
-    x = 400 - 50 * a
-    y = 0 - 50 * a
-
-    screen.blit(Img.tube_bottom, (700, 400))
-    screen.blit(Img.tube_top, (700, 0))
 
     # Colocar o chão
     screen.blit(Img.floor, (0, 476))
