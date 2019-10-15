@@ -34,7 +34,6 @@ pygame.display.set_icon(Img.icon)
 # Iniciar variáveis
 isJumping = False  # "Está pulando?"
 
-
 class Bird:
     pos = [375, 275]  # Posição
     animFrame = 0  # Frame da animação
@@ -52,6 +51,7 @@ class Input:
 
 
 # Outros componentes do jogo
+rotate = 0
 clock = pygame.time.Clock()
 FPS = 60
 timer = tube1 = tube2 = tube3 = tube4 = 0
@@ -62,7 +62,7 @@ y = [0 - a[0], 0 - a[1], 0 - a[2], 0 - a[3]]
 running = True
 
 while running:
-
+    
     # Limitar a quantidade de frames
     clock.tick(FPS)
 
@@ -86,6 +86,8 @@ while running:
             Bird.yspeed = -8
             print('(A) Jumped', timer)
 
+    # Rotacionar imagem
+
     # Iterar a gravidade
     Bird.pos[1] += Bird.yspeed
     Bird.yspeed += 0.5
@@ -103,6 +105,8 @@ while running:
     # Colocar o fundo
     screen.fill(blue)
     screen.blit(Img.bg, (0, 0))
+
+    #############################################################################
 
     # Coloca os tubos na tela
 
@@ -150,16 +154,29 @@ while running:
 
         a[3] = random.randint(0, 210)
 
+    #############################################################################
+
+    # Colocar o chão
+    screen.blit(Img.floor, (0, 476))
+
     # Colocar o pássaro
     if isJumping:
         Bird.animFrame += 1
         if Bird.animFrame >= 2:
             isJumping = False
             Bird.animFrame = 0
-    screen.blit(Img.bird[Bird.animFrame], Bird.pos)
 
-    # Colocar o chão
-    screen.blit(Img.floor, (0, 476))
+    if Bird.yspeed < 0:
+        rotate = 30
+    else:
+        rotate = -30
+    
+    # Gira o pássaro
+    old_center = (Bird.pos[0] + 15, Bird.pos[1] + 15)
+    new_img = pygame.transform.rotate(Img.bird[Bird.animFrame], rotate)
+    rect = new_img.get_rect()
+    rect.center = old_center
+    screen.blit(new_img, rect)
 
     # Colocar dica inicial
     if timer < 200:
@@ -177,6 +194,6 @@ while running:
 
         if event.type == QUIT:
             running = False
-
+    
     # Adicionar 1 ao timer
     timer += 1
