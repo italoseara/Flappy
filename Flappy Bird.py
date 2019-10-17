@@ -34,6 +34,7 @@ pygame.display.set_icon(Img.icon)
 # Iniciar variáveis
 isJumping = False  # "Está pulando?"
 
+
 class Bird:
     pos = [375, 275]  # Posição
     animFrame = 0  # Frame da animação
@@ -55,6 +56,7 @@ rotate = 0
 clock = pygame.time.Clock()
 FPS = 60
 timer = tube1 = tube2 = tube3 = tube4 = 0
+colliding = []
 a = [random.randint(0, 210), random.randint(0, 210), random.randint(0, 210), random.randint(0, 210)]
 x = [430 - a[0], 430 - a[1], 430 - a[2], 430 - a[3]]
 y = [0 - a[0], 0 - a[1], 0 - a[2], 0 - a[3]]
@@ -116,6 +118,16 @@ while running:
         screen.blit(Img.tube_bottom, (800 - tube1, x[0]))
         screen.blit(Img.tube_top, (800 - tube1, y[0]))
 
+        # HitBox
+        tube1_bottom = Img.tube_bottom.get_rect()
+        tube1_bottom.center = (800 - tube1 + 34, x[0] + 155)
+        tube1_top = Img.tube_top.get_rect()
+        tube1_top.center = (800 - tube1 + 34, y[0] + 155)
+
+        # Desenha a hitbox
+        pygame.draw.rect(screen, (255, 0, 0), tube1_bottom, 2)
+        pygame.draw.rect(screen, (255, 0, 0), tube1_top, 2)
+
     if tube1 == 860:
         tube1 = 0
 
@@ -126,6 +138,16 @@ while running:
 
         screen.blit(Img.tube_bottom, (800 - tube2, x[1]))
         screen.blit(Img.tube_top, (800 - tube2, y[1]))
+
+        # Hitbox
+        tube2_bottom = Img.tube_bottom.get_rect()
+        tube2_bottom.center = (800 - tube2 + 34, x[1] + 155)
+        tube2_top = Img.tube_top.get_rect()
+        tube2_top.center = (800 - tube2 + 34, y[1] + 155)
+
+        # Desenha a Hitbox
+        pygame.draw.rect(screen, (255, 0, 0), tube2_bottom, 2)
+        pygame.draw.rect(screen, (255, 0, 0), tube2_top, 2)
 
     if tube2 == 860:
         tube2 = 0
@@ -138,6 +160,16 @@ while running:
         screen.blit(Img.tube_bottom, (800 - tube3, x[2]))
         screen.blit(Img.tube_top, (800 - tube3, y[2]))
 
+        # HitBox
+        tube3_bottom = Img.tube_bottom.get_rect()
+        tube3_bottom.center = (800 - tube3 + 34, x[2] + 155)
+        tube3_top = Img.tube_top.get_rect()
+        tube3_top.center = (800 - tube3 + 34, y[2] + 155)
+
+        # Desenha a Hitbox
+        pygame.draw.rect(screen, (255, 0, 0), tube3_bottom, 2)
+        pygame.draw.rect(screen, (255, 0, 0), tube3_top, 2)
+
     if tube3 == 860:
         tube3 = 0
 
@@ -148,6 +180,16 @@ while running:
 
         screen.blit(Img.tube_bottom, (800 - tube4, x[3]))
         screen.blit(Img.tube_top, (800 - tube4, y[3]))
+
+        # HitBox
+        tube4_bottom = Img.tube_bottom.get_rect()
+        tube4_bottom.center = (800 - tube4 + 34, x[3] + 155)
+        tube4_top = Img.tube_top.get_rect()
+        tube4_top.center = (800 - tube4 + 34, y[3] + 155)
+
+        # Desenha a Hitbox
+        pygame.draw.rect(screen, (255, 0, 0), tube4_bottom, 2)
+        pygame.draw.rect(screen, (255, 0, 0), tube4_top, 2)
 
     if tube4 == 860:
         tube4 = 0
@@ -170,13 +212,16 @@ while running:
         rotate = 30
     else:
         rotate = -30
-    
+
     # Gira o pássaro
     old_center = (Bird.pos[0] + 15, Bird.pos[1] + 15)
     new_img = pygame.transform.rotate(Img.bird[Bird.animFrame], rotate)
     rect = new_img.get_rect()
     rect.center = old_center
     screen.blit(new_img, rect)
+
+    # Desenha a hitbox do pássaro
+    pygame.draw.rect(screen, (255, 0, 0), rect, 2)
 
     # Colocar dica inicial
     if timer < 200:
