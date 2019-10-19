@@ -208,7 +208,7 @@ while running:
             Bird.animFrame = 0
 
     rotate = Bird.yspeed * -5
-    rotate = min(max(rotate, -90), 90)
+    rotate = min(max(rotate, -70), 70)
     rotate = (rotate + 360) % 360 
 
     # Gira o pássaro
