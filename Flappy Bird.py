@@ -1,8 +1,9 @@
+# Imports iniciais
 import pygame
 from pygame.locals import *
 import random
 
-# Cores
+# Variáveis 
 blue = (115, 200, 215)
 
 # Inicia o Pygame
@@ -34,12 +35,10 @@ pygame.display.set_icon(Img.icon)
 # Iniciar variáveis
 isJumping = False  # "Está pulando?"
 
-
 class Bird:
     pos = [375, 275]  # Posição
     animFrame = 0  # Frame da animação
     yspeed = 0  # Velocidade Y
-
 
 # Classe de Input
 class Input:
@@ -49,7 +48,6 @@ class Input:
 
     # (Held) Keys: verdadeiro em qualquer momento que a tecla for pressionada.
     keyUp = False  # Para cima
-
 
 # Outros componentes do jogo
 rotate = 0
@@ -64,7 +62,7 @@ y = [0 - a[0], 0 - a[1], 0 - a[2], 0 - a[3]]
 running = True
 
 while running:
-    
+
     # Limitar a quantidade de frames
     clock.tick(FPS)
 
@@ -94,15 +92,16 @@ while running:
     Bird.pos[1] += Bird.yspeed
     Bird.yspeed += 0.5
 
-    # (E|I)ntalar no chão ou no céu
-    Bird.pos[1] = max(0, min(Bird.pos[1], 476 - 30))
+    # Intalar no chão ou no céu
+    if Bird.pos[1] < 0:
+        Bird.pos[1] = 0
+        Bird.yspeed = 0
+    elif Bird.pos[1] >= 476-30: 
+        Bird.pos[1] = 476-30
+        Bird.yspeed = 0
+        # running = False # Morrer
 
-    # Morrer
-    # if Bird.pos[1] == 476-30: running = False
-
-    ##########
-    # POLISH #
-    ##########
+    # POLINDO ###################################################################
 
     # Colocar o fundo
     screen.fill(blue)
@@ -208,10 +207,9 @@ while running:
             isJumping = False
             Bird.animFrame = 0
 
-    if Bird.yspeed < 0:
-        rotate = 30
-    else:
-        rotate = -30
+    rotate = Bird.yspeed * -5
+    rotate = min(max(rotate, -90), 90)
+    rotate = (rotate + 360) % 360 
 
     # Gira o pássaro
     old_center = (Bird.pos[0] + 15, Bird.pos[1] + 15)
