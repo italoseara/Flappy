@@ -9,6 +9,7 @@ class Bird:
 
     def __init__(self, pos, frames, gravity=0.5, groundPointY=476):
 
+        self.activated = False
         self.pos = list(pos)
         self.animFrame = 0
         self.ySpeed = 0
@@ -25,7 +26,7 @@ class Bird:
     def manage(self):
         
         '''Uma função que automaticamente roda as funções que são verificadas a cada frame.'''
-        self.movement()
+        if self.activated: self.movement()
 
     def render(self):
 
@@ -37,7 +38,8 @@ class Bird:
 
         # Achar ângulo
         rotateTarget = self.ySpeed * -5
-        rotateTarget = min(max(rotateTarget, -70), 70)
+        maxRotation = 60
+        rotateTarget = min(max(rotateTarget, -maxRotation), maxRotation)
 
         # Girar o pássaro
         if self.angle > rotateTarget:
@@ -49,7 +51,7 @@ class Bird:
 
         # Atualizar o ang. do pássaro
         old_center = (self.pos[0] + 15, self.pos[1] + 15)
-        new_img = pygame.transform.self.angle(self.frames[self.animFrame], self.angle)
+        new_img = pygame.transform.rotate(self.frames[self.animFrame], self.angle)
         rect = new_img.get_rect()
         rect.center = old_center
 

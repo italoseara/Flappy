@@ -22,13 +22,6 @@ screen = pygame.display.set_mode((800, 600))
 pygame.display.set_caption('Flappy Bird')
 pygame.display.set_icon(img['icon'])
 
-# Startup screen
-screen.fill((0, 0, 0))
-screen.blit(
-        pygame.font.Font(None, 50).render('Loading...', True, pygame.Color('white')),
-        (400, 300)
-)
-
 # Load fonts
 font = pygame.font.SysFont('Consolas', 50)
 
@@ -54,6 +47,7 @@ pipeSpawnDelay = 0
 
 # Início do jogo
 running = True
+started = False
 
 while running:
 
@@ -65,29 +59,30 @@ while running:
 
     # CÓDIGO PRINCIPAL ###################################################
     
+    # Atualizar o jogador
     player.manage()
+
     # Sistema de pulo
-    if (not player.isJumping):
-        # PROBLEMA - o pulo não está indo direito.
-        if (pinput.keyUp[1]):
-            player.isJumping = True
-            player.ySpeed = -8
-            #log.print('[{}] Jumped'.format(gameTimer))
+    if (pinput.keyUp[1]):
+        player.isJumping = True
+        player.ySpeed = -8
+        started = player.activated = True
 
-    # Um tempo (em frames) para que fique um espaço livre entre os canos.
-    pipeSpawnDelay -= 1
+    if started:
+        # Um tempo (em frames) para que fique um espaço livre entre os canos.
+        pipeSpawnDelay -= 1
 
-    # Sempre encher a lista de canos
-    if (pipeSpawnDelay <= 0):
+        # Sempre encher a lista de canos
+        if (pipeSpawnDelay <= 0):
 
-        height = random.randint(-190, 0)
-        topTubeHeight = img['tube_top'].get_rect().size[1]
+            height = random.randint(-190, 0)
+            topTubeHeight = img['tube_top'].get_rect().size[1]
 
-        # Canos topo e baixo
-        pipes.append(objects.Pipe((800, height), [img['tube_top']], gameSpeed))
-        pipes.append(objects.Pipe((800, height+topTubeHeight+155), [img['tube_bottom']], gameSpeed))
+            # Canos topo e baixo
+            pipes.append(objects.Pipe((800, height), [img['tube_top']], gameSpeed))
+            pipes.append(objects.Pipe((800, height+topTubeHeight+155), [img['tube_bottom']], gameSpeed))
 
-        pipeSpawnDelay = base_pipeSpawnDelay
+            pipeSpawnDelay = base_pipeSpawnDelay
 
     # Sempre encher as listas de floor e background
 
@@ -108,17 +103,15 @@ while running:
             del bg
 
     # Atualizar os canos
-    for pipe in pipes:
-        pipe.manage()
-        if pygame.Rect(*pipe.hitbox()).colliderect(pygame.Rect(*player.hitbox())):
-            
-            running = False
-        if pipe.pos[0] < 0-pipe.frames[0].get_rect().size[0]:
-            pipes.remove(pipe)
-            del pipe
-
-    # (Teste) aceleração dos canos
-    #gameSpeed[0] += -0.05
+    if started:
+        for pipe in pipes:
+            pipe.manage()
+            if pygame.Rect(*pipe.hitbox()).colliderect(pygame.Rect(*player.hitbox())):
+                
+                running = False
+            if pipe.pos[0] < 0-pipe.frames[0].get_rect().size[0]:
+                pipes.remove(pipe)
+                del pipe
 
     # RENDERIZAÇÃO #######################################################
 
