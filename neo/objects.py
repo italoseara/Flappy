@@ -20,6 +20,7 @@ class Bird:
         self.hitboxSize = self.frames[0].get_rect().size
         self.groundPointY = groundPointY
         self.isDead = False
+        self.angle = 0
 
     def manage(self):
         
@@ -35,13 +36,20 @@ class Bird:
                 self.animFrame = 0
 
         # Achar ângulo
-        rotate = self.ySpeed * -5
-        rotate = min(max(rotate, -70), 70)
-        rotate = (rotate + 360) % 360 
+        rotateTarget = self.ySpeed * -5
+        rotateTarget = min(max(rotateTarget, -70), 70)
 
         # Girar o pássaro
+        if self.angle > rotateTarget:
+            self.angle -= 3
+        elif self.angle < rotateTarget:
+            self.angle += 3
+
+        rotateTarget = (rotateTarget + 360) % 360
+
+        # Atualizar o ang. do pássaro
         old_center = (self.pos[0] + 15, self.pos[1] + 15)
-        new_img = pygame.transform.rotate(self.frames[self.animFrame], rotate)
+        new_img = pygame.transform.self.angle(self.frames[self.animFrame], self.angle)
         rect = new_img.get_rect()
         rect.center = old_center
 
@@ -60,7 +68,7 @@ class Bird:
         elif self.pos[1] >= ((self.groundPointY) - self.hitboxSize[1]):
             self.pos[1] = ((self.groundPointY) - self.hitboxSize[1])
             self.ySpeed = 0
-            self.isDead = True # Morrer
+            self.isDead = True
 
     def hitbox(self):
         

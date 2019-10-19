@@ -110,6 +110,9 @@ while running:
     # Atualizar os canos
     for pipe in pipes:
         pipe.manage()
+        if pygame.Rect(*pipe.hitbox()).colliderect(pygame.Rect(*player.hitbox())):
+            
+            running = False
         if pipe.pos[0] < 0-pipe.frames[0].get_rect().size[0]:
             pipes.remove(pipe)
             del pipe
@@ -141,6 +144,7 @@ while running:
     # Chão
     for floor in floorTiles:
         screen.blit(*floor.render())
+    if player.isDead: running = False
 
     # FPS
     fps = font.render(str(int(clock.get_fps())), True, pygame.Color('white'))
