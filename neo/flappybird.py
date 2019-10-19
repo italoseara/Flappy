@@ -69,7 +69,7 @@ while running:
     # Sistema de pulo
     if (not player.isJumping):
         # PROBLEMA - o pulo não está indo direito.
-        if (pinput.keyUp == 2):
+        if (pinput.keyUp[1]):
             player.isJumping = True
             player.ySpeed = -8
             #log.print('[{}] Jumped'.format(gameTimer))
@@ -78,7 +78,7 @@ while running:
     pipeSpawnDelay -= 1
 
     # Sempre encher a lista de canos
-    if (len(pipes) < 8) and (pipeSpawnDelay <= 0):
+    if (pipeSpawnDelay <= 0):
 
         height = random.randint(-190, 0)
         topTubeHeight = img['tube_top'].get_rect().size[1]
