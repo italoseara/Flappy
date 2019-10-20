@@ -22,6 +22,8 @@ class Bird:
         self.groundPointY = groundPointY
         self.isDead = False
         self.angle = 0
+        self.jumpCounter = 0
+        self.rotateTarget = 0
 
     def manage(self):
         
@@ -30,25 +32,30 @@ class Bird:
 
     def render(self):
 
+        if self.activated:
+            self.jumpCounter += 1
+
         if self.isJumping:
             self.animFrame += 1
             if self.animFrame >= 2:
                 self.isJumping = False
                 self.animFrame = 0
+            self.jumpCounter = 0
+
         if self.isDead:
             self.activated = False
             self.animFrame = 3
 
         if not self.isDead:
+
             # Achar ângulo
-            rotateTarget = self.ySpeed * -5
-            maxRotation = 60
-            rotateTarget = min(max(rotateTarget, -maxRotation), maxRotation)
+            if self.isJumping: self.rotateTarget = 30
+            if self.jumpCounter >= 30: self.rotateTarget = -60
 
             # Girar o pássaro
-            self.angle += (rotateTarget - self.angle) * 0.08
+            self.angle += (self.rotateTarget - self.angle) * 0.15
 
-            rotateTarget = (rotateTarget + 360) % 360
+            self.rotateTarget = (self.rotateTarget + 360) % 360
 
         # Atualizar o ang. do pássaro
         old_center = (self.pos[0] + 15, self.pos[1] + 15)
