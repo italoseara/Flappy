@@ -35,19 +35,20 @@ class Bird:
             if self.animFrame >= 2:
                 self.isJumping = False
                 self.animFrame = 0
+        if self.isDead:
+            self.activated = False
+            self.animFrame = 3
 
-        # Achar ângulo
-        rotateTarget = self.ySpeed * -5
-        maxRotation = 60
-        rotateTarget = min(max(rotateTarget, -maxRotation), maxRotation)
+        if not self.isDead:
+            # Achar ângulo
+            rotateTarget = self.ySpeed * -5
+            maxRotation = 60
+            rotateTarget = min(max(rotateTarget, -maxRotation), maxRotation)
 
-        # Girar o pássaro
-        if self.angle > rotateTarget:
-            self.angle -= 3
-        elif self.angle < rotateTarget:
-            self.angle += 3
+            # Girar o pássaro
+            self.angle += (rotateTarget - self.angle) * 0.08
 
-        rotateTarget = (rotateTarget + 360) % 360
+            rotateTarget = (rotateTarget + 360) % 360
 
         # Atualizar o ang. do pássaro
         old_center = (self.pos[0] + 15, self.pos[1] + 15)

@@ -11,7 +11,8 @@ img = {
     'bg': load('img/background.png'),
     'bird': [load('img/bird_f0.png'),
             load('img/bird_f1.png'),
-            load('img/bird_f2.png')],
+            load('img/bird_f2.png'),
+            load('img/bird_fDead.png')],
     'tube_top': load('img/tube_top.png'),
     'tube_bottom': load('img/tube_bottom.png'),
     'tip': load('img/tip.png')
@@ -48,6 +49,7 @@ pipeSpawnDelay = 0
 # Início do jogo
 running = True
 started = False
+frozen = False
 
 while running:
 
@@ -84,34 +86,40 @@ while running:
 
             pipeSpawnDelay = base_pipeSpawnDelay
 
-    # Sempre encher as listas de floor e background
+    if (not frozen):
+        # Sempre encher as listas de floor e background
 
-    if (len(floorTiles) < 2):
-        floorTiles.append(objects.RepeatingTile((1600, 476), [img['floor']], gameSpeed))
-    for floor in floorTiles:
-        floor.manage()
-        if floor.pos[0] < 0-floor.frames[0].get_rect().size[0]:
-            floorTiles.remove(floor)
-            del floor
+        if (len(floorTiles) < 2):
+            floorTiles.append(objects.RepeatingTile((1600, 476), [img['floor']], gameSpeed))
+        for floor in floorTiles:
+            floor.manage()
+            if floor.pos[0] < 0-floor.frames[0].get_rect().size[0]:
+                floorTiles.remove(floor)
+                del floor
 
-    if (len(bgTiles) < 2):
-        bgTiles.append(objects.RepeatingTile((800, 0), [img['bg']], [gameSpeed[0]/2]))
-    for bg in bgTiles:
-        bg.manage()
-        if bg.pos[0] < 0-bg.frames[0].get_rect().size[0]:
-            bgTiles.remove(bg)
-            del bg
+        if (len(bgTiles) < 2):
+            bgTiles.append(objects.RepeatingTile((800, 0), [img['bg']], [gameSpeed[0]/2]))
+        for bg in bgTiles:
+            bg.manage()
+            if bg.pos[0] < 0-bg.frames[0].get_rect().size[0]:
+                bgTiles.remove(bg)
+                del bg
 
     # Atualizar os canos
-    if started:
+    if started and (not frozen):
         for pipe in pipes:
             pipe.manage()
             if pygame.Rect(*pipe.hitbox()).colliderect(pygame.Rect(*player.hitbox())):
-                
-                running = False
+                player.isDead = True
             if pipe.pos[0] < 0-pipe.frames[0].get_rect().size[0]:
                 pipes.remove(pipe)
                 del pipe
+    
+    # Congelar o jogo se o jogador tiver morrido
+    if player.isDead: frozen = True
+
+    # Verificar se uma tecla foi pressionada após o jogador ter morrido.
+    if (player.isDead and pinput.keyUp[1]): running = False
 
     # RENDERIZAÇÃO #######################################################
 
@@ -137,7 +145,6 @@ while running:
     # Chão
     for floor in floorTiles:
         screen.blit(*floor.render())
-    if player.isDead: running = False
 
     # FPS
     fps = font.render(str(int(clock.get_fps())), True, pygame.Color('white'))
