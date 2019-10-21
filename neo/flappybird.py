@@ -31,7 +31,7 @@ COLOR_BLUE = (115, 200, 215) # A cor de fundo do jogo.
 FRAMERATE = 60 # O framerate do jogo.
 gameTimer = 0 # O timer do jogo.
 clock = pygame.time.Clock()
-gameSpeed = [-1]
+gameSpeed = [-2]
 
 # Importar objetos e outras coisas
 import objects, inputlib, log, random
@@ -43,7 +43,7 @@ floorTiles = [objects.RepeatingTile((0, 476), [img['floor']], gameSpeed)]
 bgTiles = [objects.RepeatingTile((0, 0), [img['bg']], [gameSpeed[0]/2])]
 
 # Canos (pipes)
-base_pipeSpawnDelay = 210
+base_pipeSpawnDelay = abs(180*1/gameSpeed[0])
 pipeSpawnDelay = 0
 
 # Início do jogo
@@ -77,12 +77,12 @@ while running:
         # Sempre encher a lista de canos
         if (pipeSpawnDelay <= 0):
 
-            height = random.randint(-190, 0)
+            height = random.randint(-210, -40)
             topTubeHeight = img['tube_top'].get_rect().size[1]
 
             # Canos topo e baixo
             pipes.append(objects.Pipe((800, height), [img['tube_top']], gameSpeed))
-            pipes.append(objects.Pipe((800, height+topTubeHeight+155), [img['tube_bottom']], gameSpeed))
+            pipes.append(objects.Pipe((800, height+topTubeHeight+130), [img['tube_bottom']], gameSpeed))
 
             pipeSpawnDelay = base_pipeSpawnDelay
 
