@@ -43,7 +43,7 @@ floorTiles = [objects.RepeatingTile((0, 476), [img['floor']], gameSpeed)]
 bgTiles = [objects.RepeatingTile((0, 0), [img['bg']], [gameSpeed[0]/2])]
 
 # Canos (pipes)
-base_pipeSpawnDelay = abs(180*1/gameSpeed[0])
+base_pipeSpawnDelay = abs(90*1/gameSpeed[0])
 pipeSpawnDelay = 0
 
 # Início do jogo
