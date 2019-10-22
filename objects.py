@@ -3,13 +3,18 @@ from pygame.locals import *
 
 '''Uma série de objetos utilizados no jogo.'''
 
-class Bird:
+class GameObject:
 
-    '''Classe com atributos do pássaro - o jogador.'''
+    '''Uma base para as outras classes do jogo, como o jogador.'''
 
-    def __init__(self, pos, frames, gravity=0.5, groundPointY=476):
+    def __init__(self): ...
 
-        self.activated = False
+class Player(GameObject):
+
+    '''Classe com atributos do jogador (pássaro).'''
+
+    def __init__(self, pos, frames, gravity=0.5, deathHeightBottom=476):
+
         self.pos = list(pos)
         self.animFrame = 0
         self.ySpeed = 0
@@ -19,20 +24,20 @@ class Bird:
         self.colliding = list()
         self.gravity = gravity
         self.hitboxSize = self.frames[0].get_rect().size
-        self.groundPointY = groundPointY
+        self.deathHeightBottom = deathHeightBottom
         self.isDead = False
         self.angle = 0
         self.jumpCounter = 0
         self.rotateTarget = 0
 
-    def manage(self):
+    def manage(self, gameState):
         
         '''Uma função que automaticamente roda as funções que são verificadas a cada frame.'''
-        if self.activated: self.movement()
+        if (gameState == 1): self.movement()
 
-    def render(self):
+    def render(self, gameState):
 
-        if self.activated:
+        if (gameState == 1):
             self.jumpCounter += 1
 
         if self.isJumping:
@@ -43,10 +48,10 @@ class Bird:
             self.jumpCounter = 0
 
         if self.isDead:
-            self.activated = False
+            self.rotateTarget = self.angle = 0
             self.animFrame = 3
 
-        if not self.isDead:
+        elif (not self.isDead and (gameState == 1)):
 
             # Achar ângulo
             if self.isJumping: self.rotateTarget = 30
@@ -56,6 +61,8 @@ class Bird:
             self.angle += (self.rotateTarget - self.angle) * 0.15
 
             self.rotateTarget = (self.rotateTarget + 360) % 360
+
+        print(self.isJumping)
 
         # Atualizar o ang. do pássaro
         old_center = (self.pos[0] + 15, self.pos[1] + 15)
@@ -75,8 +82,8 @@ class Bird:
         if self.pos[1] < 0:
             self.pos[1] = 0
             self.ySpeed = 0
-        elif self.pos[1] >= ((self.groundPointY) - self.hitboxSize[1]):
-            self.pos[1] = ((self.groundPointY) - self.hitboxSize[1])
+        elif self.pos[1] >= ((self.deathHeightBottom) - self.hitboxSize[1]):
+            self.pos[1] = ((self.deathHeightBottom) - self.hitboxSize[1])
             self.ySpeed = 0
             self.isDead = True
 
@@ -85,21 +92,21 @@ class Bird:
         rect = self.frames[0].get_rect().size
         return tuple(self.pos) + rect
 
-class Pipe:
+class Pipe(GameObject):
 
     '''Código relacionado ao cano.'''
 
-    def __init__(self, pos, frames, speed=[-1]):
+    def __init__(self, pos, frames, speed=1):
         self.pos = list(pos)
         self.frames = list(frames)
         self.hitboxSize = self.frames[0].get_rect().size
-        if len(speed) != 1: raise ValueError('The speed list should only contain one element.')
-        else: self.speed = speed
+        #if len(speed) != 1: raise ValueError('The speed list should only contain one element.') # Old check for when it was a list.
+        self.speed = speed
 
     def manage(self):
         
         # Atualizar a posição
-        self.pos[0] += 2 * self.speed[0]
+        self.pos[0] += -1 * self.speed
 
     def hitbox(self):
 
@@ -109,16 +116,13 @@ class Pipe:
     def render(self):
         return (self.frames[0], self.pos)
 
-class RepeatingTile:
+class Tile(GameObject):
 
-    def __init__(self, pos, frames, speed=[-1]):
+    def __init__(self, pos, frames, speed=1, **kwargs):
         self.pos = list(pos)
         self.frames = list(frames)
         self.speed = speed
-
-    def manage(self):
-        self.pos[0] += self.speed[0]
-
+        self.kwargs = kwargs # Dados extras
+    
     def render(self):
-        return (self.frames[0], self.pos)
-
+        return self.frames[0], self.pos
