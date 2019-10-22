@@ -15,7 +15,8 @@ img = {
             load('img/bird_fDead.png')],
     'tube_top': load('img/tube_top.png'),
     'tube_bottom': load('img/tube_bottom.png'),
-    'tip': load('img/tip.png')
+    'tip': load('img/tip.png'),
+    'game_over': load('img/game_over.png')
 }
 
 # Título, ícone, e outras coisas
@@ -43,7 +44,7 @@ floorTiles = [objects.RepeatingTile((0, 476), [img['floor']], gameSpeed)]
 bgTiles = [objects.RepeatingTile((0, 0), [img['bg']], [gameSpeed[0]/2])]
 
 # Canos (pipes)
-base_pipeSpawnDelay = abs(180*1/gameSpeed[0])
+base_pipeSpawnDelay = abs(90*1/gameSpeed[0])
 pipeSpawnDelay = 0
 
 # Início do jogo
@@ -114,7 +115,7 @@ while running:
             if pipe.pos[0] < 0-pipe.frames[0].get_rect().size[0]:
                 pipes.remove(pipe)
                 del pipe
-    
+
     # Congelar o jogo se o jogador tiver morrido
     if player.isDead: frozen = True
 
@@ -149,6 +150,9 @@ while running:
     # FPS
     fps = font.render(str(int(clock.get_fps())), True, pygame.Color('white'))
     screen.blit(fps, (790-fps.get_rect().size[0], 10))
+
+    # Tela de Fim de jogo
+    if player.isDead: screen.blit(img['game_over'], (0, 0))
 
     # Atualizar a Tela
     pygame.display.update()

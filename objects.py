@@ -99,7 +99,7 @@ class Pipe:
     def manage(self):
         
         # Atualizar a posição
-        self.pos[0] += self.speed[0]
+        self.pos[0] += 2 * self.speed[0]
 
     def hitbox(self):
 
