@@ -1,0 +1,16 @@
+=======================================
+|            Flappy Bird              |
+=======================================
+|                                     |
+|  Abra o arquivo install.bat para    |
+|  instalar o pygame.                 |
+|                                     |
+|  Após isso apenas abrir o aquivo    |
+|  "Flappy Bird.exe".                 |
+|                                     |
+|  O jogo ainda nao possui uma versão |
+|  para celular.                      |
+|                                     |
+|                                     |
+|  Divirta-se.                        |
+=======================================

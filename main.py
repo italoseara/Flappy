@@ -6,17 +6,17 @@ pygame.init()
 # Carregar imagens
 load = pygame.image.load
 img = {
-    'icon': load('img/icon.bmp'),
-    'floor': load('img/floor.png'),
-    'bg': load('img/background.png'),
-    'bird': [load('img/bird_f0.png'),
-            load('img/bird_f1.png'),
-            load('img/bird_f2.png'),
+    'icon': load('img/icon.bmp').convert_alpha(),
+    'floor': load('img/floor.png').convert_alpha(),
+    'bg': load('img/background.png').convert_alpha(),
+    'bird': [load('img/bird_f0.png').convert_alpha(),
+            load('img/bird_f1.png').convert_alpha(),
+            load('img/bird_f2.png').convert_alpha(),
             load('img/bird_fDead.png')],
-    'tube_top': load('img/tube_top.png'),
-    'tube_bottom': load('img/tube_bottom.png'),
-    'tip': load('img/tip.png'),
-    'game_over': load('img/game_over.png')
+    'tube_top': load('img/tube_top.png').convert_alpha(),
+    'tube_bottom': load('img/tube_bottom.png').convert_alpha(),
+    'tip': load('img/tip.png').convert_alpha(),
+    'game_over': load('img/game_over.png').convert_alpha()
 }
 
 # Título, ícone, e outras coisas
@@ -139,9 +139,9 @@ while running:
     screen.blit(*player.render())
 
     # Hitboxes
-    for pipe in pipes:
-        pygame.draw.rect(screen, (255, 0, 0), pipe.hitbox(), 2)
-    pygame.draw.rect(screen, (0, 255, 0), player.hitbox(), 2)
+    # for pipe in pipes:
+    #     pygame.draw.rect(screen, (255, 0, 0), pipe.hitbox(), 2)
+    # pygame.draw.rect(screen, (0, 255, 0), player.hitbox(), 2)
 
     # Chão
     for floor in floorTiles:
