@@ -6,17 +6,18 @@ pygame.init()
 # Carregar imagens
 load = pygame.image.load
 img = {
-    'icon': load('img/icon.bmp').convert_alpha(),
-    'floor': load('img/floor.png').convert_alpha(),
-    'bg': load('img/background.png').convert_alpha(),
-    'bird': [load('img/bird_f0.png').convert_alpha(),
-            load('img/bird_f1.png').convert_alpha(),
-            load('img/bird_f2.png').convert_alpha(),
-            load('img/bird_fDead.png')],
-    'tube_top': load('img/tube_top.png').convert_alpha(),
-    'tube_bottom': load('img/tube_bottom.png').convert_alpha(),
-    'tip': load('img/tip.png').convert_alpha(),
-    'game_over': load('img/game_over.png').convert_alpha()
+    'icon': load('img/icon.bmp'),
+    'floor': load('img/floor.png'),
+    'bg': load('img/background.png'),
+    'bird': [load('img/bird_f0.png'),
+             load('img/bird_f1.png'),
+             load('img/bird_f2.png'),
+             load('img/bird_fDead.png')],
+    'tube_top': load('img/tube_top.png'),
+    'tube_bottom': load('img/tube_bottom.png'),
+    'tip': load('img/tip.png'),
+    'game_over': load('img/game_over.png'),
+    'pause_button': load('img/pause.png')
 }
 
 # Título, ícone, e outras coisas
@@ -28,9 +29,9 @@ pygame.display.set_icon(img['icon'])
 font = pygame.font.SysFont('Consolas', 50)
 
 # Outras coisas
-COLOR_BLUE = (115, 200, 215) # A cor de fundo do jogo.
-FRAMERATE = 60 # O framerate do jogo.
-gameTimer = 0 # O timer do jogo.
+COLOR_BLUE = (115, 200, 215)  # A cor de fundo do jogo.
+FRAMERATE = 60  # O framerate do jogo.
+gameTimer = 0  # O timer do jogo.
 clock = pygame.time.Clock()
 gameSpeed = [-2]
 
@@ -43,12 +44,19 @@ log = log.Log(enabled=True)
 floorTiles = [objects.RepeatingTile((0, 476), [img['floor']], gameSpeed)]
 bgTiles = [objects.RepeatingTile((0, 0), [img['bg']], [gameSpeed[0]/2])]
 
+# Pause
+rect = img['pause_button'].get_rect()
+rect.center = (30, 30)
+rectangle = img['pause_button'].get_rect().size
+clicks = 0
+
 # Canos (pipes)
 base_pipeSpawnDelay = abs(90*1/gameSpeed[0])
 pipeSpawnDelay = 0
 
 # Início do jogo
 running = True
+tip = True
 started = False
 frozen = False
 
@@ -61,12 +69,18 @@ while running:
     pinput.iterate()
 
     # CÓDIGO PRINCIPAL ###################################################
-    
+
+    # Mouse
+    mouse = pygame.Rect(0, 0, 0, 0)
+    mouse.center = pygame.mouse.get_pos()
+    click = pygame.mouse.get_pressed()
+
     # Atualizar o jogador
     player.manage()
 
     # Sistema de pulo
-    if (pinput.keyUp[1]):
+    if pinput.keyUp[1]:
+        tip = False
         player.isJumping = True
         player.ySpeed = -8
         started = player.activated = True
@@ -76,7 +90,7 @@ while running:
         pipeSpawnDelay -= 1
 
         # Sempre encher a lista de canos
-        if (pipeSpawnDelay <= 0):
+        if pipeSpawnDelay <= 0:
 
             height = random.randint(-210, -40)
             topTubeHeight = img['tube_top'].get_rect().size[1]
@@ -87,10 +101,10 @@ while running:
 
             pipeSpawnDelay = base_pipeSpawnDelay
 
-    if (not frozen):
+    if not frozen:
         # Sempre encher as listas de floor e background
 
-        if (len(floorTiles) < 2):
+        if len(floorTiles) < 2:
             floorTiles.append(objects.RepeatingTile((1600, 476), [img['floor']], gameSpeed))
         for floor in floorTiles:
             floor.manage()
@@ -98,7 +112,7 @@ while running:
                 floorTiles.remove(floor)
                 del floor
 
-        if (len(bgTiles) < 2):
+        if len(bgTiles) < 2:
             bgTiles.append(objects.RepeatingTile((800, 0), [img['bg']], [gameSpeed[0]/2]))
         for bg in bgTiles:
             bg.manage()
@@ -120,7 +134,7 @@ while running:
     if player.isDead: frozen = True
 
     # Verificar se uma tecla foi pressionada após o jogador ter morrido.
-    if (player.isDead and pinput.keyUp[1]): running = False
+    if player.isDead and pinput.keyUp[1]: running = False
 
     # RENDERIZAÇÃO #######################################################
 
@@ -142,10 +156,17 @@ while running:
     # for pipe in pipes:
     #     pygame.draw.rect(screen, (255, 0, 0), pipe.hitbox(), 2)
     # pygame.draw.rect(screen, (0, 255, 0), player.hitbox(), 2)
+    # pygame.draw.rect(screen, (0, 255, 0), (11, 11) + rectangle, 2)
 
     # Chão
     for floor in floorTiles:
         screen.blit(*floor.render())
+
+    # Botao de pause
+    screen.blit(img['pause_button'], rect)
+
+    # if click[0] == 1 and mouse.colliderect(pygame.Rect((11, 11) + rectangle)):
+        # pause = True
 
     # FPS
     fps = font.render(str(int(clock.get_fps())), True, pygame.Color('white'))
@@ -153,6 +174,9 @@ while running:
 
     # Tela de Fim de jogo
     if player.isDead: screen.blit(img['game_over'], (0, 0))
+
+    # Dica Inicial
+    if tip: screen.blit(img['tip'], (0, 0))
 
     # Atualizar a Tela
     pygame.display.update()
