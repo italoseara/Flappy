@@ -11,7 +11,7 @@
 # Deixar elas no mesmo lugar faz com que seja mais fácil alterá-las depois.
 # Inspirado no '#define' da linguagem C .-.
 
-WINSIZE = (800, 600)        # Tamanho da Tela
+WINSIZE = (960, 540)        # Tamanho da Tela
 FRAMERATE = 60              # O framerate do jogo (fps)
 
 # INICIALIZAÇÃO GERAL ############################
@@ -37,6 +37,7 @@ class Game:
         self.clock = pygame.time.Clock()
         self.globalSpeed = globalSpeed
         self.debugMode = debugMode
+        self.score = 0
 
         self.load_resources()
 
@@ -61,16 +62,16 @@ class Game:
         }
 
         # Fontes utilizadas
-        self.font = pygame.font.SysFont('Cascadia Code, Consolas, Fixedsys', 50) # A fonte principal utilizada no jogo.
-        
+        self.font = pygame.font.SysFont('Cascadia Code, Consolas, Fixedsys', 20) # A fonte principal utilizada no jogo.
+
     def main(self):
 
         '''O código do jogo propriamente dito.'''
 
         # Importar módulos locais
-        from objects import Player, Pipe, Tile 
+        from objects import Player, Pipe, Tile
         from tools import imgsize, objsize, gethitbox, Logger
-        from inputlib import PlayerInput 
+        from inputlib import PlayerInput
 
         # Importar módulos builtins
         from random import randint
@@ -82,20 +83,20 @@ class Game:
 
         # Constantes locais ao jogo
         COLOR_BACKGROUND = (115, 200, 215)  # RGB do fundo
-        INIT_POSITION = (375, 275)          # Posição inicial do jogo
+        INIT_POSITION = (WINSIZE[0]/2 - imgsize(self.img['bird'][0])[0]/2, WINSIZE[1]/2 - imgsize(self.img['bird'][0])[1]/2)          # Posição inicial do jogo
 
         class var:
 
             '''Uma subclasse que contém algumas variáveis para o jogo.
             Elas estão aqui porque estão relacionadas a algum objeto ou não são constantes.
-            Isso pode ser utilizado também quando se quer criar uma variável que funcione em todos os frames, mas quando está dentro do loop principal (não tão recomendado).''' 
+            Isso pode ser utilizado também quando se quer criar uma variável que funcione em todos os frames, mas quando está dentro do loop principal (não tão recomendado).'''
 
             pipeSpawnCounter = 0 # Um contador com o tempo de spawn.
 
         # INICIALIZAÇÃO DA FASE ##########################
-   
+
         # Criar objetos principais
-        player = Player(pos = list(INIT_POSITION), frames = self.img['bird'], deathHeightBottom = 476) 
+        player = Player(pos = list(INIT_POSITION), frames = self.img['bird'], deathHeightBottom = 476)
         pinput = PlayerInput()
         logger = Logger(enabled = self.debugMode)
 
@@ -119,12 +120,11 @@ class Game:
             return floorTiles, bgTiles
 
         # INÍCIO DO LOOP PRINCIPAL (FRAMES) ######################
-        
+
         while running:
 
             # Variáveis atualizadas no início do frame
-            var.pipeSpawnDelay = (self.globalSpeed) * 120
-
+            var.pipeSpawnDelay = 200 / self.globalSpeed
             # Limitar a quantidade de frames.
             self.clock.tick(FRAMERATE)
 
@@ -132,7 +132,7 @@ class Game:
 
             # Atualizar as teclas pressionadas.
             pinput.iterate()
-    
+
             # Pular
             if (pinput.keyUp[1]):
 
@@ -159,7 +159,7 @@ class Game:
                     height = randint(-210, -40)
                     spacing = 130
                     bottomPipeHeight = height + imgsize(self.img['tube_top'])[1] + spacing
-                    
+
                     # Criar o cano de cima
                     newPipeTop = Pipe((WINSIZE[0], height), [self.img['tube_top']], self.globalSpeed)
                     pipes.append(newPipeTop)
@@ -181,10 +181,13 @@ class Game:
                     if gethitbox(pipe).colliderect(gethitbox(player)):
                         player.isDead = True
 
+                    if player.pos[1] == pipe.pos[1]:
+                        self.score += 1
+
                     # Despawnar o cano quando ele sair da esquerda da tela.
                     if pipe.pos[0] < (0 - objsize(pipe)[0]):
                         del pipes[pipeID]
-            
+
             # Iterar logo tudo.
             # Colocar isso antes da preparação do primeiro frame para que o jogo não comece com os itens se mexendo já para trás.
             if (gameState <= 1):
@@ -201,7 +204,7 @@ class Game:
             # Preparar as listas de floor e background no primeiro frame
             if (self.timer == 0):
                 floorTiles, bgTiles = makeTiles()
-            
+
             # Verificar se uma tecla foi pressionada após o jogador ter morrido para que o jogo reinicie..
             # Isso deve ser colocado antes do código abaixo para não ocorrer de o jogo fechar no mesmo frame em que o jogador morrer porque ele tinha apertado a tecla.
             if (gameState == 2 and pinput.keyUp[1]):
@@ -218,11 +221,14 @@ class Game:
             # RENDERIZAÇÃO #######################################################
 
             screen.fill(COLOR_BACKGROUND) # Preencher o fundo (céu)
-            
+
             for bg in bgTiles: screen.blit(*bg.render())            # Background
             for pipe in pipes: screen.blit(*pipe.render())          # Canos
             for floor in floorTiles: screen.blit(*floor.render())   # Chão
-            screen.blit(*player.render(gameState))                           # Jogador
+            screen.blit(*player.render(gameState))                  # Jogador
+
+            if gameState == 0:
+                screen.blit(self.img['tip'], (80, 0))
 
             # Hitboxes
             if (self.debugMode):
@@ -231,13 +237,13 @@ class Game:
                 drect(screen, (0, 255, 0), gethitbox(player), 2)
 
             # FPS
-            render_text = '{}:{}'.format(self.timer, int(self.clock.get_fps()))
+            debug_text = 'Score: {} | FPS: {}'.format(self.score, int(self.clock.get_fps()))
             padding = (10, 10)
-            fps = self.font.render(render_text, True, pygame.Color('white'))
-            screen.blit(fps, (WINSIZE[0] - fps.get_rect().size[0] - padding[0], padding[1]))
+            fps = self.font.render(debug_text, True, pygame.Color('white'))
+            screen.blit(fps, (padding[0], padding[1]))
 
             # Tela de Game Over
-            if (gameState == 2): screen.blit(self.img['game_over'], (0, 0))
+            if (gameState == 2): screen.blit(self.img['game_over'], (100, 0))
 
             # Atualizar a Tela
             pygame.display.update()
@@ -257,7 +263,7 @@ class Game:
 # Rodar o jogo diretamente se não importado.
 if (__name__ == '__main__'):
 
-    #from sys import argv # Para argumentos, vou utilizar depois. 
+    #from sys import argv # Para argumentos, vou utilizar depois.
 
-    game = Game(2, True)       # Cria uma instância do jogo.
+    game = Game(3, False)       # Cria uma instância do jogo.
     game.main()         # Inicia o jogo

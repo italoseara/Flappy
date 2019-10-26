@@ -31,7 +31,7 @@ class Player(GameObject):
         self.rotateTarget = 0
 
     def manage(self, gameState):
-        
+
         '''Uma função que automaticamente roda as funções que são verificadas a cada frame.'''
         if (gameState == 1): self.movement()
 
@@ -62,7 +62,6 @@ class Player(GameObject):
 
             self.rotateTarget = (self.rotateTarget + 360) % 360
 
-        print(self.isJumping)
 
         # Atualizar o ang. do pássaro
         old_center = (self.pos[0] + 15, self.pos[1] + 15)
@@ -88,7 +87,7 @@ class Player(GameObject):
             self.isDead = True
 
     def hitbox(self):
-        
+
         rect = self.frames[0].get_rect().size
         return tuple(self.pos) + rect
 
@@ -104,7 +103,7 @@ class Pipe(GameObject):
         self.speed = speed
 
     def manage(self):
-        
+
         # Atualizar a posição
         self.pos[0] += -1 * self.speed
 
@@ -123,6 +122,6 @@ class Tile(GameObject):
         self.frames = list(frames)
         self.speed = speed
         self.kwargs = kwargs # Dados extras
-    
+
     def render(self):
         return self.frames[0], self.pos
