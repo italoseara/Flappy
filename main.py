@@ -18,13 +18,11 @@ FRAMERATE = 60              # O framerate do jogo (fps)
 
 # INICIALIZAÇÃO GERAL ############################
 
->>>>>>> parent of 3328c98... Merge branch 'master' of https://github.com/ItaloDoArbusto/Flappy
 # Importar o pygame e iniciá-lo
 import pygame
 from pygame.locals import *
 pygame.init()
 
-<<<<<<< HEAD
 # Carregar imagens
 load = pygame.image.load
 img = {
@@ -213,7 +211,6 @@ while running:
 
     # Adicionar 1 ao timer
     gameTimer += 1
-=======
 # PARTE PRINCIPAL ##################################
 
 class Game:
@@ -460,4 +457,3 @@ if (__name__ == '__main__'):
 
     game = Game(3, False)       # Cria uma instância do jogo.
     game.main()         # Inicia o jogo
->>>>>>> parent of 3328c98... Merge branch 'master' of https://github.com/ItaloDoArbusto/Flappy
