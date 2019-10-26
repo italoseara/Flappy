@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 #!/usr/bin/env python3
 # Clone de Flappy Bird
 # Autores: ItaloDoArbusto, YohananDiamond
