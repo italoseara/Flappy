@@ -35,17 +35,18 @@ class Player(GameObject):
         '''Uma função que automaticamente roda as funções que são verificadas a cada frame.'''
         if (gameState == 1): self.movement()
 
-    def render(self, gameState):
+    def render(self, gameState, timer2):
 
         if (gameState == 1):
             self.jumpCounter += 1
 
-        if self.isJumping:
+        if timer2 == 8:
             self.animFrame += 1
-            if self.animFrame >= 2:
-                self.isJumping = False
-                self.animFrame = 0
-            self.jumpCounter = 0
+
+        if self.animFrame >= 4:
+            self.isJumping = False
+            self.animFrame = 0
+        self.jumpCounter = 0
 
         if self.isDead:
             self.rotateTarget = self.angle = 0
