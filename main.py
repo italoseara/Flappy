@@ -34,7 +34,7 @@ class Game:
         globalSpeed : int -- A velocidade do jogo."""
 
         self.timer = 0
-        self.timer2 = 0
+        self.animSpeed = 0
         self.clock = pygame.time.Clock()
         self.globalSpeed = globalSpeed
         self.debugMode = debugMode
@@ -86,8 +86,8 @@ class Game:
         rectangle = self.img['pause_button'].get_rect().size
 
         # Definir a janela
-        screen = pygame.display.set_mode(WINSIZE)   # Criar Janela
-        pygame.display.set_caption('Flappy Bird')   # Definir Título
+        screen = pygame.display.set_mode(WINSIZE)        # Criar Janela
+        pygame.display.set_caption('Flappy Bird')        # Definir Título
         pygame.display.set_icon(self.img['icon'])        # Definir Ícone
 
         # Constantes locais ao jogo
@@ -122,10 +122,12 @@ class Game:
             """Faz os tiles quando o jogo inicia (gameState == 1) ou quando ele é resetado."""
             floorTiles = [
                 Tile((0,476), [self.img['floor']], factor=1),
-                Tile((1600,476), [self.img['floor']], factor=1)]
+                Tile((1600,476), [self.img['floor']], factor=1)
+            ]
             bgTiles = [
                 Tile((0,0), [self.img['bg']], factor=0.5),
-                Tile((1600,0), [self.img['bg']], factor=0.5)]
+                Tile((1600,0), [self.img['bg']], factor=0.5)
+            ]
             return floorTiles, bgTiles
 
         # INÍCIO DO LOOP PRINCIPAL (FRAMES) ######################
@@ -234,12 +236,12 @@ class Game:
 
             # RENDERIZAÇÃO #######################################################
 
-            screen.fill(COLOR_BACKGROUND) # Preencher o fundo (céu)
+            screen.fill(COLOR_BACKGROUND)  # Preencher o fundo (céu)
 
             for bg in bgTiles: screen.blit(*bg.render())            # Background
             for pipe in pipes: screen.blit(*pipe.render())          # Canos
             for floor in floorTiles: screen.blit(*floor.render())   # Chão
-            screen.blit(*player.render(gameState, self.timer2))     # Jogador
+            screen.blit(*player.render(gameState, self.animSpeed))  # Jogador
 
             if gameState == 0:
                 screen.blit(self.img['tip'], (80, 0))
@@ -276,16 +278,17 @@ class Game:
 
             # Adicionar 1 ao timer
             self.timer += 1
-            self.timer2 += 1
+            self.animSpeed += 1
             
-            if self.timer2 > 8:
-                self.timer2 = 0
+            if self.animSpeed > 8:
+                self.animSpeed = 0
 
 
 # Rodar o jogo diretamente se não importado.
 if __name__ == '__main__':
 
     # from sys import argv # Para argumentos, vou utilizar depois.
-
-    game = Game(3, False)       # Cria uma instância do jogo.
+    
+    globalSpeed = 5
+    game = Game(globalSpeed, False)       # Cria uma instância do jogo.
     game.main()         # Inicia o jogo

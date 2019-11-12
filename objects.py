@@ -35,22 +35,22 @@ class Player(GameObject):
         '''Uma função que automaticamente roda as funções que são verificadas a cada frame.'''
         if (gameState == 1): self.movement()
 
-    def render(self, gameState, timer2):
+    def render(self, gameState, animSpeed):
 
         if (gameState == 1):
             self.jumpCounter += 1
 
-        if timer2 == 8:
-            self.animFrame += 1
+        if not self.isDead:
+            if animSpeed == 8:
+                self.animFrame += 1
 
-        if self.animFrame >= 4:
-            self.isJumping = False
-            self.animFrame = 0
-        self.jumpCounter = 0
+            if self.animFrame >= 4:
+                self.animFrame = 0
+            if self.isJumping:
+                self.jumpCounter = 0
 
         if self.isDead:
             self.rotateTarget = self.angle = 0
-            self.animFrame = 3
 
         elif (not self.isDead and (gameState == 1)):
 
@@ -65,8 +65,8 @@ class Player(GameObject):
 
 
         # Atualizar o ang. do pássaro
-        old_center = (self.pos[0] + 15, self.pos[1] + 15)
         new_img = pygame.transform.rotate(self.frames[self.animFrame], self.angle)
+        old_center = (self.pos[0] + 15, self.pos[1] + 15)
         rect = new_img.get_rect()
         rect.center = old_center
 
