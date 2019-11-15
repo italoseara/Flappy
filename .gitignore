@@ -1,1 +1,6 @@
+# Arquivos gerados pelo python
 **/__pycache__
+
+# Arquivos de IDEs
+.idea
+.vscode
