@@ -4,6 +4,8 @@
 # Autores: ItaloDoArbusto, YohananDiamond
 # Repositório: https://github.com/ItaloDoArbusto/Flappy
 
+# TODO: Encontrei um bug em que, se o jogador cair demais, ele volta para o topo da tela. Tenho que consertar isso ainda.
+
 # INICIALIZAÇÃO GERAL ############################
 
 # Imports Iniciais
@@ -80,12 +82,12 @@ class FlappyGame(Game):
     def runtime(self):
         """Código principal do jogo."""
 
-
         # Constantes locais ao jogo
-        WINSIZE = (960, 540)        # Tamanho da Tela
-        FRAMERATE = 60              # O framerate do jogo (fps)
-        COLOR_BACKGROUND = (115, 200, 215)  # RGB do fundo
-        INIT_POSITION = (WINSIZE[0]/2 - image_size(self.img['bird'][0])[0]/2, WINSIZE[1]/2 - image_size(self.img['bird'][0])[1]/2)          # Posição inicial do jogo
+        WINSIZE = (960, 540)
+        FRAMERATE = 60
+        COLOR_BACKGROUND = (115, 200, 215)
+        INIT_POSITION = (WINSIZE[0]/2 - image_size(self.img['bird'][0])[0]/2,
+                         WINSIZE[1]/2 - image_size(self.img['bird'][0])[1]/2)
 
         # Definir a janela
         screen = pygame.display.set_mode(WINSIZE)   # Criar Janela
@@ -104,7 +106,7 @@ class FlappyGame(Game):
         # rect = self.img['pause_button'].get_rect()
         # rect.center = (30, 30)
         # rectangle = self.img['pause_button'].get_rect().size
-        # TODO: ...?
+        # TODO: Fazer botão de pause
 
         # Criar objetos principais
         player = Player(INIT_POSITION, self.img['bird'], linked_game=self)
@@ -148,7 +150,6 @@ class FlappyGame(Game):
             # INPUT & FÍSICA ##################
 
             # Atualizar as teclas e entradas de mouse pressionadas.
-            # TODO: Adicionar mouse
             self.input.iterate()
 
             # NOTE: O código do pulo foi movido para a classe Player em game_objects.py, assim como o de iniciar o jogo.
