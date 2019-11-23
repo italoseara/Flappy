@@ -4,6 +4,7 @@ import pygame
 
 """Arquivo com os objetos que constroem o jogo."""
 
+
 class Player(GameObject):
     """Objeto do jogador (pássaro)."""
 
@@ -21,11 +22,10 @@ class Player(GameObject):
                 - 0 => Estático (na tela de início do jogo)
                 - 1 => Vivo (durante o jogo)
                 - 2 => Morto (entrou em colisão com algum obstáculo ou o chão)
-            # - Define uma variável para mostrar se está pulando ou não.
         """
         self._setup(pos, frame_list, linked_game)
         self.speed = Vector2D(0, 0)
-        self.angle = 0 # TODO: Fazer classe Angle em base_classes e adicionar os conteúdos disso.
+        self.angle = 0
         self.angle_target = 0
         self.health = 0
         self.fixed_hitbox = gameobject_hitbox(self)
@@ -69,8 +69,10 @@ class Player(GameObject):
             self.y = 0
             self.speed.y = 0
 
-        elif (self.y >= self.linked_game.ground_pos - self.fixed_hitbox[3] and
-              self.linked_game.state == 1):
+        elif (
+            self.y >= self.linked_game.ground_pos - self.fixed_hitbox[3]
+            and self.linked_game.state == 1
+        ):
             self.y = self.linked_game.ground_pos - self.fixed_hitbox[3]
             self.speed.y = 0
             self.linked_game.state = 2
@@ -79,7 +81,7 @@ class Player(GameObject):
     def compile_render(self):
         """Compila e retorna uma tupla com o frame a ser renderizado e um retângulo de posição.
         """
-        
+
         # TODO: Documentar essa parte melhor.
 
         if self.animation_timer == 8:
@@ -103,30 +105,41 @@ class Player(GameObject):
 
         # Atualizar a imagem para poder retornar
         old_center = (self.x + 15, self.y + 15)
-        new_image = pygame.transform.rotate(self.frame_list[self.current_frame], self.angle)
+        new_image = pygame.transform.rotate(
+            self.frame_list[self.current_frame], self.angle
+        )
         rect = new_image.get_rect()
         rect.center = old_center
 
         return (new_image, rect)
 
+
 class Pipe(GameObject):
     """Código principal do cano."""
-
-    # TODO: Documentar essa parte melhor.
 
     def __init__(self, pos=(0, 0), frame_list=[], speed=1, linked_game=None):
         self._setup(pos, frame_list, linked_game)
         self.speed = speed
+        self.has_scored = False # Usado no código principal para ver se o jogador já passou desse cano e já pegou a pontuação.
 
     def _process(self):
+        """Processamento padrão dos canos.
+
+        A cada frame, o cano vai um pouco à esquerda, dependendo do valor de sua velocidade."""
         self.x += -self.speed
+
 
 class Tile(GameObject):
     """Código principal dos Tiles (chão e fundo)."""
-    
+
     # TODO: Documentar essa parte melhor - principalmente os kwargs.
 
     def __init__(self, pos=(0, 0), frame_list=[], linked_game=None, speed=1, **kwargs):
+        """O construtor da classe. Ele inicia o tile.
+
+        speed -- A velocidade de movimento do tile.
+        kwargs -- Alguns argumentos extras. Funcionalidades que utilizam isso não se localizam aqui.
+        """
         self._setup(pos, frame_list, linked_game)
         self.speed = speed
-        self.kwargs = kwargs # Dados extras
+        self.kwargs = kwargs

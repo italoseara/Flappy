@@ -4,18 +4,20 @@
 
 import pygame
 
+
 class Logger:
     """Sistema de logging simples."""
 
     def __init__(self, enabled=True):
 
         self.enabled = enabled
-    
+
     def print(self, *args, **kwargs):
         """Uma interface para imprimir coisas na tela com o sistema de logging."""
 
-        PREFIX = '\033[34m(L)\033[m'
+        PREFIX = "\033[34m(L)\033[m"
         print(PREFIX, *args, **kwargs)
+
 
 class GameObject:
     """A base para todos os elementos interativos no jogo.
@@ -73,6 +75,7 @@ class GameObject:
         """
         return self.frame_list[self.current_frame], self.pos
 
+
 class Vector2D:
     """Um vetor em duas dimensões.
 
@@ -90,7 +93,7 @@ class Vector2D:
     @x.setter
     def x(self, value):
         if type(value) not in {int, float}:
-            raise ValueError(f'O valor {value} não é nem int nem float')
+            raise ValueError(f"O valor {value} não é nem int nem float")
         else:
             self._x = value
 
@@ -101,12 +104,13 @@ class Vector2D:
     @y.setter
     def y(self, value):
         if type(value) not in {int, float}:
-            raise ValueError(f'O valor {value} não é nem int nem float')
+            raise ValueError(f"O valor {value} não é nem int nem float")
         else:
             self._y = value
 
     def normalize(self):
         raise NotImplementedError
+
 
 class Game:
     """O objeto principal do jogo."""
@@ -126,7 +130,9 @@ class Game:
 
         A substituição desta função não é recomendada.
         """
-        self.img = {} # Cria um dicionário vazio para carregar as imagens. Essas imagens devem ser carregadas utilizando self._load_resources e self._load_a_resource()
+        self.img = (
+            {}
+        )  # Cria um dicionário vazio para carregar as imagens. Essas imagens devem ser carregadas utilizando self._load_resources e self._load_a_resource()
 
     def _load_resources(self):
         pass
@@ -146,23 +152,32 @@ class Game:
             image = []
             for string in relative_path:
                 if type(string) != str:
-                    raise ValueError(f'{string.__repr__()} @ {relative_path} não é uma string.')
+                    raise ValueError(
+                        f"{string.__repr__()} @ {relative_path} não é uma string."
+                    )
                 else:
                     image.append(pygame.image.load(string))
         elif type(relative_path) == str:
             image = pygame.image.load(relative_path)
         else:
-            raise ValueError(f'{relative_path.__repr__()} não é tupla, lista, set ou string.')
+            raise ValueError(
+                f"{relative_path.__repr__()} não é tupla, lista, set ou string."
+            )
 
         # Se a key já existir
         if key in self.img:
             if force:
-                self.logger.print(f'[Force] Carregado {relative_path} na image key {key.__repr__()}.')
+                self.logger.print(
+                    f"[Force] Carregado {relative_path} na image key {key.__repr__()}."
+                )
             else:
-                raise KeyError(f'A chave {key.__repr__()} já possui conteúdo (tentou carregar {relative_path})')
-        
+                raise KeyError(
+                    f"A chave {key.__repr__()} já possui conteúdo (tentou carregar {relative_path})"
+                )
+
         # Se a key não existir
         else:
             self.img[key] = image
-            self.logger.print(f'Carregado {relative_path} na nova image key {key.__repr__()}')
-
+            self.logger.print(
+                f"Carregado {relative_path} na nova image key {key.__repr__()}"
+            )
