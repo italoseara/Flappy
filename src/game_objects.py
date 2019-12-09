@@ -1,9 +1,8 @@
 from base_classes import GameObject, Vector2D
-from functions import gameobject_hitbox
+from functions import gameobject_hitbox, gameobject_size
 import pygame
 
 """Arquivo com os objetos que constroem o jogo."""
-
 
 class Player(GameObject):
     """Objeto do jogador (pássaro)."""
@@ -64,23 +63,26 @@ class Player(GameObject):
         # Isso não é usado no código do pássaro, mas talvez seja útil colocar.
         self.speed.x = self.linked_game.speed
 
-        # TODO: Documentar essa parte melhor.
+        # "Capar" a velocidade vertical se o pássaro atingir o topo da tela enquanto estiver pulando.
         if self.y < 0:
             self.y = 0
             self.speed.y = 0
 
-        elif (
-            self.y >= self.linked_game.ground_pos - self.fixed_hitbox[3]
-            and self.linked_game.state == 1
-        ):
+        # Deixar o pássaro entalado pouco depois da parte de baixo da tela se ele chegar lá.
+        if self.y > (self.linked_game.winsize[1] + gameobject_size(self)[1]):
+            self.y = (self.linked_game.winsize[1] + gameobject_size(self)[1])
+            self.speed.y = 0
+        # Previne um bug estranho: "se o jogador cair demais, ele volta para o topo da tela"
+
+        elif (self.y >= self.linked_game.ground_pos - self.fixed_hitbox[3]
+              and self.linked_game.state == 1):
             self.y = self.linked_game.ground_pos - self.fixed_hitbox[3]
             self.speed.y = 0
             self.linked_game.state = 2
             self.speed.y = -8
 
     def compile_render(self):
-        """Compila e retorna uma tupla com o frame a ser renderizado e um retângulo de posição.
-        """
+        """Compila e retorna uma tupla com o frame a ser renderizado e um retângulo de posição."""
 
         # TODO: Documentar essa parte melhor.
 
@@ -113,7 +115,6 @@ class Player(GameObject):
 
         return (new_image, rect)
 
-
 class Pipe(GameObject):
     """Código principal do cano."""
 
@@ -127,7 +128,6 @@ class Pipe(GameObject):
 
         A cada frame, o cano vai um pouco à esquerda, dependendo do valor de sua velocidade."""
         self.x += -self.speed
-
 
 class Tile(GameObject):
     """Código principal dos Tiles (chão e fundo)."""

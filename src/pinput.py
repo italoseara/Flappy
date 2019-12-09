@@ -1,13 +1,10 @@
 from pygame import Rect, mouse, key
 from pygame.locals import *
 
-
 class PlayerInput:
-
     """Classe para processamento de dados da entrada do jogador."""
 
     def __init__(self, first_iterate=False):
-
         """Inicia as variáveis para as teclas e (opcionalmente) as define já de primeira.
 
         Argumentos:
@@ -29,7 +26,6 @@ class PlayerInput:
             self.iterate()
 
     def iterate(self):
-
         """Define o valor das variáveis de tecla. Cada variável de tecla é uma lista de dois elementos:
         EL #0 => Held (segurando)
         EL #1 => Pressed (pressionado, apenas por 1 frame)"""

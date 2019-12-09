@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
 
-# Clone de Flappy Bird
-# Autores: ItaloDoArbusto, YohananDiamond
-# Repositório: https://github.com/ItaloDoArbusto/Flappy
-
-# TODO: Encontrei um bug em que, se o jogador cair demais, ele volta para o topo da tela. Tenho que consertar isso ainda.
-
 # INICIALIZAÇÃO GERAL ############################
 
 # Imports Iniciais
@@ -19,42 +13,36 @@ from base_classes import *
 from functions import *
 from pinput import PlayerInput
 
-
 def main(argv):
-
-    # Iniciar o pygame
+    """Cria uma instância do jogo e a inicia."""
     pygame.init()
-
-    # Criar e iniciar o jogo
     game = FlappyGame(game_speed=3, debug=False)
     game.runtime()
 
-
 # PARTE PRINCIPAL ##################################
-
 
 class FlappyGame(Game):
     """O código principal do jogo."""
 
     def __init__(self, game_speed, debug):
-        """Organiza as variáveis principais do jogo e carrega alguns recursos."""
+        """Organiza as variáveis principais do jogo e carrega os recursos."""
 
         # Criar objetos relacionados
         self.logger = Logger(enabled=debug)
         self.input = PlayerInput()
 
-        # Carregar alguns recursos
+        # Carregar recursos
         self._setup()
         self._load_resources()
 
         # Criar algumas variáveis
         self.timer = 0
-        # self.timer2 = 0
         self.clock = pygame.time.Clock()
         self.speed = game_speed
         self.state = 0
         self.debug = debug
         self.score = 0
+        self.winsize = (960, 540)
 
     def _load_resources(self):
         """Carrega os recursos do jogo."""
@@ -64,8 +52,7 @@ class FlappyGame(Game):
         load("icon", "img/icon.bmp")
         load("floor", "img/floor.png")
         load("bg", "img/background.png")
-        load(
-            "bird",
+        load("bird",
             [
                 "img/bird_f0.png",
                 "img/bird_f1.png",
@@ -89,8 +76,10 @@ class FlappyGame(Game):
     def runtime(self):
         """Código principal do jogo."""
 
+        # "Atalhos"
+        WINSIZE = self.winsize
+
         # Constantes locais ao jogo
-        WINSIZE = (960, 540)
         FRAMERATE = 60
         COLOR_BACKGROUND = (115, 200, 215)
         INIT_POSITION = (
@@ -149,10 +138,7 @@ class FlappyGame(Game):
                 ],
             )
 
-        floor_tiles, bg_tiles = (
-            [],
-            [],
-        )  # Um patch preguiçoso que cria as listas de tiles antes de preenchê-las para poder fazer o código mais abaixo funcionar.
+        floor_tiles, bg_tiles = ([], [])  # Um patch preguiçoso que cria as listas de tiles antes de preenchê-las para poder fazer o código mais abaixo funcionar.
 
         # LOOP PRINCIPAL (FRAMES) #############
 
@@ -300,19 +286,13 @@ class FlappyGame(Game):
 
             # Processamento de eventos
             for event in pygame.event.get():
-                # Sair pelo comando sair da janela
-                # (Botão X no canto, Alt+F4 etc.)
+                # Sair pelo comando sair da janela (Botão X no canto, Alt+F4 etc.)
                 if event.type == QUIT:
                     running = False
 
             # Adicionar 1 ao timer
             self.timer += 1
-            # self.timer2 += 1
-            # if self.timer2 > 8:
-            # self.timer2 = 0
 
-
-if __name__ == "__main__":
+if (__name__ == "__main__"):
     from sys import argv
-
     main(argv)
