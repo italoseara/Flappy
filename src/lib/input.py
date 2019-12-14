@@ -1,5 +1,7 @@
 from pygame import Rect, mouse, key
-from pygame.locals import *
+from pygame.locals import (
+    K_UP, K_k, K_SPACE, K_w
+)
 
 class PlayerInput:
     """Classe para processamento de dados da entrada do jogador."""
@@ -23,9 +25,9 @@ class PlayerInput:
         self.mouse_click_right = [False, False]
 
         if first_iterate:
-            self.iterate()
+            self.process()
 
-    def iterate(self):
+    def process(self):
         """Define o valor das variáveis de tecla. Cada variável de tecla é uma lista de dois elementos:
         EL #0 => Held (segurando)
         EL #1 => Pressed (pressionado, apenas por 1 frame)"""
