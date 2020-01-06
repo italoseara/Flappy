@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # INICIALIZAÇÃO GERAL ############################
 
 # Imports Iniciais
@@ -83,9 +81,9 @@ class FlappyGame(Game):
         )
 
         # Definir a janela
-        screen = pygame.display.set_mode(WINSIZE)  # Criar Janela
-        pygame.display.set_caption(f"Flappy: {WINSIZE[0]}x{WINSIZE[1]}")  # Definir Título
-        pygame.display.set_icon(self.res["icon"])  # Definir Ícone
+        screen = pygame.display.set_mode(WINSIZE) # Criar Janela
+        pygame.display.set_caption("Flappy: {}x{}".format(*WINSIZE)) # Definir Título
+        pygame.display.set_icon(self.res["icon"]) # Definir Ícone
 
         class var:
             """Uma subclasse que contém algumas variáveis para o jogo.
@@ -149,8 +147,6 @@ class FlappyGame(Game):
 
             # Atualizar as teclas e entradas de mouse pressionadas.
             self.input.process()
-
-            # NOTE: O código do pulo foi movido para a classe Player em game_objects.py, assim como o de iniciar o jogo.
 
             # Atualizar o jogador
             player.process()
@@ -282,6 +278,7 @@ class FlappyGame(Game):
 
             # Processamento de eventos
             for event in pygame.event.get():
+
                 # Sair pelo comando sair da janela (Botão X no canto, Alt+F4 etc.)
                 if event.type == QUIT:
                     running = False
