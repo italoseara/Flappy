@@ -8,7 +8,7 @@ Contribuidores: [Ítalo](https://github.com/italodoarbusto) e [YohananDiamond](h
 
 Esse clone atualmente não tem um método de instalação formado, por isso a maneira recomendada é rodar o arquivo `src/main.py`.
 
-Primeiro, antes de tudo, é necessário instalar o pygame, geralmente através do pip.
+Primeiro, antes de tudo, é necessário instalar o pygame, através (provavelmente) do pip.
 
 ```bash
 pip install pygame
