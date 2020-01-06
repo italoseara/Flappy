@@ -13,7 +13,6 @@ from lib.input import PlayerInput
 from lib.obj import *
 from lib.data import *
 from lib.maths import *
-from lib.debug import Logbook
 
 def main(argv):
     """Cria uma instância do jogo e a inicia."""
@@ -58,7 +57,6 @@ class FlappyGame(Game):
         )
 
         # Criar objetos relacionados
-        self.logger = Logbook(enabled_at_startup=debug)
         self.input = PlayerInput()
         self.clock = pygame.time.Clock()
 

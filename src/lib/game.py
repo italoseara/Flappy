@@ -110,7 +110,6 @@ class Pipe(Object):
         """Processamento padrão dos canos.
 
         A cada frame, o cano vai um pouco à esquerda, dependendo do valor de sua velocidade."""
-        print(self.speed)
         self.pos.x -= self.speed
 
 class Tile(Object):
