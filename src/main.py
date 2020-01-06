@@ -7,7 +7,7 @@ from random import randint
 
 # Importar módulos locais
 from lib.game import *
-from lib.input import PlayerInput
+from lib.input import InputHandler, BUTTON_LEFT, BUTTON_MIDDLE, BUTTON_RIGHT
 from lib.obj import *
 from lib.data import *
 from lib.maths import *
@@ -55,7 +55,7 @@ class FlappyGame(Game):
         )
 
         # Criar objetos relacionados
-        self.input = PlayerInput()
+        self.input = InputHandler()
         self.clock = pygame.time.Clock()
 
         # Criar algumas variáveis

@@ -24,7 +24,7 @@ class Player(Object):
         # Adicionar ao jump_counter
         self.jump_counter += 1
 
-        if pinput.key_up[1]:
+        if pinput.keymap[pygame.K_UP].first:
             # Ao apertar a seta para cima:
 
             # Iniciar o jogo se ele ainda não tiver sido iniciado.

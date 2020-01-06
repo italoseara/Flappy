@@ -1,73 +1,54 @@
-from pygame import Rect, mouse, key
+import pygame
 from pygame.locals import (
     K_UP, K_k, K_SPACE, K_w
 )
+BUTTON_LEFT = 0
+BUTTON_MIDDLE = 1
+BUTTON_RIGHT = 2
 
-class PlayerInput:
+class InputKey:
+    def __init__(self, key_code: int):
+        self.held = False
+        self.first = False
+
+class InputHandler:
     """Classe para processamento de dados da entrada do jogador."""
+    def __init__(self):
+        self.keymap = {}
+        self.mouse_pos = pygame.Rect(0, 0, 0, 0)
 
-    def __init__(self, first_iterate=False):
-        """Inicia as variáveis para as teclas e (opcionalmente) as define já de primeira.
-
-        Argumentos:
-        first_iterate -- se irá atualizar as variáveis de input logo que os valores forem criados (padrão: False)"""
-
-        # Teclas simuladas (uma tecla pode ser ativada por várias outras, tipo cima & espaço)
-        UPKEYS = False
-
-        # Direcionais
-        self.key_up = [False, False]
-
-        # Mouse
-        self.mouse = Rect(0, 0, 0, 0)
-        self.mouse_click_left = [False, False]
-        self.mouse_click_middle = [False, False]
-        self.mouse_click_right = [False, False]
-
-        if first_iterate:
-            self.process()
+        self.keymap[K_UP] = InputKey(K_UP)
+        self.keymap[BUTTON_LEFT] = InputKey(BUTTON_LEFT)
+        self.keymap[BUTTON_MIDDLE] = InputKey(BUTTON_MIDDLE)
+        self.keymap[BUTTON_RIGHT] = InputKey(BUTTON_RIGHT)
 
     def process(self):
-        """Define o valor das variáveis de tecla. Cada variável de tecla é uma lista de dois elementos:
-        EL #0 => Held (segurando)
-        EL #1 => Pressed (pressionado, apenas por 1 frame)"""
+        # Pegar dados não-processados sobre as teclas
+        raw_keymap = pygame.key.get_pressed()
+        raw_mouse = pygame.mouse.get_pressed()
+        self.mouse_pos.center = pygame.mouse.get_pos()
 
-        # Posição do Mouse
-        self.mouse.center = mouse.get_pos()
+        # Teclas válidas para cima
+        upkeys = raw_keymap[K_UP] or raw_keymap[K_k] or raw_keymap[K_SPACE] or raw_keymap[K_w] or bool(raw_mouse[0])
 
-        # Obter dados "crus" de input
-        _key_map = key.get_pressed()
-        _mouse_click = mouse.get_pressed()
+        # Limpar as variáveis `first`
+        self.keymap[K_UP].first = False
+        self.keymap[BUTTON_LEFT].first = False
+        self.keymap[BUTTON_MIDDLE].first = False
+        self.keymap[BUTTON_RIGHT].first = False
 
-        # Atualizar variáveis de simulação de tecla.
-        UPKEYS = (
-            _key_map[K_UP]
-            or _key_map[K_k]
-            or _key_map[K_SPACE]
-            or bool(_mouse_click[0])
-            or _key_map[K_w]
-        )
+        # Preencher a lista de variáveis `first`
+        if upkeys and not self.keymap[K_UP].held:
+            self.keymap[K_UP].first = True
+        if raw_mouse[0] and not self.keymap[BUTTON_LEFT].held:
+            self.keymap[BUTTON_LEFT].first = True
+        if raw_mouse[1] and not self.keymap[BUTTON_MIDDLE].held:
+            self.keymap[BUTTON_MIDDLE].first = True
+        if raw_mouse[2] and not self.keymap[BUTTON_RIGHT].held:
+            self.keymap[BUTTON_RIGHT].first = True
 
-        # Limpar a lista de teclas pressionadas
-        self.key_up[1] = False
-        self.mouse_click_left[1] = False
-        self.mouse_click_middle[1] = False
-        self.mouse_click_right[1] = False
-
-        # Preencher a lista de teclas pressionadas
-        if UPKEYS and (not self.key_up[0]):
-            self.key_up[1] = True
-        if _mouse_click[0] and (not self.mouse_click_left[1]):
-            self.mouse_click_left[1] = True
-        if _mouse_click[1] and (not self.mouse_click_middle[1]):
-            self.mouse_click_middle[1] = True
-        if _mouse_click[2] and (not self.mouse_click_right[1]):
-            self.mouse_click_right[1] = True
-
-        # Limpar/preencher a lista de teclas seguradas
-        self.key_up[0] = UPKEYS
-        (
-            self.mouse_click_left[0],
-            self.mouse_click_middle[0],
-            self.mouse_click_right[0],
-        ) = [bool(x) for x in _mouse_click]
+        # Atualizar a lista de variáveis `held`
+        self.keymap[K_UP].held = upkeys
+        self.keymap[BUTTON_LEFT].held = raw_mouse[0]
+        self.keymap[BUTTON_MIDDLE].held = raw_mouse[1]
+        self.keymap[BUTTON_RIGHT].held = raw_mouse[2]
