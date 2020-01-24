@@ -151,6 +151,10 @@ class FlappyGame(Game):
             # Atualizar o jogador
             player.process()
 
+            # Toggle hitboxes
+            if self.input.keymap[K_h].first:
+                self.debug = not self.debug
+
             # Código do jogo iniciado
             if self.state == 1:
 
@@ -260,7 +264,9 @@ class FlappyGame(Game):
                 )
 
             # Score & FPS
-            debug_text = f"Score: {self.score}; FPS: {int(self.clock.get_fps())}"
+            debug_text = ""
+            debug_text += "[DEBUG] " if self.debug else ""
+            debug_text += f"Score: {self.score}; FPS: {int(self.clock.get_fps())}; "
             text_pos = (15, 10)
             fps_text = self.score_font.render(debug_text, True, pygame.Color("white"))
             screen.blit(fps_text, text_pos)
