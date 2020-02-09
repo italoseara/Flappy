@@ -30,7 +30,9 @@ class cfg:
         ("pipe_bot", "res/pipe_bot.png"),
         ("starter_tip", "res/starter_tip.png"),
         ("game_over", "res/game_over.png"),
-        ("paused", "res/paused.png"),
+        ("pause_normal", "res/pause_normal.png"),
+        ("pause_hover", "res/pause_hover.png"),
+        ("pause_press", "res/pause_press.png"),
         ("menu", "res/menu.png"),
     ]
 
@@ -69,7 +71,7 @@ def game_function(d, cfg):
     d.cfg = cfg
     d.debug_mode = cfg.DEBUG
     d.res = resource_dict(cfg.RESOURCES)
-    d.input = InputHandler()
+    d.input = InputHandler(d)
     d.clock = pygame.time.Clock()
     d.timer = state = score = 0
 
@@ -107,14 +109,10 @@ def game_function(d, cfg):
     # }}}
     # CRIAR OBJETOS {{{
 
-    # Botão de Pause
-    # rect = d.res['pause_button'].get_rect()
-    # rect.center = (30, 30)
-    # rectangle = d.res['pause_button'].get_rect().size
-    # TODO: Fazer botão de pause
+    d.pause_button = Object((cfg.WINSIZE[0] - image_size(d.res["pause_normal"])[0] -10, 10), [d.res["pause_normal"], d.res["pause_hover"], d.res["pause_press"]], d)
 
     # Jogador e Cenário
-    player = Player(d.bird_init_position, d.res["bird"], d)
+    d.player = Player(d.bird_init_position, d.res["bird"], d)
     d.floors, d.bgs, d.pipes = [], [], []
 
     # }}}
@@ -132,7 +130,7 @@ def game_function(d, cfg):
             d.pipe_spawn_delay = 200 / cfg.SPEED
 
             # Step Processing
-            player.process()
+            d.player.process()
 
         # }}}
         # PROCESSAMENTO & FÍSICA {{{
@@ -147,14 +145,14 @@ def game_function(d, cfg):
 
                     # Pontos ao passar pelo cano
                     # Parte do código está na classe do pipe.
-                    if (not pipe.has_scored) and (player.pos.x > pipe.pos.x + pipe_hitbox[3]):
+                    if (not pipe.has_scored) and (d.player.pos.x > pipe.pos.x + pipe_hitbox[3]):
                         d.score += 1
                         pipe.has_scored = True
 
                     # Morte na colisão entre o jogador e um cano
-                    if pipe_hitbox.colliderect(gameobject_hitbox(player)):
+                    if pipe_hitbox.colliderect(gameobject_hitbox(d.player)):
                         d.game_state = 2
-                        player.speed.y = cfg.JUMP_SPEED
+                        d.player.speed.y = cfg.JUMP_SPEED
                         break
 
                     # Despawnar o cano quando ele sair da esquerda da tela.
@@ -189,19 +187,32 @@ def game_function(d, cfg):
                 d.floors, d.bgs = make_tiles()
                 d.game_state = 0
 
-                player.angle_target = player.angle = 0
-                player.speed.y = 0
-                player.pos.x, player.pos.y = d.bird_init_position
+                d.player.angle_target = d.player.angle = 0
+                d.player.speed.y = 0
+                d.player.pos.x, d.player.pos.y = d.bird_init_position
 
         # }}}
         # INPUT {{{
 
-        # Toggle hitboxes
+        # Ativar/desativar hitboxes
         if d.input.keymap[K_h].first:
             d.debug_mode = not d.debug_mode
 
+        # Pause via teclas
         if d.input.keymap[K_ESCAPE].first:
             d.pause = not d.pause
+
+        # Pause via mouse
+        if gameobject_hitbox(d.pause_button).collidepoint(d.input.mouse_pos):
+            if d.input.keymap[BUTTON_LEFT].first:
+                d.pause = not d.pause
+
+            if d.input.keymap[BUTTON_LEFT].held:
+                d.pause_button.frames.current_index = 2
+            else:
+                d.pause_button.frames.current_index = 1
+        else:
+            d.pause_button.frames.current_index = 0
 
         # }}}
         # RENDERIZAÇÃO {{{
@@ -214,7 +225,7 @@ def game_function(d, cfg):
             gameobject_render(obj, d.screen)
 
         # Renderizar jogador
-        gameobject_render(player, d.screen)
+        gameobject_render(d.player, d.screen)
 
         # Renderizar hitboxes dos canos
         if d.debug_mode:
@@ -234,8 +245,7 @@ def game_function(d, cfg):
             d.screen.blit(d.res["starter_tip"], (80, 0))
 
         # Mostrar o botão de pause
-        if d.pause:
-            d.screen.blit(d.res["paused"], (cfg.WINSIZE[0] - 10 - image_size(d.res["paused"])[0], 10))
+        gameobject_render(d.pause_button, d.screen)
 
         # Texto no topo da tela
         if cfg.FONT_ENABLED:

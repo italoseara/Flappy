@@ -1,4 +1,5 @@
 import pygame
+from lib.maths import gameobject_hitbox
 from pygame.locals import (
     K_UP, K_k, K_SPACE, K_w, K_h, K_ESCAPE
 )
@@ -13,9 +14,10 @@ class InputKey:
 
 class InputHandler:
     """Classe para processamento de dados da entrada do jogador."""
-    def __init__(self):
+    def __init__(self, d):
+        self.d = d
         self.keymap = {}
-        self.mouse_pos = pygame.Rect(0, 0, 0, 0)
+        self.mouse_pos = pygame.mouse.get_pos()
 
         self.keymap[K_UP] = InputKey(K_UP)
         self.keymap[K_h] = InputKey(K_h)
@@ -25,13 +27,16 @@ class InputHandler:
         self.keymap[BUTTON_RIGHT] = InputKey(BUTTON_RIGHT)
 
     def process(self):
+        d = self.d
+
         # Pegar dados não-processados sobre as teclas
         raw_keymap = pygame.key.get_pressed()
         raw_mouse = pygame.mouse.get_pressed()
-        self.mouse_pos.center = pygame.mouse.get_pos()
+        self.mouse_pos = pygame.mouse.get_pos()
 
         # Teclas válidas para cima
-        upkeys = raw_keymap[K_UP] or raw_keymap[K_k] or raw_keymap[K_SPACE] or raw_keymap[K_w] or bool(raw_mouse[0])
+        m = bool(raw_mouse[0]) if not gameobject_hitbox(d.pause_button).collidepoint(d.input.mouse_pos) else False
+        upkeys = raw_keymap[K_UP] or raw_keymap[K_k] or raw_keymap[K_SPACE] or raw_keymap[K_w] or m
 
         # Limpar as variáveis `first`
         self.keymap[K_UP].first = False
