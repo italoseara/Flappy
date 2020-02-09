@@ -57,12 +57,6 @@ class cfg:
     GROUND_POS = 476
 
 # }}}
-# FUNÇÕES DE AJUDA {{{
-
-def run_game(fn):
-    fn(DataSpace(), cfg)
-
-# }}}
 # PARTE PRINCIPAL {{{
 
 def game_function(d, cfg):
@@ -279,7 +273,11 @@ def game_function(d, cfg):
         # }}}
 # }}}
 
+# }}}
 # INICIALIZAÇÃO DO JOGO {{{
+
+def run_game(fn):
+    fn(DataSpace(), cfg)
 
 if __name__ == "__main__":
     run_game(game_function)
