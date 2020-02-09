@@ -1,15 +1,15 @@
-"""Arquivo com os objetos específicos ao jogo."""
+# vim: foldmethod=marker
 
 from lib.obj import Object
 from lib.data import Vector2D
 from lib.maths import gameobject_hitbox, gameobject_size
 import pygame
 
-class Player(Object):
+class Player(Object): # {{{
     
-    def __init__(self, pos, frames, linked_game):
+    def __init__(self, pos, frames, d):
         """Inicia o jogador."""
-        self.setup(pos, frames, linked_game)
+        self.setup(pos, frames, d)
         self.speed = Vector2D(0, 0)
         self.angle = 0
         self.angle_target = 0
@@ -19,7 +19,7 @@ class Player(Object):
         self.animation_timer = 0
 
     def process(self):
-        pinput = self.linked_game.input
+        pinput = self.d.input
 
         # Adicionar ao jump_counter
         self.jump_counter += 1
@@ -28,26 +28,23 @@ class Player(Object):
             # Ao apertar a seta para cima:
 
             # Iniciar o jogo se ele ainda não tiver sido iniciado.
-            if self.linked_game.state == 0:
-                self.linked_game.state = 1
+            if self.d.game_state == 0:
+                self.d.game_state = 1
 
             # Reiniciar se o jogador estiver morto.
-            elif self.linked_game.state == 2:
-                self.linked_game.timer = 0
+            elif self.d.game_state == 2:
+                self.d.timer = 0
 
             # Pular se o jogo já tiver começado (incluindo logo quando o jogo iniciar)
-            if self.linked_game.state in {0, 1}:
+            if self.d.game_state in {0, 1}:
                 self.speed.y = -8
                 self.jump_counter = 0
 
         # MOVIMENTO ###########################
 
         self.pos.y += self.speed.y
-        if self.linked_game.state != 0:
-            self.speed.y += self.linked_game.gravity
-
-        # Isso não é usado no código do pássaro, mas talvez seja útil colocar.
-        self.speed.x = self.linked_game.speed
+        if self.d.game_state != 0:
+            self.speed.y += self.d.cfg.GRAVITY
 
         # "Capar" a velocidade vertical se o pássaro atingir o topo da tela enquanto estiver pulando.
         if self.pos.y < 0:
@@ -55,16 +52,16 @@ class Player(Object):
             self.speed.y = 0
 
         # Deixar o pássaro entalado pouco depois da parte de baixo da tela se ele chegar lá.
-        if self.pos.y > (self.linked_game.winsize[1] + gameobject_size(self)[1]):
-            self.pos.y = (self.linked_game.winsize[1] + gameobject_size(self)[1])
+        # Isso previne um bug estranho: "se o jogador cair demais, ele volta para o topo da tela"
+        if self.pos.y > (self.d.cfg.WINSIZE[1] + gameobject_size(self)[1]):
+            self.pos.y = (self.d.cfg.WINSIZE[1] + gameobject_size(self)[1])
             self.speed.y = 0
-        # Previne um bug estranho: "se o jogador cair demais, ele volta para o topo da tela"
 
-        elif (self.pos.y >= self.linked_game.ground_pos - self.fixed_hitbox[3]
-              and self.linked_game.state == 1):
-            self.pos.y = self.linked_game.ground_pos - self.fixed_hitbox[3]
+        elif (self.pos.y >= self.d.cfg.GROUND_POS - self.fixed_hitbox[3]
+              and self.d.game_state == 1):
+            self.pos.y = self.d.cfg.GROUND_POS - self.fixed_hitbox[3]
             self.speed.y = 0
-            self.linked_game.state = 2
+            self.d.game_state = 2
             self.speed.y = -8
 
     def render(self):
@@ -76,7 +73,7 @@ class Player(Object):
         if self.frames.current_index >= 4:
             self.frames.current_index = 0
 
-        if self.linked_game.state != 0:
+        if self.d.game_state != 0:
 
             # Achar ângulo
             if self.jump_counter < 30:
@@ -97,12 +94,12 @@ class Player(Object):
         rect.center = old_center
 
         return (new_image, rect)
-
-class Pipe(Object):
+# }}}
+class Pipe(Object): # {{{
     """Código principal do cano."""
 
-    def __init__(self, pos, frames, linked_game=None, speed: float = 1.0):
-        self.setup(pos, frames, linked_game)
+    def __init__(self, pos, frames, d=None, speed: float = 1.0):
+        self.setup(pos, frames, d)
         self.speed = speed
         self.has_scored = False # Usado no código principal para ver se o jogador já passou desse cano e já pegou a pontuação.
 
@@ -111,16 +108,16 @@ class Pipe(Object):
 
         A cada frame, o cano vai um pouco à esquerda, dependendo do valor de sua velocidade."""
         self.pos.x -= self.speed
-
-class Tile(Object):
+# }}}
+class Tile(Object): # {{{
     """Código principal dos Tiles (chão e fundo)."""
 
-    def __init__(self, pos, frames, linked_game=None, speed: float = 1.0, **kwargs):
+    def __init__(self, pos, frames, d, speed=1.0, parallax_coeff=1.0):
         """O construtor da classe. Ele inicia o tile.
 
         speed -- A velocidade de movimento do tile.
-        kwargs -- Alguns argumentos extras. Funcionalidades que utilizam isso não se localizam aqui.
         """
-        self.setup(pos, frames, linked_game)
-        self.speed = speed
-        self.kwargs = kwargs
+        self.setup(pos, frames, d)
+        self.speed = float(speed)
+        self.parallax_coeff = float(parallax_coeff)
+# }}}

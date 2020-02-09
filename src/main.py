@@ -1,297 +1,273 @@
-# INICIALIZAÇÃO GERAL ############################
+# vim: foldmethod=marker
+# INICIALIZAÇÃO {{{
 
-# Imports Iniciais
+# Pygame & Stdlib
 import pygame
 from pygame.locals import *
 from random import randint
 
-# Importar módulos locais
+# Módulos Locais
 from lib.game import *
 from lib.input import InputHandler, BUTTON_LEFT, BUTTON_MIDDLE, BUTTON_RIGHT
 from lib.obj import *
 from lib.data import *
 from lib.maths import *
 
-def main(argv):
-    """Cria uma instância do jogo e a inicia."""
-    pygame.init()
-    game = FlappyGame(
-        RESOURCES,
-        game_speed=3,
-        debug=False,
+pygame.init()
+
+# }}}
+# CONFIGURAÇÕES {{{
+
+class cfg:
+
+    # Imagens
+    RESOURCES = [
+        ("icon", "res/icon.bmp"),
+        ("floor", "res/floor.png"),
+        ("bg", "res/background.png"),
+        ("bird", "res/bird_f0.png"),
+        ("pipe_top", "res/pipe_top.png"),
+        ("pipe_bot", "res/pipe_bot.png"),
+        ("starter_tip", "res/starter_tip.png"),
+        ("game_over", "res/game_over.png"),
+        ("pause_button", "res/pause.png"),
+        ("menu", "res/menu.png"),
+    ]
+
+    # Tamanho da janela
+    WINSIZE = (960, 540)
+    BACKGROUND_COLOR = (115, 200, 215)
+    SPEED = 3
+    FRAMERATE = 60
+    GRAVITY = 0.5
+    PARALLAX_BG = 0.5
+    PARALLAX_FLOOR = 1.0
+    PIPE_HEIGHT_INTERVAL = (-210, -40)
+    PIPE_Y_SPACING = 130
+    JUMP_SPEED = -8
+    HITBOX_COLOR = (255, 0, 0)
+    HITBOX_WIDTH = 2
+    FONT = pygame.font.SysFont("Ubuntu Mono, Cascadia Code, Consolas, Fixedsys", 20)
+    FONT_COLOR = pygame.Color("white")
+    FONT_POS = (15, 10)
+    FONT_ENABLED = True
+    DEBUG = True
+    GROUND_POS = 476
+
+# }}}
+# FUNÇÕES DE AJUDA {{{
+
+def run_game(fn):
+    fn(DataSpace(), cfg)
+
+# }}}
+# PARTE PRINCIPAL {{{
+
+def game_function(d, cfg):
+    """Código principal do jogo, que coordena todos os objetos."""
+    # INICIALIZAÇÃO DE VARIÁVEIS {{{
+    d.cfg = cfg
+    d.debug_mode = cfg.DEBUG
+    d.res = resource_dict(cfg.RESOURCES)
+    d.input = InputHandler()
+    d.clock = pygame.time.Clock()
+    d.timer = state = score = 0
+
+    d.bird_init_position = (
+        cfg.WINSIZE[0] / 2 - image_size(d.res["bird"])[0] / 2,
+        cfg.WINSIZE[1] / 2 - image_size(d.res["bird"])[1] / 2,
     )
-    game.runtime()
 
-# VARIÁVEIS INICIAIS ###############################
+    # Definir a janela
+    d.screen = pygame.display.set_mode(cfg.WINSIZE)
+    pygame.display.set_caption(
+        "({}x{}), Flappy Bird but it's weird".format(*cfg.WINSIZE)
+    )
+    pygame.display.set_icon(d.res["icon"])
 
-RESOURCES = [
-    ("icon", "res/icon.bmp"),
-    ("floor", "res/floor.png"),
-    ("bg", "res/background.png"),
-    ("bird", "res/bird_f0.png"),
-    ("tube_top", "res/tube_top.png"),
-    ("tube_bottom", "res/tube_bottom.png"),
-    ("tip", "res/tip.png"),
-    ("game_over", "res/game_over.png"),
-    ("pause_button", "res/pause.png"),
-    ("menu", "res/menu.png"),
-]
+    d.pipe_spawn_counter = 0 # Um contador com o tempo para spawn dos canos.
 
-WINSIZE = (960, 540)
+    # Outras opções
+    d.game_state = 0
+    d.score = 0
+    d.running = True
 
-# PARTE PRINCIPAL ##################################
+    # }}}
+    # FUNÇÕES {{{
 
-class FlappyGame(Game):
-    """O código principal do jogo."""
-
-    def __init__(self, resource_data: list, game_speed, debug):
-        """Organiza as variáveis principais do jogo e carrega os recursos."""
-
-        # Iniciar a classe
-        self.setup(resource_data)
-
-        self.score_font = pygame.font.SysFont(
-            "Ubuntu Mono, Cascadia Code, Consolas, Fixedsys", 20
+    def make_tiles():
+        return (
+            # Chão (floors)
+            [Tile((x, cfg.GROUND_POS), d.res["floor"], d, cfg.PARALLAX_FLOOR) for x in [0, 1600]],
+            # Fundo (bgs)
+            [Tile((x, 0), d.res["bg"], d, cfg.PARALLAX_BG) for x in [0, 1600]],
         )
 
-        # Criar objetos relacionados
-        self.input = InputHandler()
-        self.clock = pygame.time.Clock()
+    # }}}
+    # CRIAR OBJETOS {{{
 
-        # Criar algumas variáveis
-        self.winsize = WINSIZE
-        self.timer = 0
-        self.state = 0
-        self.score = 0
-        self.speed = game_speed
-        self.debug = debug
+    # Botão de Pause
+    # rect = d.res['pause_button'].get_rect()
+    # rect.center = (30, 30)
+    # rectangle = d.res['pause_button'].get_rect().size
+    # TODO: Fazer botão de pause
 
-    def runtime(self):
-        """Código principal do jogo."""
+    # Jogador e Cenário
+    player = Player(d.bird_init_position, d.res["bird"], d)
+    d.floors, d.bgs, d.pipes = [], [], []
 
-        # "Atalhos"
-        WINSIZE = self.winsize
+    # }}}
+    # LOOP PRINCIPAL {{{
+    while d.running:
+        # INÍCIO DO FRAME {{{
 
-        # Constantes locais ao jogo
-        FRAMERATE = 60
-        COLOR_BACKGROUND = (115, 200, 215)
-        INIT_POSITION = (
-            WINSIZE[0] / 2 - image_size(self.res["bird"])[0] / 2,
-            WINSIZE[1] / 2 - image_size(self.res["bird"])[1] / 2,
-        )
+        # Forçar o Framerate
+        d.clock.tick(cfg.FRAMERATE)
 
-        # Definir a janela
-        screen = pygame.display.set_mode(WINSIZE) # Criar Janela
-        pygame.display.set_caption("Flappy: {}x{}".format(*WINSIZE)) # Definir Título
-        pygame.display.set_icon(self.res["icon"]) # Definir Ícone
+        # Atualizar algumas variáveis
+        d.pipe_spawn_delay = 200 / cfg.SPEED
 
-        class var:
-            """Uma subclasse que contém algumas variáveis para o jogo.
-            Elas estão aqui porque estão relacionadas a algum objeto ou não são constantes.
-            Isso pode ser utilizado também quando se quer criar uma variável que funcione em todos os frames, mas quando está dentro do loop principal (não tão recomendado)."""
+        # Step Processing
+        d.input.process()
+        player.process()
 
-            pipe_spawn_counter = 0  # Um contador com o tempo de spawn.
+        # }}}
+        # PROCESSAMENTO & FÍSICA {{{
 
-        # CRIAR OBJETOS #######################
+        if d.game_state == 1:
+            d.pipe_spawn_counter -= 1
 
-        # Botão de Pause
-        # rect = self.res['pause_button'].get_rect()
-        # rect.center = (30, 30)
-        # rectangle = self.res['pause_button'].get_rect().size
-        # TODO: Fazer botão de pause
+            for (i, pipe) in enumerate(d.pipes):
+                pipe.process()
+                pipe_hitbox = gameobject_hitbox(pipe)
 
-        # Criar objetos principais
-        player = Player(INIT_POSITION, self.res["bird"], linked_game=self)
+                # Pontos ao passar pelo cano
+                # Parte do código está na classe do pipe.
+                if (not pipe.has_scored) and (player.pos.x > pipe.pos.x + pipe_hitbox[3]):
+                    d.score += 1
+                    pipe.has_scored = True
 
-        # Criar objetos do cenário
-        floor_tiles = []
-        pipes_list = []
-        background_tiles = []
+                # Morte na colisão entre o jogador e um cano
+                if pipe_hitbox.colliderect(gameobject_hitbox(player)):
+                    d.game_state = 2
+                    player.speed.y = cfg.JUMP_SPEED
+                    break
 
-        # Variáveis para o início do jogo
-        running = True
-        self.state = 0
-        self.gravity = 0.5
-        self.ground_pos = 476
+                # Despawnar o cano quando ele sair da esquerda da tela.
+                if pipe.pos.x < 0 - gameobject_size(pipe)[0]:
+                    del d.pipes[i]
+                    print(len(d.pipes))
 
-        # FUNÇÕES #############################
+            # Spawnar dois canos (um em cima e um em baixo) quando o counter acabar.
+            if d.pipe_spawn_counter <= 0:
+                top_y = randint(*cfg.PIPE_HEIGHT_INTERVAL)
+                bot_y = top_y + image_size(d.res["pipe_top"])[1] + cfg.PIPE_Y_SPACING
 
-        def make_tiles():
-            """Prepara os tiles do jogo."""
-            return (
-                # Tiles do Chão (floor)
-                [
-                    Tile((0, self.ground_pos), self.res["floor"], factor=1),
-                    Tile((1600, self.ground_pos), self.res["floor"], factor=1),
-                ],
-                # Tiles do Fundo (background)
-                [
-                    Tile((0, 0), [self.res["bg"]], factor=0.5),
-                    Tile((1600, 0), [self.res["bg"]], factor=0.5),
-                ],
+                top_pipe = Pipe((cfg.WINSIZE[0], top_y), d.res["pipe_top"], d, cfg.SPEED)
+                bot_pipe = Pipe((cfg.WINSIZE[0], bot_y), d.res["pipe_bot"], d, cfg.SPEED)
+
+                d.pipes += [top_pipe, bot_pipe]
+                d.pipe_spawn_counter = d.pipe_spawn_delay
+
+        # Iterar tiles
+        # Colocar isso antes da preparação das listas do primeiro frame para que o jogo não comece com os itens se mexendo já para trás.
+        if d.game_state in {0, 1}:
+            for tile in (d.floors + d.bgs):
+                # Atualizar a posição com base na velocidade
+                tile.pos.x -= cfg.SPEED * tile.parallax_coeff
+                # Mover o tile para a direita se ele saiu completamente da tela.
+                if tile.pos.x < 0 - gameobject_size(tile)[0]:
+                    tile.pos.x = cfg.WINSIZE[0]
+
+        # Preparar as listas de floor e background no primeiro frame do jogo.
+        # Isto é utilizado também com resets.
+        if d.timer == 0:
+            d.pipes.clear()
+            d.floors, d.bgs = make_tiles()
+            d.game_state = 0
+
+            player.angle_target = player.angle = 0
+            player.speed.y = 0
+            player.pos.x, player.pos.y = d.bird_init_position
+
+        # }}}
+        # INPUT {{{
+
+        # Toggle hitboxes
+        if d.input.keymap[K_h].first:
+            d.debug_mode = not d.debug_mode
+
+        # }}}
+        # RENDERIZAÇÃO {{{
+
+        # Fundo (céu)
+        d.screen.fill(cfg.BACKGROUND_COLOR)
+
+        # Renderizar background e canos
+        for obj in d.bgs + d.pipes:
+            gameobject_render(obj, d.screen)
+
+        # Renderizar jogador
+        gameobject_render(player, d.screen)
+
+        # Renderizar hitboxes dos canos
+        if d.debug_mode:
+            for pipe in d.pipes:
+                pygame.draw.rect(d.screen, cfg.HITBOX_COLOR, gameobject_hitbox(pipe), cfg.HITBOX_WIDTH)
+
+        # Renderizar chão
+        for obj in d.floors:
+            gameobject_render(obj, d.screen)
+
+        # Renderizar hitbox do chão
+        if d.debug_mode:
+            pygame.draw.rect(d.screen, cfg.HITBOX_COLOR, (0, cfg.GROUND_POS, *cfg.WINSIZE), cfg.HITBOX_WIDTH)
+
+        # Mostrar a dica inicial
+        # TODO: Fazer um posicionamento melhor (cálculos de centralização, talvez rect.center)
+        if d.game_state == 0:
+            d.screen.blit(d.res["starter_tip"], (80, 0))
+
+        # Mostrar o botão de pause
+        # FIXME: Fazer esse botão realmente funcionar. Parece estar errado.
+        # screen.blit(d.res['pause_button'], (0, 0)) # tinha um rect no lugar de (0, 0), mas eu não sei pq.
+
+        # Texto no topo da tela
+        if cfg.FONT_ENABLED:
+            debug_text = "{debug_flag}Score: {score}; FPS: {fps}".format(
+                    debug_flag="[DEBUG] " if d.debug_mode else "",
+                    score=d.score,
+                    fps=int(d.clock.get_fps()),
             )
+            fps_text = cfg.FONT.render(debug_text, True, cfg.FONT_COLOR)
+            d.screen.blit(fps_text, cfg.FONT_POS)
 
-        floor_tiles, bg_tiles = ([], [])  # Um patch preguiçoso que cria as listas de tiles antes de preenchê-las para poder fazer o código mais abaixo funcionar.
+        if d.game_state == 2:
+            d.screen.blit(d.res["game_over"], (100, 0)) # TODO: Fazer cálculo de posicionamento melhor
 
-        # LOOP PRINCIPAL (FRAMES) #############
+        # Atualizar a tela
+        pygame.display.update()
 
-        while running:
+        # }}}
+        # POST-PROCESSING {{{
 
-            # Variáveis atualizadas no início do frame
-            var.pipe_spawn_delay = 200 / self.speed
+        # Processamento de eventos
+        for event in pygame.event.get():
 
-            # Limitar a quantidade de frames.
-            self.clock.tick(FRAMERATE)
+            # Sair pelo comando sair da janela (Botão X no canto, Alt+F4 etc.)
+            if event.type == QUIT:
+                d.running = False
 
-            # INPUT & FÍSICA ##################
+        # Adicionar 1 ao timer
+        d.timer += 1
 
-            # Atualizar as teclas e entradas de mouse pressionadas.
-            self.input.process()
+        # }}}
 
-            # Atualizar o jogador
-            player.process()
+# }}}
 
-            # Toggle hitboxes
-            if self.input.keymap[K_h].first:
-                self.debug = not self.debug
+# INICIALIZAÇÃO DO JOGO {{{
 
-            # Código do jogo iniciado
-            if self.state == 1:
+if __name__ == "__main__":
+    run_game(game_function)
 
-                # Diminuir do contador de spawn de canos
-                var.pipe_spawn_counter -= 1
-
-                # Spawnar dois canos (um em cima e um em baixo) quando o counter acabar.
-                if var.pipe_spawn_counter <= 0:
-
-                    # Achar valor aleatório para o spawn do cano.
-                    height = randint(-210, -40)
-                    spacing = 130
-                    bottom_pipe_height = (
-                        height + image_size(self.res["tube_top"])[1] + spacing
-                    )
-
-                    # Criar o cano de cima
-                    new_pipe_top = Pipe(
-                        (WINSIZE[0], height), self.res["tube_top"], None, self.speed
-                    )
-                    pipes_list.append(new_pipe_top)
-
-                    # Criar o cano de baixo
-                    new_pipe_bottom = Pipe(
-                        (WINSIZE[0], bottom_pipe_height),
-                        self.res["tube_bottom"],
-                        None,
-                        self.speed,
-                    )
-                    pipes_list.append(new_pipe_bottom)
-
-                    # Resetar o counter
-                    var.pipe_spawn_counter = var.pipe_spawn_delay
-
-                # Iterar os canos
-                for (pipe_index, pipe) in enumerate(pipes_list):
-
-                    pipe.process() # Atualizar os canos
-                    pipe_hitbox = gameobject_hitbox(pipe) # Criar hitbox do cano
-
-                    # Morte pela colisão entre jogador e cano
-                    if pipe_hitbox.colliderect(gameobject_hitbox(player)):
-                        self.state = 2
-                        player.speed.y = -8
-
-                    # Pontos ao passar pelo cano
-                    # Parte do código está na classe do pipe.
-                    if player.pos.x > pipe.pos.x + pipe_hitbox[3]:
-                        if not pipe.has_scored:
-                            self.score += 1
-                            pipe.has_scored = True
-
-                    # Despawnar o cano quando ele sair da esquerda da tela.
-                    if pipe.pos.x < (0 - gameobject_size(pipe)[0]):
-                        del pipes_list[pipe_index]
-
-            # Iterar logo tudo
-            # Colocar isso antes da preparação das listas do primeiro frame para que o jogo não comece com os itens se mexendo já para trás.
-            if self.state in {0, 1}:
-                for tile_list in (floor_tiles, bg_tiles):
-                    for tile in tile_list:
-                        # Mexer na velocidade
-                        # Parallax para isso pode ser definido pela key 'factor' no atributo 'kwargs' dos objetos iterados aqui.
-                        tile.pos.x -= self.speed * tile.kwargs["factor"]
-                        # Mover o tile para a direita se ele já saiu completamente da tela.
-                        if tile.pos.x < (0 - gameobject_size(tile)[0]):
-                            tile.pos.x = WINSIZE[0]
-
-            # Preparar as listas de floor e background no primeiro do jogo.
-            # Funciona também com resets - basta definir o valor do timer para 0.
-            if self.timer == 0:
-                floor_tiles, bg_tiles = make_tiles()
-                pipes_list = []
-                self.state = 0
-                player.angle_target = player.angle = 0
-                player.speed.y = 0
-                player.pos.x, player.pos.y = INIT_POSITION
-
-            # RENDERIZAÇÃO ####################
-
-            # Preencher o fundo (céu)
-            screen.fill(COLOR_BACKGROUND)
-
-            # Renderizar todos os GameObject's existentes no jogo.
-            for object_ in bg_tiles + pipes_list + floor_tiles:
-                gameobject_render(object_, screen)
-            gameobject_render(player, screen)
-
-            # Mostrar a dica inicial
-            # TODO: Fazer um posicionamento melhor (cálculos de centralização, talvez rect.center)
-            if self.state == 0:
-                screen.blit(self.res["tip"], (80, 0))
-
-            # Mostrar o botão de pause
-            # FIXME: Fazer esse botão realmente funcionar. Parece estar errado.
-            # screen.blit(self.res['pause_button'], (0, 0)) # tinha um rect no lugar de (0, 0), mas eu não sei pq.
-
-            # Hitboxes
-            if self.debug:
-                drect = pygame.draw.rect
-                HITBOX_COLOR = (255, 0, 0)
-                HITBOX_WIDTH = 2
-                for pipe in pipes_list:
-                    drect(screen, HITBOX_COLOR, gameobject_hitbox(pipe), HITBOX_WIDTH)
-                drect(
-                    screen, HITBOX_COLOR, (0, self.ground_pos, *WINSIZE), HITBOX_WIDTH
-                )
-
-            # Score & FPS
-            debug_text = ""
-            debug_text += "[DEBUG] " if self.debug else ""
-            debug_text += f"Score: {self.score}; FPS: {int(self.clock.get_fps())}; "
-            text_pos = (15, 10)
-            fps_text = self.score_font.render(debug_text, True, pygame.Color("white"))
-            screen.blit(fps_text, text_pos)
-
-            # Tela de Game over
-            if self.state == 2:
-                screen.blit(
-                    self.res["game_over"], (100, 0)
-                )  # TODO: Cálculo de posicionamento melhor
-
-            # Atualizar a Tela
-            pygame.display.update()
-
-            # POST-PROCESSING #################
-
-            # Processamento de eventos
-            for event in pygame.event.get():
-
-                # Sair pelo comando sair da janela (Botão X no canto, Alt+F4 etc.)
-                if event.type == QUIT:
-                    running = False
-
-            # Adicionar 1 ao timer
-            self.timer += 1
-
-if (__name__ == "__main__"):
-    from sys import argv
-    main(argv)
+# }}}

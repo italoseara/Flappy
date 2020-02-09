@@ -1,22 +1,19 @@
-"""Arquivo contendo duas classes: Object e Game."""
-
-# import pygame
-from lib.data import FrameManager, Vector2D, ResourceList
+from lib.data import FrameManager, Vector2D
 
 class Object:
     """É a base para grande parte dos elementos interativos no jogo."""
 
-    def __init__(self, pos=(0,0), frames=[], linked_game=None):
+    def __init__(self, pos, frames, data_space):
         """Inicia o objeto quando ele é criado.
         
         A substituição desta função é recomendada, mas lembre-se de chamar a função self._setup logo no início dela.
         """
-        self.setup(pos, frames, linked_game)
+        self.setup(pos, frames, data_space)
 
-    def setup(self, pos, frames, linked_game):
-        self.pos = Vector2D.create(pos)
+    def setup(self, pos, frames, data_space):
+        self.pos = Vector2D(*pos)
         self.frames = FrameManager.create(frames)
-        self.linked_game = linked_game
+        self.d = data_space
 
     def process(self):
         """Função feita com o intuito de agrupar código relacionado ao objeto para ser chamado uma vez por frame."""
@@ -25,16 +22,3 @@ class Object:
     def render(self) -> tuple:
         """Compila e retorna uma tupla: (frame a ser renderizado, posição)"""
         return self.frames.current_frame, self.pos.to_tuple()
-
-class Game:
-    """O objeto-base do jogo."""
-
-    def __init__(self, resource_data: list):
-        """Prepara e inicia o jogo.
-
-        A substituição desta função é recomendada, mas lembre-se de chamar a função self.setup logo no início dela.
-        """
-        self.setup(resource_data)
-
-    def setup(self, resource_data: list):
-        self.res = ResourceList.create(resource_data)
