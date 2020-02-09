@@ -99,9 +99,9 @@ def game_function(d, cfg):
     def make_tiles():
         return (
             # Chão (floors)
-            [Tile((x, cfg.GROUND_POS), d.res["floor"], d, cfg.PARALLAX_FLOOR) for x in [0, 1600]],
+            [Tile((x, cfg.GROUND_POS), d.res["floor"], d, 1.0, cfg.PARALLAX_FLOOR) for x in [0, 1600]],
             # Fundo (bgs)
-            [Tile((x, 0), d.res["bg"], d, cfg.PARALLAX_BG) for x in [0, 1600]],
+            [Tile((x, 0), d.res["bg"], d, 1.0, cfg.PARALLAX_BG) for x in [0, 1600]],
         )
 
     # }}}
