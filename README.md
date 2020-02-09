@@ -19,5 +19,5 @@ Depois disso, basta clonar o repositório e rodar o arquivo `main.py`, localizad
 git clone https://github.com/italodoarbusto/Flappy
 cd Flappy
 cd src
-./main.py
+python3 main.py
 ```
