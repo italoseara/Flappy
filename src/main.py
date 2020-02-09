@@ -25,7 +25,9 @@ class cfg:
         ("icon", "res/icon.bmp"),
         ("floor", "res/floor.png"),
         ("bg", "res/background.png"),
-        ("bird", "res/bird_f0.png"),
+        ("bird_f0", "res/bird_f0.png"),
+        ("bird_f1", "res/bird_f1.png"),
+        ("bird_f2", "res/bird_f2.png"),
         ("pipe_top", "res/pipe_top.png"),
         ("pipe_bot", "res/pipe_bot.png"),
         ("starter_tip", "res/starter_tip.png"),
@@ -70,8 +72,8 @@ def game_function(d, cfg):
     d.timer = state = score = 0
 
     d.bird_init_position = (
-        cfg.WINSIZE[0] / 2 - image_size(d.res["bird"])[0] / 2,
-        cfg.WINSIZE[1] / 2 - image_size(d.res["bird"])[1] / 2,
+        cfg.WINSIZE[0] / 2 - image_size(d.res["bird_f0"])[0] / 2,
+        cfg.WINSIZE[1] / 2 - image_size(d.res["bird_f0"])[1] / 2,
     )
 
     # Definir a janela
@@ -106,7 +108,8 @@ def game_function(d, cfg):
     d.pause_button = Object((cfg.WINSIZE[0] - image_size(d.res["pause_normal"])[0] -10, 10), [d.res["pause_normal"], d.res["pause_hover"], d.res["pause_press"]], d)
 
     # Jogador e Cenário
-    d.player = Player(d.bird_init_position, d.res["bird"], d)
+    player_frames = [d.res[f"bird_f{x}"] for x in range(3)]
+    d.player = Player(d.bird_init_position, player_frames, d)
     d.floors, d.bgs, d.pipes = [], [], []
 
     # }}}
@@ -182,6 +185,7 @@ def game_function(d, cfg):
                 d.game_state = 0
 
                 d.player.angle_target = d.player.angle = 0
+                d.player.animation_id = d.player.animation_timer = d.player.animation_timer_limit = 0
                 d.player.speed.y = 0
                 d.player.pos.x, d.player.pos.y = d.bird_init_position
 

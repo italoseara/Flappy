@@ -3,6 +3,7 @@
 from lib.obj import Object
 from lib.data import Vector2D
 from lib.maths import gameobject_hitbox, gameobject_size
+from math import sin
 import pygame
 
 class Player(Object): # {{{
@@ -16,6 +17,8 @@ class Player(Object): # {{{
         self.health = 0
         self.fixed_hitbox = gameobject_hitbox(self)
         self.jump_counter = 0
+        self.animation_id = 0
+        self.animation_timer_limit = 0
         self.animation_timer = 0
 
     def process(self):
@@ -43,7 +46,10 @@ class Player(Object): # {{{
         # MOVIMENTO ###########################
 
         self.pos.y += self.speed.y
-        if self.d.game_state != 0:
+        if self.d.game_state == 0:
+            self.speed.y = 0
+            self.pos.y += sin(self.d.timer / 10)
+        else:
             self.speed.y += self.d.cfg.GRAVITY
 
         # "Capar" a velocidade vertical se o pássaro atingir o topo da tela enquanto estiver pulando.
@@ -64,17 +70,30 @@ class Player(Object): # {{{
             self.d.game_state = 2
             self.speed.y = -8
 
+        if self.animation_id == 0:
+            # Introdução (voando sem pular)
+            self.animation_timer_limit = 8
+        elif self.animation_id == 1:
+            # Transição para parar as asas (quando morrer)
+            self.animation_timer_limit = 5
+            if self.frames.current_index == 0:
+                self.animation_id = 2
+        elif self.animation_id == 2:
+            # Asas paradas
+            self.animation_timer_limit = None
+
+        if self.animation_id != None:
+            self.animation_timer += 1
+
     def render(self):
 
-        if self.animation_timer == 8:
+        if self.animation_timer == self.animation_timer_limit:
             self.frames.current_index += 1
+            if self.frames.current_index >= len(self.frames.frame_list):
+                self.frames.current_index = 0
             self.animation_timer = 0
 
-        if self.frames.current_index >= 4:
-            self.frames.current_index = 0
-
         if self.d.game_state != 0:
-
             # Achar ângulo
             if self.jump_counter < 30:
                 self.angle_target = 30
