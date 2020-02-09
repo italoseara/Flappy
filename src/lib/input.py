@@ -1,6 +1,6 @@
 import pygame
 from pygame.locals import (
-    K_UP, K_k, K_SPACE, K_w, K_h
+    K_UP, K_k, K_SPACE, K_w, K_h, K_ESCAPE
 )
 BUTTON_LEFT = 0
 BUTTON_MIDDLE = 1
@@ -19,6 +19,7 @@ class InputHandler:
 
         self.keymap[K_UP] = InputKey(K_UP)
         self.keymap[K_h] = InputKey(K_h)
+        self.keymap[K_ESCAPE] = InputKey(K_ESCAPE)
         self.keymap[BUTTON_LEFT] = InputKey(BUTTON_LEFT)
         self.keymap[BUTTON_MIDDLE] = InputKey(BUTTON_MIDDLE)
         self.keymap[BUTTON_RIGHT] = InputKey(BUTTON_RIGHT)
@@ -38,6 +39,7 @@ class InputHandler:
         self.keymap[BUTTON_LEFT].first = False
         self.keymap[BUTTON_MIDDLE].first = False
         self.keymap[BUTTON_RIGHT].first = False
+        self.keymap[K_ESCAPE].first = False
 
         # Preencher a lista de variáveis `first`
         if upkeys and not self.keymap[K_UP].held:
@@ -50,6 +52,8 @@ class InputHandler:
             self.keymap[BUTTON_MIDDLE].first = True
         if raw_mouse[2] and not self.keymap[BUTTON_RIGHT].held:
             self.keymap[BUTTON_RIGHT].first = True
+        if raw_keymap[K_ESCAPE] and not self.keymap[K_ESCAPE].held:
+            self.keymap[K_ESCAPE].first = True
 
         # Atualizar a lista de variáveis `held`
         self.keymap[K_UP].held = upkeys
@@ -57,3 +61,4 @@ class InputHandler:
         self.keymap[BUTTON_LEFT].held = raw_mouse[0]
         self.keymap[BUTTON_MIDDLE].held = raw_mouse[1]
         self.keymap[BUTTON_RIGHT].held = raw_mouse[2]
+        self.keymap[K_ESCAPE].held = raw_keymap[K_ESCAPE]
