@@ -34,8 +34,10 @@ class cfg:
         ("game_over", "res/game_over.png"),
         ("pause_normal", "res/pause_normal.png"),
         ("pause_hover", "res/pause_hover.png"),
-        ("pause_press", "res/pause_press.png"),
         ("menu", "res/menu.png"),
+        ("over_menu", "res/over_menu.png"),
+        ("play", "res/play.png"),
+        ("leaderboard", "res/leaderboard.png")
     ]
 
     # Tamanho da janela
@@ -50,6 +52,7 @@ class cfg:
     PIPE_Y_SPACING = 130
     JUMP_SPEED = -8
     HITBOX_COLOR = (255, 0, 0)
+    PLAYER_HITBOX_COLOR  = (0, 255, 0)
     HITBOX_WIDTH = 2
     FONT = pygame.font.SysFont("Ubuntu Mono, Cascadia Code, Consolas, Fixedsys", 20)
     FONT_COLOR = pygame.Color("white")
@@ -69,7 +72,7 @@ def game_function(d, cfg):
     d.res = resource_dict(cfg.RESOURCES)
     d.input = InputHandler(d)
     d.clock = pygame.time.Clock()
-    d.timer = state = score = 0
+    d.timer = d.timer2 = 0
 
     d.bird_init_position = (
         cfg.WINSIZE[0] / 2 - image_size(d.res["bird_f0"])[0] / 2,
@@ -105,7 +108,7 @@ def game_function(d, cfg):
     # }}}
     # CRIAR OBJETOS {{{
 
-    d.pause_button = Object((cfg.WINSIZE[0] - image_size(d.res["pause_normal"])[0] -10, 10), [d.res["pause_normal"], d.res["pause_hover"], d.res["pause_press"]], d)
+    d.pause_button = Object((cfg.WINSIZE[0] - image_size(d.res["pause_normal"])[0] -10, 10), [d.res["pause_normal"], d.res["pause_hover"]], d)
 
     # Jogador e Cenário
     player_frames = [d.res[f"bird_f{x}"] for x in range(3)]
@@ -183,6 +186,8 @@ def game_function(d, cfg):
                 d.pipes.clear()
                 d.floors, d.bgs = make_tiles()
                 d.game_state = 0
+                d.score = 0
+                d.timer2 = 0
 
                 d.player.angle_target = d.player.angle = 0
                 d.player.animation_id = d.player.animation_timer = d.player.animation_timer_limit = 0
@@ -197,16 +202,16 @@ def game_function(d, cfg):
             d.debug_mode = not d.debug_mode
 
         # Pause via teclas
-        if d.input.keymap[K_ESCAPE].first:
+        if d.input.keymap[K_ESCAPE].first and d.game_state != 2:
             d.pause = not d.pause
 
         # Pause via mouse
-        if gameobject_hitbox(d.pause_button).collidepoint(d.input.mouse_pos):
+        if gameobject_hitbox(d.pause_button).collidepoint(d.input.mouse_pos) and d.game_state != 2:
             if d.input.keymap[BUTTON_LEFT].first:
                 d.pause = not d.pause
 
-            if d.input.keymap[BUTTON_LEFT].held:
-                d.pause_button.frames.current_index = 2
+            if not d.input.keymap[BUTTON_LEFT].held:
+                d.pause_button.frames.current_index = 1
             else:
                 d.pause_button.frames.current_index = 1
         else:
@@ -229,6 +234,10 @@ def game_function(d, cfg):
         if d.debug_mode:
             for pipe in d.pipes:
                 pygame.draw.rect(d.screen, cfg.HITBOX_COLOR, gameobject_hitbox(pipe), cfg.HITBOX_WIDTH)
+        
+        # Renderizar hitboxes do jogador
+        if d.debug_mode:
+            pygame.draw.rect(d.screen, cfg.PLAYER_HITBOX_COLOR, gameobject_hitbox(d.player), cfg.HITBOX_WIDTH)
 
         # Renderizar chão
         for obj in d.floors:
@@ -239,24 +248,35 @@ def game_function(d, cfg):
             pygame.draw.rect(d.screen, cfg.HITBOX_COLOR, (0, cfg.GROUND_POS, *cfg.WINSIZE), cfg.HITBOX_WIDTH)
 
         # Mostrar a dica inicial
-        if d.game_state == 0:
-            d.screen.blit(d.res["starter_tip"], (80, 0))
+        if d.game_state == 0 and not d.pause:
+            d.screen.blit(d.res["starter_tip"], (450, 50))
 
         # Mostrar o botão de pause
-        gameobject_render(d.pause_button, d.screen)
+        if d.game_state != 2:
+            gameobject_render(d.pause_button, d.screen)
 
         # Texto no topo da tela
-        if cfg.FONT_ENABLED:
-            debug_text = "{debug_flag}Score: {score}; FPS: {fps}".format(
-                    debug_flag="[DEBUG] " if d.debug_mode else "",
+        if cfg.FONT_ENABLED and d.game_state == 1 or d.debug_mode:
+            debug_text = "{debug_flag}Score: {score}".format(
+                    debug_flag=f"[DEBUG] FPS: {int(d.clock.get_fps())} | " if d.debug_mode else "",
                     score=d.score,
-                    fps=int(d.clock.get_fps()),
             )
             fps_text = cfg.FONT.render(debug_text, True, cfg.FONT_COLOR)
             d.screen.blit(fps_text, cfg.FONT_POS)
 
+        # Menu no Pause
+        if d.pause:
+            d.screen.blit(d.res["menu"], (258, 145))
+
+        # Game Over
         if d.game_state == 2:
-            d.screen.blit(d.res["game_over"], (100, 0))
+            d.player.animation_timer = 0
+            d.timer2 += 1
+            if d.timer2 >= 70: # Aguarda a animação de morte
+                d.screen.blit(d.res["game_over"], (222, 20))
+                d.screen.blit(d.res["over_menu"], (258, 145))
+                d.screen.blit(d.res["play"], (280, 405))
+                d.screen.blit(d.res["leaderboard"], (520, 405))
 
         # Atualizar a tela
         pygame.display.update()

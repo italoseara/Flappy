@@ -66,7 +66,6 @@ class Player(Object): # {{{
         elif (self.pos.y >= self.d.cfg.GROUND_POS - self.fixed_hitbox[3]
               and self.d.game_state == 1):
             self.pos.y = self.d.cfg.GROUND_POS - self.fixed_hitbox[3]
-            self.speed.y = 0
             self.d.game_state = 2
             self.speed.y = -8
 
@@ -75,7 +74,7 @@ class Player(Object): # {{{
             self.animation_timer_limit = 8
         elif self.animation_id == 1:
             # Transição para parar as asas (quando morrer)
-            self.animation_timer_limit = 5
+            self.animation_timer_limit = 8
             if self.frames.current_index == 0:
                 self.animation_id = 2
         elif self.animation_id == 2:
