@@ -33,11 +33,13 @@ class cfg:
         ("starter_tip", "res/starter_tip.png"),
         ("game_over", "res/game_over.png"),
         ("pause_normal", "res/pause_normal.png"),
-        ("pause_hover", "res/pause_hover.png"),
+        ("paused", "res/paused.png"),
         ("menu", "res/menu.png"),
         ("over_menu", "res/over_menu.png"),
         ("play", "res/play.png"),
-        ("leaderboard", "res/leaderboard.png")
+        ("scoreboard", "res/scoreboard.png"),
+        ("flappy", "res/flappy.png"),
+        ("ready", "res/ready.png")
     ]
 
     # Tamanho da janela
@@ -75,7 +77,7 @@ def game_function(d, cfg):
     d.timer = d.timer2 = 0
 
     d.bird_init_position = (
-        cfg.WINSIZE[0] / 2 - image_size(d.res["bird_f0"])[0] / 2,
+        (cfg.WINSIZE[0] / 2 - image_size(d.res["bird_f0"])[0] / 2) - 50,
         cfg.WINSIZE[1] / 2 - image_size(d.res["bird_f0"])[1] / 2,
     )
 
@@ -96,6 +98,19 @@ def game_function(d, cfg):
 
     # }}}
     # FUNÇÕES {{{
+    
+    def restart_game():
+        d.timer = 0
+        d.pipes.clear()
+        d.floors, d.bgs = make_tiles()
+        d.game_state = 0
+        d.score = 0
+        d.timer2 = 0
+
+        d.player.angle_target = d.player.angle = 0
+        d.player.animation_id = d.player.animation_timer = d.player.animation_timer_limit = 0
+        d.player.speed.y = 0
+        d.player.pos.x, d.player.pos.y = d.bird_init_position
 
     def make_tiles():
         return (
@@ -108,7 +123,9 @@ def game_function(d, cfg):
     # }}}
     # CRIAR OBJETOS {{{
 
-    d.pause_button = Object((cfg.WINSIZE[0] - image_size(d.res["pause_normal"])[0] -10, 10), [d.res["pause_normal"], d.res["pause_hover"]], d)
+    d.pause_button = Object((cfg.WINSIZE[0] - image_size(d.res["pause_normal"])[0] -10, 10), [d.res["pause_normal"], d.res["paused"]], d)
+    d.scoreboard_button = Object((cfg.WINSIZE[0] - image_size(d.res["scoreboard"])[0] -280, 405), d.res["scoreboard"], d)
+    d.play_button = Object((cfg.WINSIZE[0] - image_size(d.res["play"])[0] -520, 405), d.res["play"], d)
 
     # Jogador e Cenário
     player_frames = [d.res[f"bird_f{x}"] for x in range(3)]
@@ -145,7 +162,7 @@ def game_function(d, cfg):
 
                     # Pontos ao passar pelo cano
                     # Parte do código está na classe do pipe.
-                    if (not pipe.has_scored) and (d.player.pos.x > pipe.pos.x + pipe_hitbox[3]):
+                    if (not pipe.has_scored) and (d.player.pos.x >= pipe.pos.x + pipe_hitbox[3]):
                         d.score += 1
                         pipe.has_scored = True
 
@@ -183,16 +200,7 @@ def game_function(d, cfg):
             # Preparar as listas de floor e background no primeiro frame do jogo.
             # Isto é utilizado também com resets.
             if d.timer == 0:
-                d.pipes.clear()
-                d.floors, d.bgs = make_tiles()
-                d.game_state = 0
-                d.score = 0
-                d.timer2 = 0
-
-                d.player.angle_target = d.player.angle = 0
-                d.player.animation_id = d.player.animation_timer = d.player.animation_timer_limit = 0
-                d.player.speed.y = 0
-                d.player.pos.x, d.player.pos.y = d.bird_init_position
+                restart_game()
 
         # }}}
         # INPUT {{{
@@ -210,12 +218,15 @@ def game_function(d, cfg):
             if d.input.keymap[BUTTON_LEFT].first:
                 d.pause = not d.pause
 
-            if not d.input.keymap[BUTTON_LEFT].held:
-                d.pause_button.frames.current_index = 1
-            else:
-                d.pause_button.frames.current_index = 1
+        if d.pause:
+            d.pause_button.frames.current_index = 1
         else:
             d.pause_button.frames.current_index = 0
+
+        # Restart pós-morte
+        if gameobject_hitbox(d.play_button).collidepoint(d.input.mouse_pos) and d.game_state == 2:
+            if d.input.keymap[BUTTON_LEFT].first:
+                restart_game()
 
         # }}}
         # RENDERIZAÇÃO {{{
@@ -246,10 +257,11 @@ def game_function(d, cfg):
         # Renderizar hitbox do chão
         if d.debug_mode:
             pygame.draw.rect(d.screen, cfg.HITBOX_COLOR, (0, cfg.GROUND_POS, *cfg.WINSIZE), cfg.HITBOX_WIDTH)
-
+            
         # Mostrar a dica inicial
         if d.game_state == 0 and not d.pause:
-            d.screen.blit(d.res["starter_tip"], (450, 50))
+            d.screen.blit(d.res["ready"], (222, 20))
+            d.screen.blit(d.res["starter_tip"], (450, 200))
 
         # Mostrar o botão de pause
         if d.game_state != 2:
@@ -259,14 +271,15 @@ def game_function(d, cfg):
         if cfg.FONT_ENABLED and d.game_state == 1 or d.debug_mode:
             debug_text = "{debug_flag}Score: {score}".format(
                     debug_flag=f"[DEBUG] FPS: {int(d.clock.get_fps())} | " if d.debug_mode else "",
-                    score=d.score,
+                    score=int(d.score),
             )
             fps_text = cfg.FONT.render(debug_text, True, cfg.FONT_COLOR)
             d.screen.blit(fps_text, cfg.FONT_POS)
 
-        # Menu no Pause
+        # Pause menu
         if d.pause:
-            d.screen.blit(d.res["menu"], (258, 145))
+            d.screen.blit(d.res["menu"], (258, 155))
+            d.screen.blit(d.res["flappy"], (222, 20))
 
         # Game Over
         if d.game_state == 2:
@@ -276,7 +289,7 @@ def game_function(d, cfg):
                 d.screen.blit(d.res["game_over"], (222, 20))
                 d.screen.blit(d.res["over_menu"], (258, 145))
                 d.screen.blit(d.res["play"], (280, 405))
-                d.screen.blit(d.res["leaderboard"], (520, 405))
+                d.screen.blit(d.res["scoreboard"], (520, 405))
 
         # Atualizar a tela
         pygame.display.update()

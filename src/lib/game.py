@@ -34,10 +34,6 @@ class Player(Object): # {{{
             if self.d.game_state == 0:
                 self.d.game_state = 1
 
-            # Reiniciar se o jogador estiver morto.
-            elif self.d.game_state == 2:
-                self.d.timer = 0
-
             # Pular se o jogo já tiver começado (incluindo logo quando o jogo iniciar)
             if self.d.game_state in {0, 1}:
                 self.speed.y = -8
