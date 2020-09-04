@@ -5,7 +5,7 @@ from pathlib import Path
 from .config import GameConfig
 
 class GameCache:
-    """Armazena a cache do jogo."""
+    """Contains game cache, helping with speed."""
     def __init__(self, config):
         assert isinstance(config, GameConfig)
 

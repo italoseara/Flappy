@@ -8,7 +8,6 @@ from core.maths import gameobject_hitbox, gameobject_size
 
 class Player(Entity):
     def __init__(self, pos, frames):
-        """Inicia o jogador."""
         self.setup(pos, frames)
         self.reset()
 
@@ -26,17 +25,16 @@ class Player(Entity):
     def process(self, state, config):
         ih = state.input_handler
 
-        # Adicionar ao jump_counter
         self.jump_counter += 1
 
+        # when pressing the up key
         if ih.keymap[pygame.K_UP].first:
-            # Ao apertar a seta para cima:
-
-            # Iniciar o jogo se ele ainda não tiver sido iniciado.
+            # start the game if it hasn't started yet
+            # TODO: move this to __init__.py
             if state.game_state == 0:
                 state.game_state = 1
 
-            # Pular se o jogo já tiver começado (incluindo logo quando o jogo iniciar)
+            # jump
             if state.game_state in {0, 1}:
                 self.speed.y = -8
                 self.jump_counter = 0
@@ -50,13 +48,13 @@ class Player(Entity):
         else:
             self.speed.y += config.gravity
 
-        # "Capar" a velocidade vertical se o pássaro atingir o topo da tela enquanto estiver pulando.
+        # cap the Y speed if the player goes through the top of the screen
         if self.pos.y < 0:
             self.pos.y = 0
             self.speed.y = 0
 
-        # Deixar o pássaro entalado pouco depois da parte de baixo da tela se ele chegar lá.
-        # Isso previne um bug estranho: "se o jogador cair demais, ele volta para o topo da tela"
+        # let the player stuck above the ground
+        # FIXME: make this less trash
         if self.pos.y > ((config.ground_pos - gameobject_size(self)[1]) - 5) and state.game_state == 2:
             self.pos.y = ((config.ground_pos - gameobject_size(self)[1]) - 5)
             self.speed.y = 0
@@ -68,15 +66,15 @@ class Player(Entity):
             self.speed.y = -8
 
         if self.animation_id == 0:
-            # Introdução (voando sem pular)
+            # introduction (flying)
             self.animation_timer_limit = 8
         elif self.animation_id == 1:
-            # Transição para parar as asas (quando morrer)
+            # transition to stop the wings (when dying)
             self.animation_timer_limit = 8
             if self.frames.current_index == 0:
                 self.animation_id = 2
         elif self.animation_id == 2:
-            # Asas paradas
+            # stopped wings
             self.animation_timer_limit = None
 
         if self.animation_id != None:
@@ -88,19 +86,18 @@ class Player(Entity):
                 self.frames.current_index = 0
             self.animation_timer = 0
 
+        # rotate the player based on when has it jumped.
         if state.game_state != 0:
-            # Achar ângulo
             if self.jump_counter < 30:
                 self.angle_target = 30
             else:
                 self.angle_target = -45
 
-            # Girar o pássaro
             self.angle += (self.angle_target - self.angle) * 0.15
             self.angle_target = (self.angle_target + 360) % 360
 
     def render(self):
-        # Atualizar a imagem para poder retornar
+        # update the image and return it
         old_center = (self.pos.x + 15, self.pos.y + 15)
         new_image = pygame.transform.rotate(
             self.frames.current_frame, self.angle

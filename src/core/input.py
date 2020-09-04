@@ -18,7 +18,7 @@ class InputKey:
     first: bool = False
 
 class InputHandler:
-    """Classe para processamento de dados da entrada do jogador."""
+    """Processes input data (mouse, keyboard etc.)"""
     def __init__(self):
         self.keymap = {}
         self.mouse_pos = pygame.mouse.get_pos()
@@ -31,20 +31,15 @@ class InputHandler:
         self.keymap[BUTTON_RIGHT] = InputKey(BUTTON_RIGHT)
 
     def update_keys(self):
-        # Pegar dados não-processados sobre as teclas
         raw_keymap = pygame.key.get_pressed()
         raw_mouse = pygame.mouse.get_pressed()
         self.mouse_pos = pygame.mouse.get_pos()
 
-        # Teclas válidas para cima
-        # m = (bool(raw_mouse[0])
-        #      if not gameobject_hitbox(d.pause_button).collidepoint(self.mouse_pos)
-        #      else False)
-        # TODO: pq isso ta aqui
         m = bool(raw_mouse[0])
         upkeys = raw_keymap[K_UP] or raw_keymap[K_k] or raw_keymap[K_SPACE] or raw_keymap[K_w] or m
 
-        # Limpar as variáveis `first`
+        # `first` variables
+        # these variables mean that, in the current frame, the key has been started pressing.
         self.keymap[K_UP].first = False
         self.keymap[K_h].first = False
         self.keymap[BUTTON_LEFT].first = False
@@ -52,7 +47,7 @@ class InputHandler:
         self.keymap[BUTTON_RIGHT].first = False
         self.keymap[K_ESCAPE].first = False
 
-        # Preencher a lista de variáveis `first`
+        # fill the `first` variables
         if upkeys and not self.keymap[K_UP].held:
             self.keymap[K_UP].first = True
         if raw_keymap[K_h] and not self.keymap[K_h].held:
@@ -66,7 +61,9 @@ class InputHandler:
         if raw_keymap[K_ESCAPE] and not self.keymap[K_ESCAPE].held:
             self.keymap[K_ESCAPE].first = True
 
-        # Atualizar a lista de variáveis `held`
+        # `held` variables
+        # these variables are true whenever the key is held. This # includes its first frame (when
+        # `first` is True, `held` is also True)
         self.keymap[K_UP].held = upkeys
         self.keymap[K_h].held = raw_keymap[K_h]
         self.keymap[BUTTON_LEFT].held = raw_mouse[0]

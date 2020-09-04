@@ -1,7 +1,7 @@
 import pygame
 
 class FrameManager:
-    """Uma lista de imagens com variáveis relacionadas à renderização."""
+    """Manages a list of frames."""
 
     def __init__(self, frames, current_index=0):
         self.frame_list = list(frames)
@@ -12,7 +12,7 @@ class FrameManager:
         return self.frame_list[self.current_index]
 
 class Vector2D:
-    """Um vetor de duas dimensões."""
+    """A two-dimensional vector"""
     def __init__(self, x=0.0, y=0.0):
         self.x = float(x)
         self.y = float(y)
@@ -37,9 +37,10 @@ class Vector2D:
         return (self.x, self.y)
 
 def resource_dict(resource_list):
-    """Carrega as imagens providenciadas na lista de tuplas `resource_list`.
+    """Loads the images provided by `resource_list`.
 
-    resource_list = [(nome, caminho_da_imagem), (nome, caminho_da_imagem), ...]
+    resource_list: List[Tuple[str, str]]
+    The first element of each tuple is the resource name to be stored, and the second element is the image path.
     """
     value_to_return = {}
     for resource in resource_list:

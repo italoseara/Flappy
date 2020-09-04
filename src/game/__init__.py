@@ -126,6 +126,7 @@ def game_main(config):
         config.win_size[0] / 2 - bird_f0_size[0] / 2 - 50,
         config.win_size[1] / 2 - bird_f0_size[1] / 2,
     )
+    restart_game = initialize_game # temp alias
 
     clock = pygame.time.Clock()
     state = get_state()
@@ -137,12 +138,12 @@ def game_main(config):
     )
 
     initialize_game()
-    restart_game = initialize_game # alias temporário
 
     while state.is_running:
-        # Forçar o Framerate
+        # force framerate
         clock.tick(config.framerate)
 
+        # get keypresses
         ih.update_keys()
         
         if not state.is_paused:
@@ -156,25 +157,24 @@ def game_main(config):
                     pipe.process()
                     pipe_hitbox = gameobject_hitbox(pipe)
 
-                    # Pontos ao passar pelo cano
-                    # Parte do código está na classe do pipe.
+                    # get points when going through a pipe
+                    # part of the code is in the pipe class.
                     if (not pipe.has_scored) and (state.player.pos.x >= pipe.pos.x + pipe_hitbox[3]):
                         state.current_score += 1
                         pipe.has_scored = True
-                        #print('Scored!')
 
-                    # Morte na colisão entre o jogador e um cano
+                    # die if colliding with the pipe
                     if pipe_hitbox.colliderect(gameobject_hitbox(state.player)):
                         state.game_state = 2
                         state.player.speed.y = config.jump_speed
                         break
 
-                    # Despawnar o cano quando ele sair da esquerda da tela.
+                    # delete the pipe if it goes offscreen (via left)
                     if pipe.pos.x < 0 - gameobject_size(pipe)[0]:
                         del state.pipes[i]
 
-                # Spawnar dois canos (um em cima e um em baixo) quando o counter acabar.
-                # FIXME: isso parece ser lento.
+                # spawn two pipes (above and below) when the counter goes to zero
+                # FIXME: this seems to be slow. Maybe simply moving the pipes to the right of the screen could work?
                 if state.pipe_spawn_counter <= 0:
                     top_y = randint(*config.pipe_height_interval)
                     bot_y = top_y + image_size(cache.get_resource("pipe_top"))[1] + config.pipe_y_spacing
@@ -193,8 +193,9 @@ def game_main(config):
                     state.pipes += [top_pipe, bot_pipe]
                     state.pipe_spawn_counter = state.pipe_spawn_delay
 
-            # Iterar tiles
-            # Colocar isso antes da preparação das listas do primeiro frame para que o jogo não comece com os itens se mexendo já para trás.
+            # move tiles, I guess?
+            # place this before the game initialization or the game will start with things already
+            # moving a little.
             if state.game_state in {0, 1}:
                 for tile in (state.floors + state.backgrounds):
                     # Atualizar a posição com base na velocidade
@@ -203,72 +204,74 @@ def game_main(config):
                     if tile.pos.x < 0 - gameobject_size(tile)[0]:
                         tile.pos.x = config.win_size[0]
 
-            # Preparar as listas de floor e background no primeiro frame do jogo.
-            # Isto é utilizado também com resets.
+            # game initialization on first frame
             if state.game_timer == 0:
                 initialize_game()
 
-        # Ativar/desativar hitboxes
+        # enable or disable debug mode
+        # debug mode includes being able to see hitboxes and other small features.
         if ih.keymap[K_h].first:
             state.debug_mode = not state.debug_mode
 
-        # Pause via teclas
-        if ih.keymap[K_ESCAPE].first and state.game_state != 2:
+        # pause the game
+        should_pause = ((ih.keymap[K_ESCAPE].first # on keypress
+                         and state.game_state != 2)
+                        or (gameobject_hitbox(state.pause_button).collidepoint(ih.mouse_pos) # on mouse click
+                            and state.game_state != 2
+                            and ih.keymap[BUTTON_LEFT].first))
+        if should_pause and state.game_state != 0: # can't pause if the game hasn't started
             state.is_paused = not state.is_paused
 
-        # Pause via mouse
-        if gameobject_hitbox(state.pause_button).collidepoint(ih.mouse_pos) and state.game_state != 2:
-            if ih.keymap[BUTTON_LEFT].first:
-                state.is_paused = not state.is_paused
-
+        # change pause button sprite depending on whether the game is paused or not
         if state.is_paused:
             state.pause_button.frames.current_index = 1
         else:
             state.pause_button.frames.current_index = 0
 
-        # Restart pós-morte
+        # restart after death
+        # TODO: add keypress for this
         if (gameobject_hitbox(state.play_button).collidepoint(ih.mouse_pos)
             and state.game_state == 2
             and ih.keymap[BUTTON_LEFT].first):
             restart_game()
 
-        # Fundo (céu)
+        # fill screen with sky color
         manager.fill_screen(cache.background_color)
 
-        # Renderizar background e canos
+        # render background and pipes
         for obj in state.backgrounds + state.pipes:
             manager.render(obj)
 
-        # Renderizar jogador
+        # render the player
         manager.render(state.player)
 
-        # Renderizar hitboxes dos canos
+        # render pipe hitboxes
         if state.debug_mode:
             for pipe in state.pipes:
                 pygame.draw.rect(state.screen, config.hitbox_color, gameobject_hitbox(pipe), config.HITBOX_WIDTH)
         
-        # Renderizar hitboxes do jogador
+        # render player hitboxes
         if state.debug_mode:
             pygame.draw.rect(state.screen, config.player_hitbox_color, gameobject_hitbox(state.player), config.HITBOX_WIDTH)
 
-        # Renderizar chão
+        # render the ground
         for obj in state.floors:
             manager.render(obj)
 
-        # Renderizar hitbox do chão
+        # render ground hitbox
         if state.debug_mode:
             pygame.draw.rect(state.screen, config.hitbox_color, (0, config.GROUND_POS, *config.win_size), config.HITBOX_WIDTH)
             
-        # Mostrar a dica inicial
+        # show initial tip
         if state.game_state == 0 and not state.is_paused:
             manager.blit(cache.get_resource("ready"), (222, 20))
             manager.blit(cache.get_resource("starter_tip"), (450, 200))
 
-        # Mostrar o botão de pause
-        if state.game_state != 2:
+        # show pause button
+        if state.game_state == 1:
             manager.render(state.pause_button)
 
-        # Texto no topo da tela
+        # show score text on the top-left corner
         if config.score_text_enabled and state.game_state == 1 or state.debug_mode:
             debug_text = "{debug_flag}Score: {score}".format(
                     debug_flag=f"[DEBUG] FPS: {int(state.clock.get_fps())} | " if state.debug_mode else "",
@@ -277,32 +280,30 @@ def game_main(config):
             fps_text = cache.score_font.render(debug_text, True, cache.score_font_color)
             manager.blit(fps_text, config.score_text_pos)
 
-        # Pause menu
+        # pause menu
         if state.is_paused:
             manager.blit(cache.get_resource("menu"), (258, 155))
             manager.blit(cache.get_resource("flappy"), (222, 20))
 
-        # Game Over
+        # game over
         if state.game_state == 2:
             state.player.animation_timer = 0
             state.death_timer += 1
-            if state.death_timer >= 70: # Aguarda a animação de morte
+            if state.death_timer >= 70: # wait some time for showing the death screen
                 manager.blit(cache.get_resource("game_over"), (222, 20))
                 manager.blit(cache.get_resource("over_menu"), (258, 145))
                 manager.blit(cache.get_resource("play"), (280, 405))
                 manager.blit(cache.get_resource("scoreboard"), (520, 405))
 
-        # Atualizar a tela
+        # update screen
         pygame.display.update()
 
-        # Processamento de eventos
         for event in pygame.event.get():
-
-            # Sair pelo comando sair da janela (Botão X no canto, Alt+F4 etc.)
+            # exit via the QUIT event (window manager-specific)
             if event.type == QUIT:
                 state.is_running = False
 
-        # Adicionar 1 ao timer
+        # add 1 to the game timer
         state.game_timer += 1
 
 def main():

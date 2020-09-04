@@ -5,7 +5,7 @@ class Pipe(Entity):
         self.setup(pos, frames)
         self.speed = speed
 
-        # Usado no código principal para ver se o jogador já passou desse cano e já pegou a pontuação.
+        # used in the main code to check if the player has gotten the score from this pipe already.
         self.has_scored = False
 
     def process(self):

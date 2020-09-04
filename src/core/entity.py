@@ -16,6 +16,8 @@ class Entity(Renderable):
         self.frames = FrameManager(frames)
 
     def process(self):
-        """A function made in order to group code related to the object to be called once per frame. Implementation is required by children of this class."""
+        """Made in order to group code related to the object to be called once per frame.
+        Implementation is required by children of this class.
+        """
         raise NotImplementedError
 

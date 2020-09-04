@@ -3,9 +3,8 @@ from typing import List, Tuple
 
 @dataclass(frozen=True)
 class GameConfig:
-    """Armazena as configurações do jogo."""
+    """Contains the game configuration."""
 
-    # Configurações sem padrões (valores precisam ser especificados)
     resources_to_load: List[Tuple[str, str]]
     speed: int
     font_string: str
@@ -13,8 +12,7 @@ class GameConfig:
     title: str
     resources_dir: str
 
-    # Configurações com padrões
-    # TODO: mover a maioria dos padrões
+    # TODO: remove most defaults
     win_size: Tuple[int, int] = (960, 540)
     background_color: Tuple[int, int, int] = (115, 200, 215)
     framerate: int = 60
