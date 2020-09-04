@@ -1,6 +1,3 @@
-# vim: foldmethod=marker
-# INICIALIZAÇÃO {{{
-
 # Pygame & Stdlib
 import pygame
 from pygame.locals import *
@@ -14,9 +11,6 @@ from lib.data import *
 from lib.maths import *
 
 pygame.init()
-
-# }}}
-# CONFIGURAÇÕES {{{
 
 class cfg:
 
@@ -63,12 +57,9 @@ class cfg:
     DEBUG = False
     GROUND_POS = 476
 
-# }}}
-# PARTE PRINCIPAL {{{
-
 def game_function(d, cfg):
     """Código principal do jogo, que coordena todos os objetos."""
-    # INICIALIZAÇÃO DE VARIÁVEIS {{{
+
     d.cfg = cfg
     d.debug_mode = cfg.DEBUG
     d.res = resource_dict(cfg.RESOURCES)
@@ -96,9 +87,6 @@ def game_function(d, cfg):
     d.running = True
     d.pause = False
 
-    # }}}
-    # FUNÇÕES {{{
-    
     def restart_game():
         d.timer = 0
         d.pipes.clear()
@@ -120,9 +108,6 @@ def game_function(d, cfg):
             [Tile((x, 0), d.res["bg"], d, 1.0, cfg.PARALLAX_BG) for x in [0, 1600]],
         )
 
-    # }}}
-    # CRIAR OBJETOS {{{
-
     d.pause_button = Object((cfg.WINSIZE[0] - image_size(d.res["pause_normal"])[0] -10, 10), [d.res["pause_normal"], d.res["paused"]], d)
     d.scoreboard_button = Object((cfg.WINSIZE[0] - image_size(d.res["scoreboard"])[0] -280, 405), d.res["scoreboard"], d)
     d.play_button = Object((cfg.WINSIZE[0] - image_size(d.res["play"])[0] -520, 405), d.res["play"], d)
@@ -132,11 +117,7 @@ def game_function(d, cfg):
     d.player = Player(d.bird_init_position, player_frames, d)
     d.floors, d.bgs, d.pipes = [], [], []
 
-    # }}}
-    # LOOP PRINCIPAL {{{
     while d.running:
-        # INÍCIO DO FRAME {{{
-
         # Forçar o Framerate
         d.clock.tick(cfg.FRAMERATE)
 
@@ -148,9 +129,6 @@ def game_function(d, cfg):
 
             # Step Processing
             d.player.process()
-
-        # }}}
-        # PROCESSAMENTO & FÍSICA {{{
 
         if not d.pause:
             if d.game_state == 1:
@@ -202,9 +180,6 @@ def game_function(d, cfg):
             if d.timer == 0:
                 restart_game()
 
-        # }}}
-        # INPUT {{{
-
         # Ativar/desativar hitboxes
         if d.input.keymap[K_h].first:
             d.debug_mode = not d.debug_mode
@@ -227,9 +202,6 @@ def game_function(d, cfg):
         if gameobject_hitbox(d.play_button).collidepoint(d.input.mouse_pos) and d.game_state == 2:
             if d.input.keymap[BUTTON_LEFT].first:
                 restart_game()
-
-        # }}}
-        # RENDERIZAÇÃO {{{
 
         # Fundo (céu)
         d.screen.fill(cfg.BACKGROUND_COLOR)
@@ -294,9 +266,6 @@ def game_function(d, cfg):
         # Atualizar a tela
         pygame.display.update()
 
-        # }}}
-        # POST-PROCESSING {{{
-
         # Processamento de eventos
         for event in pygame.event.get():
 
@@ -307,16 +276,8 @@ def game_function(d, cfg):
         # Adicionar 1 ao timer
         d.timer += 1
 
-        # }}}
-# }}}
-
-# }}}
-# INICIALIZAÇÃO DO JOGO {{{
-
 def run_game(fn):
     fn(DataSpace(), cfg)
 
 if __name__ == "__main__":
     run_game(game_function)
-
-# }}}

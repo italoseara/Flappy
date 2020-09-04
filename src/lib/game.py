@@ -1,12 +1,10 @@
-# vim: foldmethod=marker
-
 from lib.obj import Object
 from lib.data import Vector2D
 from lib.maths import gameobject_hitbox, gameobject_size
 from math import sin
 import pygame
 
-class Player(Object): # {{{
+class Player(Object):
     
     def __init__(self, pos, frames, d):
         """Inicia o jogador."""
@@ -108,8 +106,8 @@ class Player(Object): # {{{
         rect.center = old_center
 
         return (new_image, rect)
-# }}}
-class Pipe(Object): # {{{
+
+class Pipe(Object):
     """Código principal do cano."""
 
     def __init__(self, pos, frames, d=None, speed: float = 1.0):
@@ -122,8 +120,8 @@ class Pipe(Object): # {{{
 
         A cada frame, o cano vai um pouco à esquerda, dependendo do valor de sua velocidade."""
         self.pos.x -= self.speed
-# }}}
-class Tile(Object): # {{{
+        
+class Tile(Object):
     """Código principal dos Tiles (chão e fundo)."""
 
     def __init__(self, pos, frames, d, speed=1.0, parallax_coeff=1.0):
@@ -134,4 +132,3 @@ class Tile(Object): # {{{
         self.setup(pos, frames, d)
         self.speed = float(speed)
         self.parallax_coeff = float(parallax_coeff)
-# }}}

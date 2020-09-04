@@ -1,5 +1,3 @@
-"""Classes para armazenamento de dados (data structures)."""
-
 import pygame
 
 class DataSpace:
