@@ -1,5 +1,5 @@
 import pygame
-from lib.maths import gameobject_hitbox
+from .maths import gameobject_hitbox
 from pygame.locals import (
     K_UP, K_k, K_SPACE, K_w, K_h, K_ESCAPE
 )

@@ -1,4 +1,4 @@
-from lib.data import FrameManager, Vector2D
+from .data import FrameManager, Vector2D
 
 class Object:
     """É a base para grande parte dos elementos interativos no jogo."""
