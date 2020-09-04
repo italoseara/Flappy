@@ -55,8 +55,8 @@ class Player(Object): # {{{
 
         # Deixar o pássaro entalado pouco depois da parte de baixo da tela se ele chegar lá.
         # Isso previne um bug estranho: "se o jogador cair demais, ele volta para o topo da tela"
-        if self.pos.y > (self.d.cfg.WINSIZE[1] + gameobject_size(self)[1]):
-            self.pos.y = (self.d.cfg.WINSIZE[1] + gameobject_size(self)[1])
+        if self.pos.y > ((self.d.cfg.GROUND_POS - gameobject_size(self)[1]) - 5) and self.d.game_state == 2:
+            self.pos.y = ((self.d.cfg.GROUND_POS - gameobject_size(self)[1]) - 5)
             self.speed.y = 0
 
         elif (self.pos.y >= self.d.cfg.GROUND_POS - self.fixed_hitbox[3]
