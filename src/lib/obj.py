@@ -1,5 +1,9 @@
 from .data import FrameManager, Vector2D
 
+class Renderable:
+    def render(self):
+        return self.frames.current_frame, self.pos.to_tuple()
+
 class Object(Renderable):
     """A base para a maioria dos elementos interativos no jogo."""
 
@@ -16,6 +20,3 @@ class Object(Renderable):
         """Função feita com o intuito de agrupar código relacionado ao objeto para ser chamado uma vez por frame."""
         pass
 
-class Renderable:
-    def render(self):
-        return self.frames.current_frame, self.pos.to_tuple()
