@@ -142,6 +142,7 @@ def game_function(d, cfg):
                     if (not pipe.has_scored) and (d.player.pos.x >= pipe.pos.x + pipe_hitbox[3]):
                         d.score += 1
                         pipe.has_scored = True
+                        #print('Scored!')
 
                     # Morte na colisão entre o jogador e um cano
                     if pipe_hitbox.colliderect(gameobject_hitbox(d.player)):

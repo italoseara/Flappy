@@ -5,10 +5,10 @@ class Renderable:
         return self.frames.current_frame, self.pos.to_tuple()
 
 class Object(Renderable):
-    """A base para a maioria dos elementos interativos no jogo."""
+    """The basis for most interactive elements of the game."""
 
     def __init__(self, pos, frames, data_space):
-        """A substituição desta função é recomendada, mas lembre-se de chamar a função self._setup logo no início dela."""
+        """Replacement of this function is recommended, but remember to call the self._setup function at the very beginning."""
         self.setup(pos, frames, data_space)
 
     def setup(self, pos, frames, data_space):
@@ -17,6 +17,6 @@ class Object(Renderable):
         self.d = data_space
 
     def process(self):
-        """Função feita com o intuito de agrupar código relacionado ao objeto para ser chamado uma vez por frame."""
+        """Function made in order to group code related to the object to be called once per frame."""
         pass
 

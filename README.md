@@ -1,20 +1,20 @@
 # Flappy
 
-Este é um clone simples de Flappy Bird feito em *python3* através da biblioteca *pygame*.
+It is a simple Flappy Bird cone made in *python3* through the *pygame* library.
 
-Contribuidores: [Ítalo](https://github.com/italodoarbusto) e [YohananDiamond](https://github.com/YohananDiamond)
+Contributors: [Ítalo Seara](https://github.com/italodoarbusto) and [YohananDiamond](https://github.com/YohananDiamond)
 
-## Rodando o código
+## Runing the code
 
-Esse clone atualmente não tem um método de instalação formado, por isso a maneira recomendada é rodar o arquivo `src/main.py`.
+This clone does not currently have a formed installation method, so the recommended way is to run the `src/main.py` file.
 
-Primeiro, antes de tudo, é necessário instalar o pygame, através (provavelmente) do pip.
+First of all, it is necessary to install pygame, via (probably) pip.
 
 ```bash
 pip install pygame
 ```
 
-Depois disso, basta clonar o repositório e rodar o arquivo `main.py`, localizado na pasta `src`.
+After that, just clone the repository and run the `main.py` file, located in the `src` folder.
 ```bash
 git clone https://github.com/italodoarbusto/Flappy
 cd Flappy
