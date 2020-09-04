@@ -1,7 +1,6 @@
 import pygame
 
-class DataSpace:
-    """Um espaço de dados sem nada definido."""
+class DataSpace: ...
 
 class FrameManager:
     """Uma lista de imagens com variáveis relacionadas à renderização."""

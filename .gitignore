@@ -1,5 +1,6 @@
 # Arquivos gerados pelo python
 **/__pycache__
+**/.mypy_cache
 
 # Arquivos de IDEs
 .idea
