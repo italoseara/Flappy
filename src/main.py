@@ -1,9 +1,8 @@
-# Pygame & Stdlib
 import pygame
 from pygame.locals import *
+
 from random import randint
 
-# Módulos Locais
 from lib.game import *
 from lib.input import InputHandler, BUTTON_LEFT, BUTTON_MIDDLE, BUTTON_RIGHT
 from lib.obj import *

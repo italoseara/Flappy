@@ -1,5 +1,3 @@
-"""Um conjunto de funções e classes relacionadas à parte de cálculos numéricos."""
-
 from pygame import Rect
 
 def image_size(image) -> tuple:

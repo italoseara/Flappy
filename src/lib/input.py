@@ -1,8 +1,10 @@
 import pygame
-from .maths import gameobject_hitbox
 from pygame.locals import (
     K_UP, K_k, K_SPACE, K_w, K_h, K_ESCAPE
 )
+
+from .maths import gameobject_hitbox
+
 BUTTON_LEFT = 0
 BUTTON_MIDDLE = 1
 BUTTON_RIGHT = 2

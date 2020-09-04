@@ -1,8 +1,9 @@
+import pygame
+
 from .obj import Object
 from .data import Vector2D
 from .maths import gameobject_hitbox, gameobject_size
 from math import sin
-import pygame
 
 class Player(Object):
     
