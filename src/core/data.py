@@ -1,25 +1,15 @@
 import pygame
 
-class DataSpace: ...
-
 class FrameManager:
     """Uma lista de imagens com variáveis relacionadas à renderização."""
 
-    def __init__(self, frames: list = [], current_index: int = 0):
-        self.frame_list = frames
+    def __init__(self, frames, current_index=0):
+        self.frame_list = list(frames)
         self.current_index = current_index
 
     @property
     def current_frame(self):
         return self.frame_list[self.current_index]
-
-    @staticmethod
-    def create(arg):
-        assert type(arg) in {tuple, list, pygame.Surface}
-        if type(arg) in {tuple, list}:
-            return FrameManager(list(arg))
-        elif type(arg) == pygame.Surface:
-            return FrameManager([arg])
 
 class Vector2D:
     """Um vetor de duas dimensões."""
