@@ -3,11 +3,11 @@ from pygame.locals import *
 
 from random import randint
 
-from lib.game import *
-from lib.input import InputHandler, BUTTON_LEFT, BUTTON_MIDDLE, BUTTON_RIGHT
-from lib.obj import *
-from lib.data import *
-from lib.maths import *
+from core.game import *
+from core.input import InputHandler, BUTTON_LEFT, BUTTON_MIDDLE, BUTTON_RIGHT
+from core.obj import *
+from core.data import *
+from core.maths import *
 
 pygame.init()
 
