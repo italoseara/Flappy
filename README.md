@@ -32,5 +32,5 @@ You can also use `make` but the makefile is kinda incomplete.
 
 ### Windows
 
-I don't know. You're on your own here. Or maybe @italoseara can help
-with this.
+There's a script, `make.bat`. It might help you. In other cases, I'm
+not sure on how to help.
