@@ -29,8 +29,8 @@ class GameConfig:
 
     bg_parallax_coeff: float
     floor_parallax_coeff: float
-    pipe_height_interval: Tuple[int, int]
+    pipe_y_offset_range: Tuple[int, int]
     pipe_y_spacing: int
-    # TODO: pipe_x_spacing
+    pipe_x_spacing: int
 
     ground_pos: int

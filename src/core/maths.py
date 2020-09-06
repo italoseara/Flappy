@@ -18,5 +18,10 @@ def gameobject_hitbox(gameobject) -> tuple:
 
 def gameobject_render(gameobject, screen) -> None:
     """Renders an object."""
-    screen.blit(*gameobject.render())
+    render_result = gameobject.render()
+    if type(render_result) == list:
+        for r in render_result:
+            screen.blit(*r)
+    else:
+        screen.blit(*render_result)
 

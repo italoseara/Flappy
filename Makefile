@@ -1,5 +1,11 @@
+PYTHON := python3
+
 run:
-	cd src && python3 main.py
+	$(PYTHON) src/main.py
+
+check:
+	@pylint -j 4 $$(find src -type f | grep '\.py$$')
 
 pip:
-	python3 -m pip install pygame
+	$(PYTHON) -m pip install pygame
+	$(PYTHON) -m pip install pylint

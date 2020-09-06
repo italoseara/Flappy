@@ -1,10 +1,11 @@
 import pygame
 from pygame.locals import *
 
-from random import randint
+from itertools import chain
 from pathlib import Path
 from dataclasses import dataclass
 from typing import Any
+import math
 
 from core.input import InputHandler, BUTTON_LEFT, BUTTON_MIDDLE, BUTTON_RIGHT
 from core.entity import Entity
@@ -14,7 +15,7 @@ from core.maths import *
 
 from .config import GameConfig
 from .cache import GameCache
-from .objects import ScrollingTile, Player, Pipe
+from .objects import ScrollingTile, Player, TBPipes
 
 @dataclass
 class GameState:
@@ -30,7 +31,6 @@ class GameState:
     debug_mode: Any
 
     game_timer: int = 0
-    pipe_spawn_counter: int = 0
     death_timer: int = 0
 
     current_score: int = 0
@@ -65,10 +65,10 @@ def main():
         ],
 
         title="A strange flappy bird clone",
-        debug_mode=False,
+        debug_mode=True,
 
-        win_size = (960, 540),
-        blit_base_color = (115, 200, 215),
+        win_size=(960, 540),
+        blit_base_color=(115, 200, 215),
 
         scroll_speed=3,
         jump_speed=-8.0,
@@ -81,13 +81,15 @@ def main():
         score_text_enabled=True,
         score_text_pos=(15, 10),
 
-        hitbox_line_size=2, # OLD: hitbox_width
-        hitbox_line_color=(0, 255, 0),
+        hitbox_line_size=2,
+        hitbox_line_color=(255, 0, 0),
 
-        bg_parallax_coeff=0.5, # OLD: bg_parallax
-        floor_parallax_coeff=1.0, # OLD: floor_parallax
-        pipe_height_interval=(-210, -40),
+        bg_parallax_coeff=0.5,
+        floor_parallax_coeff=1.0,
+
+        pipe_y_offset_range=(-210, -40),
         pipe_y_spacing=130,
+        pipe_x_spacing=200,
 
         ground_pos=476,
     )
@@ -136,17 +138,25 @@ def main():
         state.death_timer = 0
         state.current_score = 0
 
-        state.pipe_spawn_delay = 200 / config.scroll_speed
-        state.pipe_spawn_counter = state.pipe_spawn_delay
-
         state.player.reset()
         state.player.angle_target = state.player.angle = 0
         state.player.animation_id = state.player.animation_timer = state.player.animation_timer_limit = 0
         state.player.speed.y = 0
         state.player.pos.x, state.player.pos.y = BIRD_INITIAL_POS
 
-        state.pipes.clear()
         state.floors, state.backgrounds = make_tiles()
+
+        pipe_res = [cache.get_resource(x) for x in ["pipe_top", "pipe_bot"]]
+        state.pipes = [
+            TBPipes(
+                win_size=config.win_size,
+                resources=pipe_res,
+                speed=(-config.scroll_speed),
+                x_offset=(config.pipe_x_spacing * i),
+                y_offset_range=config.pipe_y_offset_range,
+                y_spacing=config.pipe_y_spacing,
+            ) for i in range(math.floor(config.win_size[0] / config.pipe_x_spacing) + 1)
+        ]
 
     def make_tiles():
         floor_resource = cache.get_resource("floor")
@@ -203,56 +213,26 @@ def main():
 
         if not state.is_paused:
             if state.game_state == 1:
-                state.pipe_spawn_counter -= 1
-
-                for (i, pipe) in enumerate(state.pipes):
+                for pipe in state.pipes:
                     pipe.process()
-                    pipe_hitbox = gameobject_hitbox(pipe)
 
-                    # get points when going through a pipe
-                    # part of the code is in the pipe class.
-                    if (not pipe.has_scored) and (state.player.pos.x >= pipe.pos.x + pipe_hitbox[3]):
-                        state.current_score += 1
-                        pipe.has_scored = True
+                    # TODO: get points when going through a pipe
 
                     # die if colliding with the pipe
-                    if pipe_hitbox.colliderect(gameobject_hitbox(state.player)):
+                    if pipe.is_colliding(gameobject_hitbox(state.player)):
                         state.game_state = 2
                         state.player.speed.y = config.jump_speed
                         break
-
-                    # delete the pipe if it goes offscreen (via left)
-                    if pipe.pos.x < 0 - gameobject_size(pipe)[0]:
-                        del state.pipes[i]
-
-                # spawn two pipes (above and below) when the counter goes to zero
-                # FIXME: this seems to be slow. Maybe simply moving the pipes to the right of the screen could work?
-                if state.pipe_spawn_counter <= 0:
-                    top_y = randint(*config.pipe_height_interval)
-                    bot_y = top_y + image_size(cache.get_resource("pipe_top"))[1] + config.pipe_y_spacing
-
-                    top_pipe = Pipe(
-                        (config.win_size[0], top_y),
-                        [cache.get_resource("pipe_top")],
-                        -config.scroll_speed
-                    )
-                    bot_pipe = Pipe(
-                        (config.win_size[0], bot_y),
-                        [cache.get_resource("pipe_bot")],
-                        -config.scroll_speed
-                    )
-
-                    state.pipes += [top_pipe, bot_pipe]
-                    state.pipe_spawn_counter = state.pipe_spawn_delay
 
             # move tiles, I guess?
             # place this before the game initialization or the game will start with things already
             # moving a little.
             if state.game_state in {0, 1}:
-                for tile in (state.floors + state.backgrounds):
-                    # Atualizar a posição com base na velocidade
+                for tile in chain(state.floors, state.backgrounds):
+                    # update position based on speed
                     tile.pos.x -= config.scroll_speed * tile.parallax_coeff
-                    # Mover o tile para a direita se ele saiu completamente da tela.
+
+                    # screen-wrap the tile
                     if tile.pos.x < 0 - gameobject_size(tile)[0]:
                         tile.pos.x = config.win_size[0]
 
@@ -291,7 +271,7 @@ def main():
         manager.fill_screen(cache.blit_base_color)
 
         # render background and pipes
-        for obj in state.backgrounds + state.pipes:
+        for obj in chain(state.backgrounds, state.pipes):
             manager.render(obj)
 
         # render the player
@@ -299,12 +279,21 @@ def main():
 
         # render pipe hitboxes
         if state.debug_mode:
-            for pipe in state.pipes:
-                pygame.draw.rect(state.screen, config.hitbox_color, gameobject_hitbox(pipe), config.HITBOX_WIDTH)
+            for tb_pipe in state.pipes:
+                for hitbox in tb_pipe.get_hitboxes():
+                    manager.render_rect(
+                        rect=hitbox,
+                        line_color=config.hitbox_line_color,
+                        line_size=config.hitbox_line_size,
+                    )
         
         # render player hitboxes
         if state.debug_mode:
-            pygame.draw.rect(state.screen, config.player_hitbox_color, gameobject_hitbox(state.player), config.HITBOX_WIDTH)
+            manager.render_rect(
+                rect=gameobject_hitbox(state.player),
+                line_color=config.hitbox_line_color,
+                line_size=config.hitbox_line_size,
+            )
 
         # render the ground
         for obj in state.floors:
@@ -312,7 +301,11 @@ def main():
 
         # render ground hitbox
         if state.debug_mode:
-            pygame.draw.rect(state.screen, config.hitbox_color, (0, config.GROUND_POS, *config.win_size), config.HITBOX_WIDTH)
+            manager.render_rect(
+                rect=(0, config.ground_pos, *config.win_size),
+                line_color=config.hitbox_line_color,
+                line_size=config.hitbox_line_size,
+            )
             
         # show initial tip
         if state.game_state == 0 and not state.is_paused:
@@ -326,7 +319,7 @@ def main():
         # show score text on the top-left corner
         if config.score_text_enabled and state.game_state == 1 or state.debug_mode:
             debug_text = "{debug_flag}Score: {score}".format(
-                    debug_flag=f"[DEBUG] FPS: {int(state.clock.get_fps())} | " if state.debug_mode else "",
+                    debug_flag=f"[DEBUG] FPS: {int(clock.get_fps())} | " if state.debug_mode else "",
                     score=int(state.current_score),
             )
             fps_text = cache.score_text_font.render(debug_text, True, cache.score_text_font_color)

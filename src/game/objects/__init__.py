@@ -1,3 +1,3 @@
 from .scrolling_tile import ScrollingTile
 from .player import Player
-from .pipe import Pipe
+from .pipe import TBPipes
