@@ -5,29 +5,32 @@ from typing import List, Tuple
 class GameConfig:
     """Contains the game configuration."""
 
-    resources_to_load: List[Tuple[str, str]]
-    speed: int
-    font_string: str
-    debug_mode: bool
-    title: str
     resources_dir: str
+    resources_to_load: List[Tuple[str, str]]
 
-    # TODO: remove most defaults
-    win_size: Tuple[int, int] = (960, 540)
-    background_color: Tuple[int, int, int] = (115, 200, 215)
-    framerate: int = 60
-    gravity: float = 0.5
-    bg_parallax: float = 0.5
-    floor_parallax: float = 1.0
-    hitbox_width: int = 2
-    pipe_height_interval: Tuple[int, int] = (-210, -40)
-    pipe_y_spacing: int = 130
-    jump_speed: float = -8.0
-    hitbox_color: Tuple[int, int, int] = (255, 0, 0)
-    player_hitbox_color: Tuple[int, int, int] = (0, 255, 0)
-    score_font_name: str = "Cascadia Code, Consolas, Tahoma"
-    score_font_size: int = 20
-    score_font_color: str = "white"
-    score_text_enabled: bool = True
-    score_text_pos: Tuple[int, int] = (15, 10)
-    ground_pos: int = 476
+    title: str
+    debug_mode: bool
+    framerate: int
+    gravity: float
+
+    scroll_speed: int
+    jump_speed: float
+    win_size: Tuple[int, int]
+    blit_base_color: Tuple[int, int, int]
+
+    score_text_font_name: str
+    score_text_font_size: int
+    score_text_font_color: str
+    score_text_enabled: bool
+    score_text_pos: Tuple[int, int]
+
+    hitbox_line_size: int
+    hitbox_line_color: Tuple[int, int, int]
+
+    bg_parallax_coeff: float
+    floor_parallax_coeff: float
+    pipe_height_interval: Tuple[int, int]
+    pipe_y_spacing: int
+    # TODO: pipe_x_spacing
+
+    ground_pos: int

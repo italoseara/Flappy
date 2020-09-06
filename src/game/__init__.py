@@ -39,7 +39,58 @@ class GameState:
     is_running: bool = True
     is_paused: bool = False
 
-def game_main(config):
+def main():
+    config = GameConfig(
+        resources_dir=(Path(__file__) / "../../res").resolve().absolute(),
+        resources_to_load=[
+            ("icon", "icon.bmp"),
+            ("floor", "floor.png"),
+            ("bg", "background.png"),
+            ("bird_f0", "bird_f0.png"),
+            ("bird_f1", "bird_f1.png"),
+            ("bird_f2", "bird_f2.png"),
+            ("pipe_top", "pipe_top.png"),
+            ("pipe_bot", "pipe_bot.png"),
+            ("starter_tip", "starter_tip.png"),
+            ("game_over", "game_over.png"),
+            ("pause_normal", "pause_normal.png"),
+            ("paused", "paused.png"),
+            ("menu", "menu.png"),
+            ("over_menu", "over_menu.png"),
+            ("play", "play.png"),
+            ("scoreboard", "scoreboard.png"),
+            ("flappy", "flappy.png"),
+            ("ready", "ready.png")
+        ],
+
+        title="A strange flappy bird clone",
+        debug_mode=False,
+
+        win_size = (960, 540),
+        blit_base_color = (115, 200, 215),
+
+        scroll_speed=3,
+        jump_speed=-8.0,
+        gravity=0.5,
+        framerate=60,
+
+        score_text_font_name="Cascadia Code, Consolas, Tahoma",
+        score_text_font_size=20,
+        score_text_font_color="white",
+        score_text_enabled=True,
+        score_text_pos=(15, 10),
+
+        hitbox_line_size=2, # OLD: hitbox_width
+        hitbox_line_color=(0, 255, 0),
+
+        bg_parallax_coeff=0.5, # OLD: bg_parallax
+        floor_parallax_coeff=1.0, # OLD: floor_parallax
+        pipe_height_interval=(-210, -40),
+        pipe_y_spacing=130,
+
+        ground_pos=476,
+    )
+
     def get_state():
         pause_button_size = image_size(cache.get_resource("pause_normal"))
         scoreboard_button_size = image_size(cache.get_resource("scoreboard"))
@@ -84,7 +135,7 @@ def game_main(config):
         state.death_timer = 0
         state.current_score = 0
 
-        state.pipe_spawn_delay = 200 / config.speed
+        state.pipe_spawn_delay = 200 / config.scroll_speed
         state.pipe_spawn_counter = state.pipe_spawn_delay
 
         state.player.reset()
@@ -106,14 +157,14 @@ def game_main(config):
             ScrollingTile(
                 pos=(x, config.ground_pos),
                 resource=floor_resource,
-                parallax_coeff=config.floor_parallax,
+                parallax_coeff=config.floor_parallax_coeff,
             ) for x in [0, floor_size_x]
         ]
         backgrounds = [
             ScrollingTile(
                 pos=(x, 0),
                 resource=bg_resource,
-                parallax_coeff=config.bg_parallax,
+                parallax_coeff=config.bg_parallax_coeff,
             ) for x in [0, bg_size_x]
         ]
         return (floors, backgrounds)
@@ -182,12 +233,12 @@ def game_main(config):
                     top_pipe = Pipe(
                         (config.win_size[0], top_y),
                         [cache.get_resource("pipe_top")],
-                        -config.speed
+                        -config.scroll_speed
                     )
                     bot_pipe = Pipe(
                         (config.win_size[0], bot_y),
                         [cache.get_resource("pipe_bot")],
-                        -config.speed
+                        -config.scroll_speed
                     )
 
                     state.pipes += [top_pipe, bot_pipe]
@@ -199,7 +250,7 @@ def game_main(config):
             if state.game_state in {0, 1}:
                 for tile in (state.floors + state.backgrounds):
                     # Atualizar a posição com base na velocidade
-                    tile.pos.x -= config.speed * tile.parallax_coeff
+                    tile.pos.x -= config.scroll_speed * tile.parallax_coeff
                     # Mover o tile para a direita se ele saiu completamente da tela.
                     if tile.pos.x < 0 - gameobject_size(tile)[0]:
                         tile.pos.x = config.win_size[0]
@@ -236,7 +287,7 @@ def game_main(config):
             restart_game()
 
         # fill screen with sky color
-        manager.fill_screen(cache.background_color)
+        manager.fill_screen(cache.blit_base_color)
 
         # render background and pipes
         for obj in state.backgrounds + state.pipes:
@@ -277,7 +328,7 @@ def game_main(config):
                     debug_flag=f"[DEBUG] FPS: {int(state.clock.get_fps())} | " if state.debug_mode else "",
                     score=int(state.current_score),
             )
-            fps_text = cache.score_font.render(debug_text, True, cache.score_font_color)
+            fps_text = cache.score_text_font.render(debug_text, True, cache.score_text_font_color)
             manager.blit(fps_text, config.score_text_pos)
 
         # pause menu
@@ -305,34 +356,3 @@ def game_main(config):
 
         # add 1 to the game timer
         state.game_timer += 1
-
-def main():
-    config = GameConfig(
-        resources_dir=(Path(__file__) / "../../res").resolve().absolute(),
-        title="Flappy bird but it's weird",
-        speed=3,
-        font_string="Consolas, Tahoma",
-        debug_mode=False,
-        resources_to_load=[
-            ("icon", "icon.bmp"),
-            ("floor", "floor.png"),
-            ("bg", "background.png"),
-            ("bird_f0", "bird_f0.png"),
-            ("bird_f1", "bird_f1.png"),
-            ("bird_f2", "bird_f2.png"),
-            ("pipe_top", "pipe_top.png"),
-            ("pipe_bot", "pipe_bot.png"),
-            ("starter_tip", "starter_tip.png"),
-            ("game_over", "game_over.png"),
-            ("pause_normal", "pause_normal.png"),
-            ("paused", "paused.png"),
-            ("menu", "menu.png"),
-            ("over_menu", "over_menu.png"),
-            ("play", "play.png"),
-            ("scoreboard", "scoreboard.png"),
-            ("flappy", "flappy.png"),
-            ("ready", "ready.png")
-        ],
-    )
-
-    game_main(config)

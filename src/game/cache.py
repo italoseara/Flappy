@@ -18,13 +18,12 @@ class GameCache:
             with open(fpath, "r") as f:
                 self.resources[str(name)] = pygame.image.load(f)
 
-        self.background_color = make_color(config.background_color)
-        self.score_font_color = make_color(config.score_font_color)
+        self.blit_base_color = make_color(config.blit_base_color)
+        self.score_text_font_color = make_color(config.score_text_font_color)
 
-
-        self.background_color = pygame.Color(*config.background_color)
-        self.score_font_color = pygame.Color(config.score_font_color)
-        self.score_font = pygame.font.SysFont(config.score_font_name, config.score_font_size)
+        self.blit_base_color = pygame.Color(*config.blit_base_color)
+        self.score_text_font_color = pygame.Color(config.score_text_font_color)
+        self.score_text_font = pygame.font.SysFont(config.score_text_font_name, config.score_text_font_size)
 
     def get_resource(self, resource_name):
         return self.resources[resource_name]
