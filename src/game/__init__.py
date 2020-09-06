@@ -4,6 +4,7 @@ from pygame.locals import *
 from random import randint
 from pathlib import Path
 from dataclasses import dataclass
+from typing import Any
 
 from core.input import InputHandler, BUTTON_LEFT, BUTTON_MIDDLE, BUTTON_RIGHT
 from core.entity import Entity
@@ -18,15 +19,15 @@ from .objects import ScrollingTile, Player, Pipe
 @dataclass
 class GameState:
     """Agrupa valores alteráveis durante o jogo."""
-    player: 'typing.Any'
-    backgrounds: 'typing.Any'
-    floors: 'typing.Any'
-    pause_button: 'typing.Any'
-    scoreboard_button: 'typing.Any'
-    play_button: 'typing.Any'
-    pipes: 'typing.Any'
-    input_handler: 'typing.Any'
-    debug_mode: 'typing.Any'
+    player: Any
+    backgrounds: Any
+    floors: Any
+    pause_button: Any
+    scoreboard_button: Any
+    play_button: Any
+    pipes: Any
+    input_handler: Any
+    debug_mode: Any
 
     game_timer: int = 0
     pipe_spawn_counter: int = 0
