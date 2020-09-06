@@ -205,6 +205,13 @@ def main():
         icon=cache.get_resource("icon"),
     )
 
+    r_menu = cache.get_resource("menu")
+    r_flappy = cache.get_resource("flappy")
+    r_game_over = cache.get_resource("game_over")
+    r_over_menu = cache.get_resource("over_menu")
+    r_play = cache.get_resource("play")
+    r_scoreboard = cache.get_resource("scoreboard")
+
     initialize_game()
 
     while state.is_running:
@@ -340,18 +347,18 @@ def main():
 
         # pause menu
         if state.is_paused:
-            manager.blit(cache.get_resource("menu"), (258, 155))
-            manager.blit(cache.get_resource("flappy"), (222, 20))
+            manager.blit(r_menu, (258, 155))
+            manager.blit(r_flappy, (222, 20))
 
         # game over
         if state.game_state == 2:
             state.player.animation_timer = 0
             state.death_timer += 1
             if state.death_timer >= 70: # wait some time for showing the death screen
-                manager.blit(cache.get_resource("game_over"), (222, 20))
-                manager.blit(cache.get_resource("over_menu"), (258, 145))
-                manager.blit(cache.get_resource("play"), (280, 405))
-                manager.blit(cache.get_resource("scoreboard"), (520, 405))
+                manager.blit(r_game_over, (222, 20))
+                manager.blit(r_over_menu, (258, 145))
+                manager.blit(r_play, (280, 405))
+                manager.blit(r_scoreboard, (520, 405))
 
         # update screen
         pygame.display.update()
