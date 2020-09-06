@@ -40,6 +40,11 @@ class GameState:
     is_running: bool = True
     is_paused: bool = False
 
+    # kinda-cached variables, not in the cache though
+    debug_text: str = None
+    previous_score: int = 0
+    score_text_rendered: Any = None
+
 def main():
     config = GameConfig(
         resources_dir=(Path(__file__) / "../../res").resolve().absolute(),
@@ -192,6 +197,7 @@ def main():
 
     clock = pygame.time.Clock()
     state = get_state()
+    was_debug_mode = state.debug_mode
     ih = state.input_handler
     manager = GameManager(
         title=f"({config.win_size[0]}x{config.win_size[1]}) {config.title}",
@@ -317,13 +323,20 @@ def main():
             manager.render(state.pause_button)
 
         # show score text on the top-left corner
-        if config.score_text_enabled and state.game_state == 1 or state.debug_mode:
-            debug_text = "{debug_flag}Score: {score}".format(
-                    debug_flag=f"[DEBUG] FPS: {int(clock.get_fps())} | " if state.debug_mode else "",
-                    score=int(state.current_score),
+        if (config.score_text_enabled
+            and state.game_state == 1
+            and (state.game_timer % 60 == 0
+                 or state.previous_score < state.current_score
+                 or was_debug_mode != state.debug_mode
+                 or state.score_text_rendered == None)):
+            state.debug_text = "{}Score: {}".format(
+                f"[DEBUG] FPS: {int(clock.get_fps())} | " if state.debug_mode else "",
+                state.current_score,
             )
-            fps_text = cache.score_text_font.render(debug_text, True, cache.score_text_font_color)
-            manager.blit(fps_text, config.score_text_pos)
+            state.score_text_rendered = cache.score_text_font.render(state.debug_text, True, cache.score_text_font_color)
+
+        if config.score_text_enabled and state.game_state == 1:
+            manager.blit(state.score_text_rendered, config.score_text_pos)
 
         # pause menu
         if state.is_paused:
