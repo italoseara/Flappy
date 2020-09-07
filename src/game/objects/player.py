@@ -3,41 +3,39 @@ import pygame
 from math import sin
 
 from core.entity import Entity
-from core.data import Vector2D
-from core.maths import gameobject_hitbox, gameobject_size
+from core.maths import Vector2, gameobject_hitbox, gameobject_size
 
 class Player(Entity):
     def __init__(self, pos, frames):
-        self.setup(pos, frames)
-        self.reset()
+        super().__init__(pos, frames)
 
-    def reset(self):
-        self.speed = Vector2D(0, 0)
+        self.fixed_hitbox = gameobject_hitbox(self)
+
+        # reset-able variables
+        self.speed = Vector2(0, 0)
         self.angle = 0
         self.angle_target = 0
         self.health = 0
-        self.fixed_hitbox = gameobject_hitbox(self)
         self.jump_counter = 0
         self.animation_id = 0
         self.animation_timer_limit = 0
         self.animation_timer = 0
 
-    def process(self, state, config):
-        ih = state.input_handler
+    def reset(self):
+        self.speed = Vector2(0, 0)
+        self.angle = 0
+        self.angle_target = 0
+        self.health = 0
+        self.jump_counter = 0
+        self.animation_id = 0
+        self.animation_timer_limit = 0
+        self.animation_timer = 0
 
+    def process(self): # TODO: figure a way to do this better (boxes?)
+        ...
+
+    def process_extra(self, state, config):
         self.jump_counter += 1
-
-        # when pressing the up key
-        if ih.keymap[pygame.K_UP].first:
-            # start the game if it hasn't started yet
-            # TODO: move this to __init__.py
-            if state.game_state == 0:
-                state.game_state = 1
-
-            # jump
-            if state.game_state in {0, 1}:
-                self.speed.y = -8
-                self.jump_counter = 0
 
         # MOVIMENTO ###########################
 
@@ -54,10 +52,11 @@ class Player(Entity):
             self.speed.y = 0
 
         # let the player stuck above the ground
-        # FIXME: make this less trash
-        if self.pos.y > ((config.ground_pos - gameobject_size(self)[1]) - 5) and state.game_state == 2:
-            self.pos.y = ((config.ground_pos - gameobject_size(self)[1]) - 5)
-            self.speed.y = 0
+        if state.game_state == 2:
+            ground_pos_offset = config.ground_pos - gameobject_size(self)[1] - 5
+            if self.pos.y > ground_pos_offset:
+                self.pos.y = ground_pos_offset
+                self.speed.y = 0
 
         elif (self.pos.y >= config.ground_pos - self.fixed_hitbox[3]
               and state.game_state == 1):
@@ -77,7 +76,7 @@ class Player(Entity):
             # stopped wings
             self.animation_timer_limit = None
 
-        if self.animation_id != None:
+        if self.animation_id is not None:
             self.animation_timer += 1
 
         if self.animation_timer == self.animation_timer_limit:

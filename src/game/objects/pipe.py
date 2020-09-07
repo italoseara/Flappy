@@ -1,7 +1,6 @@
 import random
 
 from pygame import Rect
-from core.data import Vector2D
 from core.entity import Entity
 from core.maths import image_size
 
@@ -17,12 +16,18 @@ class TBPipes(Entity):
 
         self._size_x = image_size(resources[0])[0]
         self._size_y = image_size(resources[0])[1]
-        self._calculated_pipes = None
 
-        self.setup(
+        self.current_y_offset = 0 # initial, before calculation
+
+        super().__init__(
             (win_size[0] + x_offset, self.get_y_pos()),
             resources,
         )
+
+        # calculate pipes
+        self._calculated_pipes = None
+        self.calc_pipes()
+
 
     def process(self):
         self.pos.x += self.speed
@@ -57,7 +62,5 @@ class TBPipes(Entity):
         ]
 
     def render(self):
-        if self._calculated_pipes == None: # TODO: remove this check once I fix whatever was wrong
-            self.calc_pipes()
         return self._calculated_pipes
 

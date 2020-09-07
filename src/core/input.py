@@ -5,8 +5,6 @@ from pygame.locals import (
 
 from dataclasses import dataclass
 
-from .maths import gameobject_hitbox
-
 BUTTON_LEFT = 0
 BUTTON_MIDDLE = 1
 BUTTON_RIGHT = 2

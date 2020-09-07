@@ -34,7 +34,7 @@ class GameState:
     death_timer: int = 0
 
     current_score: int = 0
-    # max_score: int = 0 # TODO
+    # max_score: int = 0 # TODO: implement this
 
     game_state: int = 0 # TODO: turn this into an enum
     is_running: bool = True
@@ -222,7 +222,19 @@ def main():
         ih.update_keys()
         
         if not state.is_paused:
-            state.player.process(state, config)
+            state.player.process_extra(state, config)
+
+            # when pressing the up key
+            if ih.keymap[pygame.K_UP].first:
+                # start the game if it hasn't started yet
+                if state.game_state == 0:
+                    state.game_state = 1
+
+                # jump
+                if state.game_state in {0, 1}:
+                    state.player.speed.y = -8
+                    state.player.jump_counter = 0
+
 
         if not state.is_paused:
             if state.game_state == 1:
@@ -274,10 +286,10 @@ def main():
             state.pause_button.frames.current_index = 0
 
         # restart after death
-        # TODO: add keypress for this
-        if (gameobject_hitbox(state.play_button).collidepoint(ih.mouse_pos)
-            and state.game_state == 2
-            and ih.keymap[BUTTON_LEFT].first):
+        if (state.game_state == 2
+            and ((gameobject_hitbox(state.play_button).collidepoint(ih.mouse_pos)
+                  and ih.keymap[BUTTON_LEFT].first)
+                 or ih.keymap[K_UP].first)):
             restart_game()
 
         # fill screen with sky color
@@ -299,7 +311,7 @@ def main():
                         line_color=config.hitbox_line_color,
                         line_size=config.hitbox_line_size,
                     )
-        
+
         # render player hitboxes
         if state.debug_mode:
             manager.render_rect(
@@ -335,7 +347,7 @@ def main():
             and (state.game_timer % 60 == 0
                  or state.previous_score < state.current_score
                  or was_debug_mode != state.debug_mode
-                 or state.score_text_rendered == None)):
+                 or state.score_text_rendered is None)):
             state.debug_text = "{}Score: {}".format(
                 f"[DEBUG] FPS: {int(clock.get_fps())} | " if state.debug_mode else "",
                 state.current_score,

@@ -29,7 +29,6 @@ class GameCache:
         return self.resources[resource_name]
 
 def make_color(arg):
-    if type(arg) == tuple:
+    if isinstance(arg, tuple):
         return pygame.Color(*arg)
-    else:
-        return pygame.Color(arg)
+    return pygame.Color(arg)

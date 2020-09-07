@@ -1,18 +1,15 @@
-from .data import FrameManager, Vector2D
+from .data import FrameManager
+from .maths import Vector2
 
 class Renderable:
     def render(self):
-        return self.frames.current_frame, self.pos.to_tuple()
+        raise NotImplementedError
 
 class Entity(Renderable):
     """The basis for most interactive elements of the game."""
 
     def __init__(self, pos, frames):
-        """The replacement of this function is recommended, but remember to call the self._setup function at the very beginning."""
-        self.setup(pos, frames)
-
-    def setup(self, pos, frames):
-        self.pos = Vector2D(*pos)
+        self.pos = Vector2.from_tuple(pos)
         self.frames = FrameManager(frames)
 
     def process(self):
@@ -20,4 +17,7 @@ class Entity(Renderable):
         Implementation is required by children of this class.
         """
         raise NotImplementedError
+
+    def render(self):
+        return (self.frames.current_frame, self.pos.into_tuple())
 

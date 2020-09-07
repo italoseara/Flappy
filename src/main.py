@@ -1,6 +1,5 @@
 from __future__ import print_function
 import sys
-import platform
 import os
 
 # check if python version is 3.7+ (needed)
@@ -14,15 +13,12 @@ from core.logger import Logger
 
 # import pygame and try to supress the annoying startup message.
 Logger.log("Loading pygame...")
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "1"
 import pygame
 Logger.log("Pygame loaded.")
 
-# local modules
-import core # utilities, classes etc.
-import game # the actual game
-
 # start the game (if the file was opened directly)
 if __name__ == "__main__":
+    import game
     pygame.init()
     game.main()
