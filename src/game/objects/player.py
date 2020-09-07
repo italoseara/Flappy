@@ -105,3 +105,6 @@ class Player(Entity):
         rect.center = old_center
 
         return (new_image, rect)
+
+    #def score(self, pipe_pos_x):
+        #self.pos

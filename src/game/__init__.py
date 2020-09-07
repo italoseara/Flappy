@@ -70,7 +70,7 @@ def main():
         ],
 
         title="A strange flappy bird clone",
-        debug_mode=True,
+        debug_mode=False,
 
         win_size=(960, 540),
         blit_base_color=(115, 200, 215),
@@ -287,9 +287,8 @@ def main():
 
         # restart after death
         if (state.game_state == 2
-            and ((gameobject_hitbox(state.play_button).collidepoint(ih.mouse_pos)
-                  and ih.keymap[BUTTON_LEFT].first)
-                 or ih.keymap[K_UP].first)):
+            and (gameobject_hitbox(state.play_button).collidepoint(ih.mouse_pos)
+                  and ih.keymap[BUTTON_LEFT].first)):
             restart_game()
 
         # fill screen with sky color
