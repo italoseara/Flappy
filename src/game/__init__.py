@@ -44,6 +44,7 @@ class GameState:
     debug_text: str = None
     previous_score: int = 0
     score_text_rendered: Any = None
+    distance: int = 0
 
 def main():
     config = GameConfig(
@@ -163,6 +164,10 @@ def main():
             ) for i in range(math.floor(config.win_size[0] / config.pipe_x_spacing) + 1)
         ]
 
+        player_center_x = state.player.pos.x - (34 * 2)
+        state.distance = config.win_size[0] - (player_center_x + image_size(state.pipes[0].frames.frame_list[0])[0])
+        state.distance += state.pipes[0]._size_x
+
     def make_tiles():
         floor_resource = cache.get_resource("floor")
         floor_size_x = image_size(floor_resource)[0]
@@ -235,19 +240,22 @@ def main():
                     state.player.speed.y = -8
                     state.player.jump_counter = 0
 
-
         if not state.is_paused:
             if state.game_state == 1:
                 for pipe in state.pipes:
                     pipe.process()
-
-                    # TODO: get points when going through a pipe
 
                     # die if colliding with the pipe
                     if pipe.is_colliding(gameobject_hitbox(state.player)):
                         state.game_state = 2
                         state.player.speed.y = config.jump_speed
                         break
+
+                # update distance
+                state.distance -= config.scroll_speed
+                if state.distance <= 0:
+                    state.distance += config.pipe_x_spacing
+                    state.current_score += 1
 
             # move tiles, I guess?
             # place this before the game initialization or the game will start with things already
@@ -348,7 +356,7 @@ def main():
                  or was_debug_mode != state.debug_mode
                  or state.score_text_rendered is None)):
             state.debug_text = "{}Score: {}".format(
-                f"[DEBUG] FPS: {int(clock.get_fps())} | " if state.debug_mode else "",
+                f"[DEBUG] FPS: {int(clock.get_fps())} | Distance {state.distance} | " if state.debug_mode else "",
                 state.current_score,
             )
             state.score_text_rendered = cache.score_text_font.render(state.debug_text, True, cache.score_text_font_color)
