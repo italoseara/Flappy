@@ -42,6 +42,7 @@ class GameState:
 
     # kinda-cached variables, not in the cache though
     debug_text: str = None
+    debug_used: bool = False
     previous_score: int = 0
     score_text_rendered: Any = None
     distance: int = 0
@@ -146,6 +147,7 @@ def main(data_path):
         state.game_state = 0
         state.death_timer = 0
         state.current_score = 0
+        state.debug_used = False
 
         state.player.reset()
         state.player.angle_target = state.player.angle = 0
@@ -250,7 +252,8 @@ def main(data_path):
                     pipe.process()
 
                     # die if colliding with the pipe
-                    if pipe.is_colliding(gameobject_hitbox(state.player)):
+                    if (pipe.is_colliding(gameobject_hitbox(state.player)) 
+                        and not state.debug_mode):
                         state.game_state = 2
                         state.player.speed.y = config.jump_speed
                         break
@@ -332,6 +335,10 @@ def main(data_path):
                 line_size=config.hitbox_line_size,
             )
 
+        # to know if the debug was used
+        if state.game_state == 1:
+            state.debug_used = state.debug_used or state.debug_mode
+
         # render the ground
         for obj in state.floors:
             manager.render(obj)
@@ -378,8 +385,9 @@ def main(data_path):
         if state.game_state == 2:
             state.player.animation_timer = 0
             if (state.death_timer == 0
-                and state.current_score > data['max_score']):
-                    data['max_score'] = state.current_score
+            and state.current_score > data['max_score']
+            and not state.debug_used):
+                data['max_score'] = state.current_score
             state.death_timer += 1
             if state.death_timer >= 70: # wait some time for showing the death screen
                 manager.blit(r_game_over, (222, 20))
