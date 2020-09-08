@@ -33,4 +33,4 @@ class GameConfig:
     pipe_y_spacing: int
     pipe_x_spacing: int
 
-    ground_pos: int
+    ground_line: int

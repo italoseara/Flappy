@@ -27,35 +27,15 @@ def gameobject_render(gameobject, screen) -> None:
         screen.blit(*render_result)
 
 class Vector2:
-    def __init__(self, x, y, auto_cast=float):
-        self._type = auto_cast
-        self.x = self._type(x)
-        self.y = self._type(y)
-
-    @property
-    def x(self):
-        return self._raw_x
-
-    @x.setter
-    def x(self, value):
-        self._raw_x = self._type(value)
-
-    @property
-    def y(self):
-        return self._raw_y
-
-    @y.setter
-    def y(self, value):
-        self._raw_y = self._type(value)
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 
     @staticmethod
     def from_tuple(tup) -> Vector2:
         t = type(tup[0])
         e1, e2 = tup
-        return Vector2(
-            e1, e2,
-            auto_cast=t,
-        )
+        return Vector2(e1, e2)
 
     def into_tuple(self) -> tuple:
         return (self.x, self.y)

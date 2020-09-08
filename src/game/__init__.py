@@ -48,6 +48,8 @@ class GameState:
     distance: int = 0
 
 def main(data_path):
+    WSIZE = (960, 540)
+
     data = shelve.open(str(data_path/'data'))
     if not 'max_score' in data:
         data['max_score'] = 0
@@ -90,7 +92,7 @@ def main(data_path):
         title="A strange flappy bird clone",
         debug_mode=False,
 
-        win_size=(960, 540),
+        win_size=WSIZE,
         blit_base_color=(115, 200, 215),
 
         scroll_speed=3,
@@ -108,13 +110,13 @@ def main(data_path):
         hitbox_line_color=(255, 0, 0),
 
         bg_parallax_coeff=0.5,
-        floor_parallax_coeff=1.0,
+        floor_parallax_coeff=1,
 
         pipe_y_offset_range=(-210, -40),
         pipe_y_spacing=130,
         pipe_x_spacing=200,
 
-        ground_pos=476,
+        ground_line=(WSIZE[1]-64),
     )
 
     def get_state():
@@ -122,8 +124,7 @@ def main(data_path):
         scoreboard_button_size = image_size(cache.get_resource("scoreboard"))
         play_button_size = image_size(cache.get_resource("play"))
 
-        floors, backgrounds = make_tiles()
-        pipes = []
+        floors, backgrounds, pipes = [], [], []
 
         pause_button = Entity(
             (config.win_size[0] - pause_button_size[0] - 10, 10),
@@ -187,28 +188,45 @@ def main(data_path):
             image_size(state.pipes[0].frames.frame_list[0])[0])
         state.distance += state.pipes[0]._size_x
 
+    def amount_to_fill_container(container_size, object_size):
+        """Calculates the minimum amount of objects (size `object_size`) needed to fill the container (size `container_size`).
+        
+        The returned amount might not fit inside the container - in this case, it will be one more than what would fit.
+        """
+        # divide and 
+        calculation = container_size / object_size
+        if calculation % 1 > 0:
+            calculation += (1 - calculation % 1)
+        return int(calculation)
+
     def make_tiles():
         floor_resource = cache.get_resource("floor")
-        floor_size_x = image_size(floor_resource)[0]
         bg_resource = cache.get_resource("bg")
-        bg_size_x = image_size(bg_resource)[0]
+
+        floor_size_x, floor_size_y = image_size(floor_resource)
+        bg_size_x, bg_size_y = image_size(bg_resource)
+
+        floor_amount = amount_to_fill_container(config.win_size[0], floor_size_x)
+        bg_amount = amount_to_fill_container(config.win_size[0], bg_size_x)
 
         floors = [
             ScrollingTile(
-                pos=(x, config.ground_pos),
+                pos=(i * floor_size_x, config.ground_line),
+                wrap_pos=(floor_amount * floor_size_x),
+                speed=(-config.scroll_speed * config.floor_parallax_coeff),
                 resource=floor_resource,
-                parallax_coeff=config.floor_parallax_coeff,
-            ) for x in [0, floor_size_x]
+            ) for i in range(floor_amount + 1)
         ]
-        backgrounds = [ # TODO: background glitch
+        backgrounds = [
             ScrollingTile(
-                pos=(x, 0),
+                pos=(i * bg_size_x, config.ground_line - bg_size_y),
+                wrap_pos=(bg_amount * bg_size_x),
+                speed=(-config.scroll_speed * config.bg_parallax_coeff),
                 resource=bg_resource,
-                parallax_coeff=config.bg_parallax_coeff,
-            ) for x in [0, bg_size_x]
+            ) for i in range(bg_amount + 1)
         ]
-        return (floors, backgrounds)
 
+        return (floors, backgrounds)
 
     cache = GameCache(config)
 
@@ -277,17 +295,9 @@ def main(data_path):
                     state.distance += config.pipe_x_spacing
                     state.current_score += 1
 
-            # move tiles, I guess?
-            # place this before the game initialization or the game will start with things already
-            # moving a little.
-            if state.game_state in {0, 1}:
+            if state.game_state != 2:
                 for tile in chain(state.floors, state.backgrounds):
-                    # update position based on speed
-                    tile.pos.x -= config.scroll_speed * tile.parallax_coeff
-
-                    # screen-wrap the tile
-                    if tile.pos.x < 0 - gameobject_size(tile)[0]:
-                        tile.pos.x = config.win_size[0]
+                    tile.process()
 
             # game initialization on first frame
             if state.game_timer == 0:
@@ -359,7 +369,7 @@ def main(data_path):
         # render ground hitbox
         if state.debug_mode:
             manager.render_rect(
-                rect=(0, config.ground_pos, *config.win_size),
+                rect=(0, config.ground_line, *config.win_size),
                 line_color=config.hitbox_line_color,
                 line_size=config.hitbox_line_size,
             )
@@ -375,6 +385,7 @@ def main(data_path):
 
         # show score text on the top-left corner
         if (config.score_text_enabled
+            and True
             and state.game_state == 1
             and (state.game_timer % 60 == 0
                  or state.previous_score < state.current_score

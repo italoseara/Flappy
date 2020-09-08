@@ -53,15 +53,15 @@ class Player(Entity):
 
         # let the player stuck above the ground
         if state.game_state == 2:
-            ground_pos_offset = config.ground_pos - gameobject_size(self)[1] - 5
-            if self.pos.y > ground_pos_offset:
-                self.pos.y = ground_pos_offset
+            ground_line_offset = config.ground_line - gameobject_size(self)[1] - 5
+            if self.pos.y > ground_line_offset:
+                self.pos.y = ground_line_offset
                 self.speed.y = 0
 
         # die when touch the ground
-        elif (self.pos.y >= config.ground_pos - self.fixed_hitbox[3]
+        elif (self.pos.y >= config.ground_line - self.fixed_hitbox[3]
               and state.game_state == 1):
-            self.pos.y = config.ground_pos - self.fixed_hitbox[3]
+            self.pos.y = config.ground_line - self.fixed_hitbox[3]
             state.game_state = 2
             self.speed.y = -8
 
