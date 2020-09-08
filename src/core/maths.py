@@ -33,7 +33,6 @@ class Vector2:
 
     @staticmethod
     def from_tuple(tup) -> Vector2:
-        t = type(tup[0])
         e1, e2 = tup
         return Vector2(e1, e2)
 

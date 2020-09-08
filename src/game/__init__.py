@@ -51,8 +51,8 @@ def main(data_path):
     WSIZE = (960, 540)
 
     data = shelve.open(str(data_path/'data'))
-    if not 'max_score' in data:
-        data['max_score'] = 0
+    if "max_score" not in data:
+        data["max_score"] = 0
     config = GameConfig(
         resources_dir=(Path(__file__) / "../../resources").resolve().absolute(),
         resources_to_load=[
@@ -164,8 +164,11 @@ def main(data_path):
         state.debug_used = False
 
         state.player.reset()
-        state.player.angle_target = state.player.angle = 0
-        state.player.animation_id = state.player.animation_timer = state.player.animation_timer_limit = 0
+        state.player.angle_target = 0
+        state.player.angle = 0
+        state.player.animation_id = 0
+        state.player.animation_timer = 0
+        state.player.animation_timer_limit = 0
         state.player.speed.y = 0
         state.player.pos.x, state.player.pos.y = BIRD_INITIAL_POS
 
@@ -189,11 +192,12 @@ def main(data_path):
         state.distance += state.pipes[0]._size_x
 
     def amount_to_fill_container(container_size, object_size):
-        """Calculates the minimum amount of objects (size `object_size`) needed to fill the container (size `container_size`).
+        """Calculates the minimum amount of objects (size `object_size`) needed
+        to fill the container (size `container_size`).
         
-        The returned amount might not fit inside the container - in this case, it will be one more than what would fit.
+        The returned amount might not fit inside the container - in this case,
+        it will be one more than what would fit.
         """
-        # divide and 
         calculation = container_size / object_size
         if calculation % 1 > 0:
             calculation += (1 - calculation % 1)
@@ -203,7 +207,7 @@ def main(data_path):
         floor_resource = cache.get_resource("floor")
         bg_resource = cache.get_resource("bg")
 
-        floor_size_x, floor_size_y = image_size(floor_resource)
+        floor_size_x = image_size(floor_resource)[0]
         bg_size_x, bg_size_y = image_size(bg_resource)
 
         floor_amount = amount_to_fill_container(config.win_size[0], floor_size_x)
@@ -308,12 +312,17 @@ def main(data_path):
         if ih.keymap[K_h].first:
             state.debug_mode = not state.debug_mode
 
+        # |= is to `or` what += is to `+`
+        # yeah, it's bitwise, but it doesn't matter here, does it?
+        should_pause = (ih.keymap[K_ESCAPE].first
+                        and state.game_state != 2)
+        should_pause |= (
+            gameobject_hitbox(state.pause_button).collidepoint(ih.mouse_pos)
+            and state.game_state !=2
+            and ih.keymap[BUTTON_LEFT].first
+        )
+
         # pause the game
-        should_pause = ((ih.keymap[K_ESCAPE].first # on keypress
-                         and state.game_state != 2)
-                        or (gameobject_hitbox(state.pause_button).collidepoint(ih.mouse_pos) # on mouse click
-                            and state.game_state != 2
-                            and ih.keymap[BUTTON_LEFT].first))
         if should_pause and state.game_state != 0: # can't pause if the game hasn't started
             state.is_paused = not state.is_paused
 
@@ -392,7 +401,10 @@ def main(data_path):
                  or was_debug_mode != state.debug_mode
                  or state.score_text_rendered is None)):
             state.debug_text = "{}Score: {}".format(
-                f"[DEBUG] FPS: {int(clock.get_fps())} | Max Score: {data['max_score']} | " if state.debug_mode else "",
+                "[DEBUG] FPS: {} | MaxScore: {}".format(
+                    int(clock.get_fps()),
+                    data["max_score"],
+                ) if state.debug_mode else "",
                 state.current_score,
             )
             state.score_text_rendered = cache.score_text_font.render(state.debug_text, True, cache.score_text_font_color)

@@ -23,7 +23,10 @@ class GameCache:
 
         self.blit_base_color = pygame.Color(*config.blit_base_color)
         self.score_text_font_color = pygame.Color(config.score_text_font_color)
-        self.score_text_font = pygame.font.SysFont(config.score_text_font_name, config.score_text_font_size)
+        self.score_text_font = pygame.font.SysFont(
+            config.score_text_font_name,
+            config.score_text_font_size,
+        )
 
     def get_resource(self, resource_name):
         return self.resources[resource_name]
