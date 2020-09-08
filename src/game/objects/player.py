@@ -58,6 +58,7 @@ class Player(Entity):
                 self.pos.y = ground_pos_offset
                 self.speed.y = 0
 
+        # die when touch the ground
         elif (self.pos.y >= config.ground_pos - self.fixed_hitbox[3]
               and state.game_state == 1):
             self.pos.y = config.ground_pos - self.fixed_hitbox[3]
