@@ -21,7 +21,7 @@ Logger.log("Pygame loaded.")
 # start the game (if the file was opened directly)
 if __name__ == "__main__":
     import game
-    data_path = Path(__file__)/'..'/'data'
+    data_path = (Path(__file__) / '..' / 'data').resolve()
     data_path.mkdir(parents=True, exist_ok=True)
     pygame.init()
     game.main(data_path)

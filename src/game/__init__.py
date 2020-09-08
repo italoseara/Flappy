@@ -52,26 +52,39 @@ def main(data_path):
     if not 'max_score' in data:
         data['max_score'] = 0
     config = GameConfig(
-        resources_dir=(Path(__file__) / "../../res").resolve().absolute(),
+        resources_dir=(Path(__file__) / "../../resources").resolve().absolute(),
         resources_to_load=[
+            # general
             ("icon", "icon.bmp"),
-            ("floor", "floor.png"),
-            ("bg", "background.png"),
-            ("bird_f0", "bird_f0.png"),
-            ("bird_f1", "bird_f1.png"),
-            ("bird_f2", "bird_f2.png"),
-            ("pipe_top", "pipe_top.png"),
-            ("pipe_bot", "pipe_bot.png"),
-            ("starter_tip", "starter_tip.png"),
-            ("game_over", "game_over.png"),
-            ("pause_normal", "pause_normal.png"),
-            ("paused", "paused.png"),
-            ("menu", "menu.png"),
-            ("over_menu", "over_menu.png"),
-            ("play", "play.png"),
-            ("scoreboard", "scoreboard.png"),
-            ("flappy", "flappy.png"),
-            ("ready", "ready.png")
+
+            # tiles
+            ("floor", "tiles/floor.png"),
+            ("bg", "tiles/background.png"),
+            ("pipe_top", "tiles/pipe_top.png"),
+            ("pipe_bot", "tiles/pipe_bot.png"),
+
+            # bird
+            ("bird_f0", "bird/bird_f0.png"),
+            ("bird_f1", "bird/bird_f1.png"),
+            ("bird_f2", "bird/bird_f2.png"),
+
+            # text
+            ("game_over", "text/msg_game_over.png"),
+            ("flappy", "text/msg_flappy.png"),
+            ("ready", "text/msg_ready.png"),
+
+            # ui.buttons
+            ("pause_normal", "ui/btn_pause_normal.png"),
+            ("paused", "ui/btn_pause_paused.png"),
+            ("play", "ui/btn_play.png"),
+            ("scoreboard", "ui/btn_scoreboard.png"),
+
+            # ui.boxes
+            ("menu", "ui/box_menu.png"),
+            ("over_menu", "ui/box_end.png"),
+
+            # ui.etc
+            ("starter_tip", "ui/starter_tip.png"),
         ],
 
         title="A strange flappy bird clone",
