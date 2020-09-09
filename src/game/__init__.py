@@ -18,6 +18,7 @@ from core.font import SpriteFont, FontManager
 from .config import GameConfig
 from .cache import GameCache
 from .objects import ScrollingTile, Player, TBPipes
+from .data import GameMode
 
 @dataclass
 class GameState:
@@ -37,7 +38,7 @@ class GameState:
 
     current_score: int = 0
 
-    game_state: int = 0 # TODO: turn this into an enum
+    game_mode: GameMode = GameMode.START
     is_running: bool = True
     is_paused: bool = False
 
@@ -180,7 +181,7 @@ def main(data_path, audio_path):
 
     def initialize_game():
         state.game_timer = 0
-        state.game_state = 0
+        state.game_mode = GameMode.START
         state.death_timer = 0
         state.current_score = 0
         state.debug_used = False
@@ -319,24 +320,24 @@ def main(data_path, audio_path):
             # when pressing the up key
             if ih.keymap[pygame.K_UP].first:
                 # start the game if it hasn't started yet
-                if state.game_state == 0:
-                    state.game_state = 1
+                if state.game_mode == GameMode.START:
+                    state.game_mode = GameMode.PLAYING
 
                 # jump
-                if state.game_state in {0, 1}:
+                if state.game_mode == GameMode.PLAYING:
                     pygame.mixer.Channel(0).play(wing_sound)
                     state.player.speed.y = -8
                     state.player.jump_counter = 0
 
         if not state.is_paused:
-            if state.game_state == 1:
+            if state.game_mode == GameMode.PLAYING:
                 for pipe in state.pipes:
                     pipe.process()
 
                     # die if colliding with the pipe
                     if pipe.is_colliding(gameobject_hitbox(state.player)):
                         if not state.debug_mode:
-                            state.game_state = 2
+                            state.game_mode = GameMode.DEAD
                             state.player.speed.y = config.jump_speed
                             break
 
@@ -347,7 +348,7 @@ def main(data_path, audio_path):
                     pygame.mixer.Channel(1).play(point_sound)
                     state.current_score += 1
 
-            if state.game_state != 2:
+            if state.game_mode != GameMode.DEAD:
                 for tile in chain(state.front_tiles, state.back_tiles):
                     tile.process()
 
@@ -363,15 +364,15 @@ def main(data_path, audio_path):
         # |= is to `or` what += is to `+`
         # yeah, it's bitwise, but it doesn't matter here, does it?
         should_pause = (ih.keymap[K_ESCAPE].first
-                        and state.game_state != 2)
+                        and state.game_mode != GameMode.DEAD)
         should_pause |= (
             gameobject_hitbox(state.pause_button).collidepoint(ih.mouse_pos)
-            and state.game_state !=2
+            and state.game_mode != GameMode.DEAD
             and ih.keymap[BUTTON_LEFT].first
         )
 
         # pause the game
-        if should_pause and state.game_state != 0: # can't pause if the game hasn't started
+        if should_pause and state.game_mode != GameMode.START: # can't pause if the game hasn't started
             state.is_paused = not state.is_paused
 
         # change pause button sprite depending on whether the game is paused or not
@@ -381,7 +382,7 @@ def main(data_path, audio_path):
             state.pause_button.frames.current_index = 0
 
         # restart after death
-        if state.game_state == 2:
+        if state.game_mode == GameMode.DEAD:
             if state.death_timer == 0:
                 pygame.mixer.Channel(2).play(hit_sound)
                 pygame.mixer.Channel(3).play(death_sound)
@@ -423,7 +424,7 @@ def main(data_path, audio_path):
             )
 
         # to know if the debug was used
-        if state.game_state == 1:
+        if state.game_mode == GameMode.PLAYING:
             state.debug_used = state.debug_used or state.debug_mode
 
         # render front tiles
@@ -439,18 +440,18 @@ def main(data_path, audio_path):
             )
             
         # show initial tip
-        if state.game_state == 0 and not state.is_paused:
+        if state.game_mode == GameMode.START and not state.is_paused:
             manager.blit(cache.get_resource("ready"), (222, 20))
             manager.blit(cache.get_resource("starter_tip"), (450, 200))
 
         # show pause button
-        if state.game_state == 1:
+        if state.game_mode == GameMode.PLAYING:
             manager.render(state.pause_button)
 
         # show score text on the top-left corner
         if (config.score_text_enabled
             and True
-            and state.game_state == 1
+            and state.game_mode == GameMode.PLAYING
             and (state.game_timer % 60 == 0
                  or state.previous_score < state.current_score
                  or was_debug_mode != state.debug_mode
@@ -468,7 +469,7 @@ def main(data_path, audio_path):
                 cache.score_text_font_color
             )
 
-        if config.score_text_enabled and state.game_state == 1:
+        if config.score_text_enabled and state.game_mode == GameMode.PLAYING:
             manager.blit(state.score_text_rendered, config.score_text_pos)
 
         font_manager.update_string("50030")
@@ -480,7 +481,7 @@ def main(data_path, audio_path):
             manager.blit(r_flappy, (222, 20))
 
         # game over
-        if state.game_state == 2:
+        if state.game_mode == GameMode.DEAD:
             state.player.animation_timer = 0
             if (state.death_timer == 0
             and state.current_score > data['max_score']

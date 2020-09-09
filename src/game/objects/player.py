@@ -4,6 +4,7 @@ from math import sin
 
 from core.entity import SimpleEntity
 from core.maths import Vector2, gameobject_hitbox, gameobject_size
+from game.data import GameMode
 
 class Player(SimpleEntity):
     def __init__(self, pos, frames):
@@ -31,7 +32,8 @@ class Player(SimpleEntity):
         self.animation_timer_limit = 0
         self.animation_timer = 0
 
-    def process(self): ...
+    def process(self):
+        pass
 
     def process_extra(self, state, config):
         self.jump_counter += 1
@@ -39,7 +41,8 @@ class Player(SimpleEntity):
         # MOVEMENT ###########################
 
         self.pos.y += self.speed.y
-        if state.game_state == 0:
+
+        if state.game_mode == GameMode.START:
             self.speed.y = 0
             self.pos.y += sin(state.game_timer / 8)
         else:
@@ -51,7 +54,7 @@ class Player(SimpleEntity):
             self.speed.y = 0
 
         # let the player stuck above the ground
-        if state.game_state == 2:
+        if state.game_mode == GameMode.DEAD:
             ground_line_offset = config.ground_line - gameobject_size(self)[1] - 5
             if self.pos.y > ground_line_offset:
                 self.pos.y = ground_line_offset
@@ -59,9 +62,9 @@ class Player(SimpleEntity):
 
         # die when touch the ground
         elif (self.pos.y >= config.ground_line - self.fixed_hitbox[3]
-              and state.game_state == 1):
+              and state.game_mode == GameMode.PLAYING):
             self.pos.y = config.ground_line - self.fixed_hitbox[3]
-            state.game_state = 2
+            state.game_mode = GameMode.DEAD
             self.speed.y = -8
 
         if self.animation_id == 0:
@@ -86,7 +89,7 @@ class Player(SimpleEntity):
             self.animation_timer = 0
 
         # rotate the player based on when has it jumped.
-        if state.game_state != 0:
+        if state.game_mode != GameMode.START:
             if self.jump_counter < 30:
                 self.angle_target = 30
             else:
