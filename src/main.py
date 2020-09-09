@@ -29,5 +29,6 @@ if __name__ == "__main__":
     data_path = (Path(__file__) / ".." / "data").resolve()
     audio_path = (Path(__file__) / ".." / "audio").resolve()
     data_path.mkdir(parents=True, exist_ok=True)
+    pygame.mixer.pre_init(44100, -16, 2, 2048)
     pygame.init()
     game.main(data_path, audio_path)

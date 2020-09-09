@@ -51,8 +51,6 @@ def main(data_path, audio_path):
     WSIZE = (960, 540)
     
     data = shelve.open(str(data_path/'data'))
-    pygame.mixer.pre_init(44100, -16, 2, 2048)
-    pygame.init()
     volume = 0.2
     for c in range(8):
         pygame.mixer.Channel(c).set_volume(volume)
