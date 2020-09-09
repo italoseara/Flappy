@@ -28,14 +28,16 @@ def gameobject_render(gameobject, screen) -> None:
     #     screen.blit(*render_result)
 
 class Vector2:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-    @staticmethod
-    def from_tuple(tup) -> Vector2:
-        e1, e2 = tup
-        return Vector2(e1, e2)
+    def __init__(self, *args):
+        if len(args) == 1 and isinstance(args[0], tuple) and len(args[0]) == 2:
+            self.x, self.y = args[0]
+        elif len(args) == 2:
+            self.x, self.y = args
+        else:
+            raise TypeError("could not find matching pattern for argument list: {}{}".format(
+                type(self),
+                args,
+            ))
 
     def into_tuple(self) -> tuple:
         return (self.x, self.y)

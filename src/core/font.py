@@ -12,7 +12,7 @@ class SpriteFont:
 class FontManager(BatchRender):
     def __init__(self, pos, sprite_font, padding_px):
         assert isinstance(sprite_font, SpriteFont)
-        self.pos = Vector2.from_tuple(pos)
+        self.pos = Vector2(pos)
         self.sprite_font = sprite_font
         self.padding_px = int(padding_px)
         self.should_update = False

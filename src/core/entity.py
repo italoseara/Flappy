@@ -6,7 +6,7 @@ class SimpleEntity(SingularRender):
     """The basis for most interactive elements of the game."""
 
     def __init__(self, pos, frames):
-        self.pos = Vector2.from_tuple(pos)
+        self.pos = Vector2(pos)
         self.frames = FrameManager(frames)
 
     def process(self):
