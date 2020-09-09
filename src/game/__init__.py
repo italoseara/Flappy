@@ -198,7 +198,7 @@ def main(data_path, audio_path):
             ) for i in range(math.floor(config.win_size[0] / config.pipe_x_spacing) + 1)
         ]
 
-        player_center_x = state.player.pos.x - 34
+        player_center_x = state.player.pos.x - (34 * 1.5)
         state.distance = config.win_size[0] - (player_center_x +
             image_size(state.pipes[0].frames.frame_list[0])[0])
         state.distance += state.pipes[0]._size_x
