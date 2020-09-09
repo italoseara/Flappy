@@ -9,10 +9,11 @@ import math
 import shelve
 
 from core.input import InputHandler, BUTTON_LEFT, BUTTON_MIDDLE, BUTTON_RIGHT
-from core.entity import Entity
+from core.entity import SimpleEntity
 from core.manager import GameManager
 from core.data import *
 from core.maths import *
+from core.font import SpriteFont, FontManager
 
 from .config import GameConfig
 from .cache import GameCache
@@ -130,6 +131,12 @@ def main(data_path, audio_path):
         ground_line=(WSIZE[1]-64),
     )
 
+    def pairs_to_dict(pairs_list):
+        result = {}
+        for (k, v) in pairs_list:
+            result[k] = v
+        return result
+
     # Sounds
     wing_sound = pygame.mixer.Sound(str(audio_path/'wing.wav'))
     hit_sound = pygame.mixer.Sound(str(audio_path/'hit.wav'))
@@ -141,17 +148,17 @@ def main(data_path, audio_path):
         scoreboard_button_size = image_size(cache.get_resource("scoreboard"))
         play_button_size = image_size(cache.get_resource("play"))
 
-        pause_button = Entity(
+        pause_button = SimpleEntity(
             (config.win_size[0] - pause_button_size[0] - 10, 10),
             [cache.get_resource("pause_normal"), cache.get_resource("paused")],
         )
 
-        scoreboard_button = Entity(
+        scoreboard_button = SimpleEntity(
             (config.win_size[0] - scoreboard_button_size[0] - 280, 405),
             [cache.get_resource("scoreboard")],
         )
 
-        play_button = Entity(
+        play_button = SimpleEntity(
             (config.win_size[0] - play_button_size[0] - 520, 405),
             [cache.get_resource("play")],
         )
@@ -263,6 +270,15 @@ def main(data_path, audio_path):
         return (front_tiles, back_tiles)
 
     cache = GameCache(config)
+
+    font = SpriteFont(
+        font_dict=pairs_to_dict([(str(n), cache.get_resource(f"font_{n}")) for n in range(10)]),
+    )
+    font_manager = FontManager(
+        pos=(0, 0),
+        sprite_font=font,
+        padding_px=5,
+    )
 
     bird_f0_size = image_size(cache.get_resource("bird_f0"))
     BIRD_INITIAL_POS = (
@@ -446,10 +462,17 @@ def main(data_path, audio_path):
                 ) if state.debug_mode else "",
                 state.current_score,
             )
-            state.score_text_rendered = cache.score_text_font.render(state.debug_text, True, cache.score_text_font_color)
+            state.score_text_rendered = cache.score_text_font.render(
+                state.debug_text,
+                True,
+                cache.score_text_font_color
+            )
 
         if config.score_text_enabled and state.game_state == 1:
             manager.blit(state.score_text_rendered, config.score_text_pos)
+
+        font_manager.update_string("50030")
+        manager.render(font_manager)
 
         # pause menu
         if state.is_paused:

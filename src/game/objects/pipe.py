@@ -1,10 +1,11 @@
 import random
 
 from pygame import Rect
-from core.entity import Entity
-from core.maths import image_size
+from core.render import BatchRender
+from core.maths import image_size, Vector2
+from core.data import FrameManager
 
-class TBPipes(Entity):
+class TBPipes(BatchRender):
     def __init__(self,
                  win_size, resources, speed,
                  x_offset, y_offset_range, y_spacing):
@@ -19,15 +20,15 @@ class TBPipes(Entity):
 
         self.current_y_offset = 0 # initial, before calculation
 
-        super().__init__(
-            (win_size[0] + x_offset, self.get_y_pos()),
-            resources,
+        self.pos = Vector2(
+            win_size[0] + x_offset,
+            self.get_y_pos(),
         )
+        self.frames = FrameManager(resources)
 
         # calculate pipes
         self._calculated_pipes = None
         self.calc_pipes()
-
 
     def process(self):
         self.pos.x += self.speed
@@ -61,6 +62,6 @@ class TBPipes(Entity):
             ) for i in [0, 1]
         ]
 
-    def render(self):
+    def get_render(self):
         return self._calculated_pipes
 

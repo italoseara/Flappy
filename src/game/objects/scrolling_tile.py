@@ -1,7 +1,7 @@
 from core.maths import image_size
-from core.entity import Entity
+from core.entity import SimpleEntity
         
-class ScrollingTile(Entity):
+class ScrollingTile(SimpleEntity):
     def __init__(self, pos, resource, speed, wrap_pos):
         super().__init__(pos, [resource])
         self.speed = speed

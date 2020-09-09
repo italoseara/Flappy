@@ -2,10 +2,10 @@ import pygame
 
 from math import sin
 
-from core.entity import Entity
+from core.entity import SimpleEntity
 from core.maths import Vector2, gameobject_hitbox, gameobject_size
 
-class Player(Entity):
+class Player(SimpleEntity):
     def __init__(self, pos, frames):
         super().__init__(pos, frames)
 
@@ -31,8 +31,7 @@ class Player(Entity):
         self.animation_timer_limit = 0
         self.animation_timer = 0
 
-    def process(self): # TODO: figure a way to do this better (boxes?)
-        ...
+    def process(self): ...
 
     def process_extra(self, state, config):
         self.jump_counter += 1
@@ -96,8 +95,7 @@ class Player(Entity):
             self.angle += (self.angle_target - self.angle) * 0.15
             self.angle_target = (self.angle_target + 360) % 360
 
-    def render(self):
-        # update the image and return it
+    def get_render(self):
         old_center = (self.pos.x + 15, self.pos.y + 15)
         new_image = pygame.transform.rotate(
             self.frames.current_frame, self.angle
@@ -105,7 +103,4 @@ class Player(Entity):
         rect = new_image.get_rect()
         rect.center = old_center
 
-        return (new_image, rect)
-
-    #def score(self, pipe_pos_x):
-        #self.pos
+        return (new_image, (rect.x, rect.y))

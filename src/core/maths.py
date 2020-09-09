@@ -18,13 +18,14 @@ def gameobject_hitbox(gameobject) -> tuple:
     return Rect(gameobject.pos.into_tuple() + image_size(gameobject.frames.current_frame))
 
 def gameobject_render(gameobject, screen) -> None:
-    """Renders an object."""
-    render_result = gameobject.render()
-    if isinstance(render_result, list):
-        for r in render_result:
-            screen.blit(*r)
-    else:
-        screen.blit(*render_result)
+    raise Exception("deprecated function")
+    # """Renders an object."""
+    # render_result = gameobject.render()
+    # if isinstance(render_result, list):
+    #     for r in render_result:
+    #         screen.blit(*r)
+    # else:
+    #     screen.blit(*render_result)
 
 class Vector2:
     def __init__(self, x, y):

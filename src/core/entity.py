@@ -1,11 +1,8 @@
 from .data import FrameManager
 from .maths import Vector2
+from .render import SingularRender
 
-class Renderable:
-    def render(self):
-        raise NotImplementedError
-
-class Entity(Renderable):
+class SimpleEntity(SingularRender):
     """The basis for most interactive elements of the game."""
 
     def __init__(self, pos, frames):
@@ -18,7 +15,8 @@ class Entity(Renderable):
         """
         raise NotImplementedError
 
-    def render(self):
-        x, y = self.pos.into_tuple()
-        return (self.frames.current_frame, (int(x), int(y)))
-
+    def get_render(self):
+        return (
+            self.frames.current_frame,
+            (int(self.pos.x), int(self.pos.y))
+        )

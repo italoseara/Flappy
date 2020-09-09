@@ -1,6 +1,6 @@
 import pygame
 
-from .maths import gameobject_render
+from .render import Render
 
 class GameManager:
     def __init__(self, title, win_size, icon):
@@ -14,11 +14,11 @@ class GameManager:
     def fill_screen(self, color):
         self._screen.fill(color)
 
+    def render(self, render: Render):
+        render.draw_to(self._screen)
+
     def blit(self, thing, pos):
         self._screen.blit(thing, pos)
-
-    def render(self, obj):
-        gameobject_render(obj, self._screen)
 
     def render_rect(self, rect, line_color, line_size):
         pygame.draw.rect(self._screen, line_color, rect, line_size)
