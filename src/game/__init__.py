@@ -63,6 +63,9 @@ def main(data_path, audio_path):
             # general
             ("icon", "icon.bmp"),
 
+            # font - numbers
+            *[(f"font_{n}", f"numbers/{n}.png") for n in range(10)],
+
             # tiles
             ("floor", "tiles/floor.png"),
             ("bg_bush", "tiles/bush.png"),
@@ -128,10 +131,10 @@ def main(data_path, audio_path):
     )
 
     # Sounds
-    wing_sound=pygame.mixer.Sound(str(audio_path/'wing.wav'))
-    hit_sound=pygame.mixer.Sound(str(audio_path/'hit.wav'))
-    point_sound=pygame.mixer.Sound(str(audio_path/'point.wav'))
-    death_sound=pygame.mixer.Sound(str(audio_path/'die.wav'))
+    wing_sound = pygame.mixer.Sound(str(audio_path/'wing.wav'))
+    hit_sound = pygame.mixer.Sound(str(audio_path/'hit.wav'))
+    point_sound = pygame.mixer.Sound(str(audio_path/'point.wav'))
+    death_sound = pygame.mixer.Sound(str(audio_path/'die.wav'))
 
     def get_state():
         pause_button_size = image_size(cache.get_resource("pause_normal"))
