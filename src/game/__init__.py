@@ -47,10 +47,16 @@ class GameState:
     score_text_rendered: Any = None
     distance: int = 0
 
-def main(data_path):
+def main(data_path, audio_path):
     WSIZE = (960, 540)
-
+    
     data = shelve.open(str(data_path/'data'))
+    pygame.mixer.pre_init(44100, -16, 2, 2048)
+    pygame.init()
+    volume = 0.2
+    for c in range(8):
+        pygame.mixer.Channel(c).set_volume(volume)
+
     if "max_score" not in data:
         data["max_score"] = 0
     config = GameConfig(
@@ -123,6 +129,12 @@ def main(data_path):
         ground_line=(WSIZE[1]-64),
     )
 
+    # Sounds
+    wing_sound=pygame.mixer.Sound(str(audio_path/'wing.wav'))
+    hit_sound=pygame.mixer.Sound(str(audio_path/'hit.wav'))
+    point_sound=pygame.mixer.Sound(str(audio_path/'point.wav'))
+    death_sound=pygame.mixer.Sound(str(audio_path/'die.wav'))
+
     def get_state():
         pause_button_size = image_size(cache.get_resource("pause_normal"))
         scoreboard_button_size = image_size(cache.get_resource("scoreboard"))
@@ -188,7 +200,7 @@ def main(data_path):
             ) for i in range(math.floor(config.win_size[0] / config.pipe_x_spacing) + 1)
         ]
 
-        player_center_x = state.player.pos.x - (34 * 2)
+        player_center_x = state.player.pos.x - 34
         state.distance = config.win_size[0] - (player_center_x +
             image_size(state.pipes[0].frames.frame_list[0])[0])
         state.distance += state.pipes[0]._size_x
@@ -221,6 +233,16 @@ def main(data_path):
         front_tiles = []
         back_tiles = []
 
+        def move_bg(parallax_coeff, resource, back_tiles):
+            back_tiles += [
+            ScrollingTile(
+                pos=(i * bg_size_x, config.ground_line - bg_size_y),
+                wrap_pos=(bg_amount * bg_size_x),
+                speed=(-config.scroll_speed * parallax_coeff),
+                resource=resource,
+            ) for i in range(bg_amount + 1)
+            ]
+
         # floors
         front_tiles += [
             ScrollingTile(
@@ -230,36 +252,12 @@ def main(data_path):
                 resource=floor_resource,
             ) for i in range(floor_amount + 1)
         ]
-
         # clouds
-        back_tiles += [
-            ScrollingTile(
-                pos=(i * bg_size_x, config.ground_line - bg_size_y),
-                wrap_pos=(bg_amount * bg_size_x),
-                speed=(-config.scroll_speed * config.clouds_parallax_coeff),
-                resource=clouds_resource,
-            ) for i in range(bg_amount + 1)
-        ]
-
+        move_bg(config.clouds_parallax_coeff, clouds_resource, back_tiles)
         # city
-        back_tiles += [
-            ScrollingTile(
-                pos=(i * bg_size_x, config.ground_line - bg_size_y),
-                wrap_pos=(bg_amount * bg_size_x),
-                speed=(-config.scroll_speed * config.city_parallax_coeff),
-                resource=city_resource,
-            ) for i in range(bg_amount + 1)
-        ]
-
+        move_bg(config.city_parallax_coeff, city_resource, back_tiles)
         # bushes
-        back_tiles += [
-            ScrollingTile(
-                pos=(i * bg_size_x, config.ground_line - bg_size_y),
-                wrap_pos=(bg_amount * bg_size_x),
-                speed=(-config.scroll_speed * config.bush_parallax_coeff),
-                resource=bush_resource,
-            ) for i in range(bg_amount + 1)
-        ]
+        move_bg(config.bush_parallax_coeff, bush_resource, back_tiles)
 
         return (front_tiles, back_tiles)
 
@@ -309,6 +307,7 @@ def main(data_path):
 
                 # jump
                 if state.game_state in {0, 1}:
+                    pygame.mixer.Channel(0).play(wing_sound)
                     state.player.speed.y = -8
                     state.player.jump_counter = 0
 
@@ -318,16 +317,17 @@ def main(data_path):
                     pipe.process()
 
                     # die if colliding with the pipe
-                    if (pipe.is_colliding(gameobject_hitbox(state.player)) 
-                        and not state.debug_mode):
-                        state.game_state = 2
-                        state.player.speed.y = config.jump_speed
-                        break
+                    if pipe.is_colliding(gameobject_hitbox(state.player)):
+                        if not state.debug_mode:
+                            state.game_state = 2
+                            state.player.speed.y = config.jump_speed
+                            break
 
                 # update distance
                 state.distance -= config.scroll_speed
                 if state.distance <= 0:
                     state.distance += config.pipe_x_spacing
+                    pygame.mixer.Channel(1).play(point_sound)
                     state.current_score += 1
 
             if state.game_state != 2:
@@ -364,11 +364,14 @@ def main(data_path):
             state.pause_button.frames.current_index = 0
 
         # restart after death
-        if (state.game_state == 2
-            and state.death_timer >= 70
+        if state.game_state == 2:
+            if state.death_timer == 0:
+                pygame.mixer.Channel(2).play(hit_sound)
+                pygame.mixer.Channel(3).play(death_sound)
+            elif (state.death_timer >= 70
                 and (gameobject_hitbox(state.play_button).collidepoint(ih.mouse_pos)
                     and ih.keymap[BUTTON_LEFT].first)):
-            restart_game()
+                restart_game()
 
         # fill screen with sky color
         manager.fill_screen(cache.blit_base_color)

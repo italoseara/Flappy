@@ -22,11 +22,12 @@ import pygame
 
 Logger.log("Pygame loaded.")
 
-# start the game (if the file was opened directly)
+# start the game
 if __name__ == "__main__":
     import game
-
+    # Open or Create the data file if it does not exist
     data_path = (Path(__file__) / ".." / "data").resolve()
+    audio_path = (Path(__file__) / ".." / "audio").resolve()
     data_path.mkdir(parents=True, exist_ok=True)
     pygame.init()
-    game.main(data_path)
+    game.main(data_path, audio_path)

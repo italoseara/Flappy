@@ -37,7 +37,7 @@ class Player(Entity):
     def process_extra(self, state, config):
         self.jump_counter += 1
 
-        # MOVIMENTO ###########################
+        # MOVEMENT ###########################
 
         self.pos.y += self.speed.y
         if state.game_state == 0:
