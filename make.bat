@@ -16,7 +16,6 @@ if "%PYCMD%" == "" (
 
 if "%1" == "pip" (
    %PYCMD% -m pip install pygame
-   %PYCMD% -m pip install pylint
 ) else if "%1" == "run" (
    cd src
    %PYCMD% main.py

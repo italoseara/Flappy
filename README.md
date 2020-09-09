@@ -1,36 +1,39 @@
 # Flappy
 
-A Flappy Bird clone made in Python 3.7+, through the *pygame* library.
+A *Flappy Bird* clone made in Python 3.7+, using the *pygame* library.
 
-Contributors: [Ítalo Seara](https://github.com/italoseara) and
-[YohananDiamond](https://github.com/YohananDiamond)
+Made by:
 
-## Running the code
+* [Ítalo Seara](https://github.com/italoseara);
+* [YohananDiamond](https://github.com/YohananDiamond);
 
-This project does not currently have a formed installation method, so
-the recommended way is to run the `src/main.py` file.
+## Installation
 
-### Mac/Linux
+Currently there's no way to install this. For debugging, see (Debugging)[#debugging].
 
-First of all, it is necessary to install pygame, via (probably) pip.
+## Debugging <a href="#debugging"></a>
 
-```bash
-pip install pygame
-```
+### Mac/Linux (with bash + make)
 
-After that, just clone the repository and run the `main.py` file,
-located in the `src` folder.
+There's a `Makefile` that can handle everything for you:
 
 ```bash
 git clone https://github.com/italoseara/Flappy
 cd Flappy
-cd src
-python3 main.py
+make pip
+make run
 ```
 
-You can also use `make` but the makefile is kinda incomplete.
+### Windows (with `make.bat`)
 
-### Windows
+There's a `make.bat` script on this project that can simulate the
+behavior of makefiles on windows.
 
-There's a script, `make.bat`. It might help you. In other cases, I'm
-not sure on how to help.
+```bash
+git clone https://github.com/italoseara/Flappy
+cd Flappy
+make pip
+make run
+```
+
+<!-- TODO: VSCode -->

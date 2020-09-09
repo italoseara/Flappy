@@ -8,4 +8,3 @@ check:
 
 pip:
 	$(PYTHON) -m pip install pygame
-	$(PYTHON) -m pip install pylint
