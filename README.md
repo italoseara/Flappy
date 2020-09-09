@@ -37,3 +37,7 @@ make run
 ```
 
 <!-- TODO: VSCode -->
+
+## Credits
+
+*Flappy Bird* was originally made by [*dotGEARS*](https://www.dotgears.com/).
