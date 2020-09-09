@@ -372,7 +372,8 @@ def main(data_path, audio_path):
         )
 
         # pause the game
-        if should_pause and state.game_mode != GameMode.START: # can't pause if the game hasn't started
+        # (can't pause if the game hasn't started, though)
+        if should_pause and state.game_mode != GameMode.START:
             state.is_paused = not state.is_paused
 
         # change pause button sprite depending on whether the game is paused or not
