@@ -439,7 +439,7 @@ def main(data_path, audio_path):
                  or was_debug_mode != state.debug_mode
                  or state.score_text_rendered is None)):
             state.debug_text = "{}Score: {}".format(
-                "[DEBUG] FPS: {} | MaxScore: {}".format(
+                "[DEBUG] FPS: {} | MaxScore: {} ".format(
                     int(clock.get_fps()),
                     data["max_score"],
                 ) if state.debug_mode else "",
