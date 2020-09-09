@@ -19,5 +19,6 @@ class Entity(Renderable):
         raise NotImplementedError
 
     def render(self):
-        return (self.frames.current_frame, self.pos.into_tuple())
+        x, y = self.pos.into_tuple()
+        return (self.frames.current_frame, (int(x), int(y)))
 

@@ -22,8 +22,8 @@ from .objects import ScrollingTile, Player, TBPipes
 class GameState:
     """Agrupa valores alteráveis durante o jogo."""
     player: Any
-    backgrounds: Any
-    floors: Any
+    front_tiles: Any
+    back_tiles: Any
     pause_button: Any
     scoreboard_button: Any
     play_button: Any
@@ -61,7 +61,9 @@ def main(data_path):
 
             # tiles
             ("floor", "tiles/floor.png"),
-            ("bg", "tiles/background.png"),
+            ("bg_bush", "tiles/bush.png"),
+            ("bg_city", "tiles/city.png"),
+            ("bg_clouds", "tiles/clouds.png"),
             ("pipe_top", "tiles/pipe_top.png"),
             ("pipe_bot", "tiles/pipe_bot.png"),
 
@@ -109,7 +111,9 @@ def main(data_path):
         hitbox_line_size=2,
         hitbox_line_color=(255, 0, 0),
 
-        bg_parallax_coeff=0.5,
+        clouds_parallax_coeff=0.1,
+        city_parallax_coeff=0.3,
+        bush_parallax_coeff=0.4,
         floor_parallax_coeff=1,
 
         pipe_y_offset_range=(-210, -40),
@@ -123,8 +127,6 @@ def main(data_path):
         pause_button_size = image_size(cache.get_resource("pause_normal"))
         scoreboard_button_size = image_size(cache.get_resource("scoreboard"))
         play_button_size = image_size(cache.get_resource("play"))
-
-        floors, backgrounds, pipes = [], [], []
 
         pause_button = Entity(
             (config.win_size[0] - pause_button_size[0] - 10, 10),
@@ -146,9 +148,9 @@ def main(data_path):
 
         return GameState(
             player=player,
-            pipes=pipes,
-            floors=floors,
-            backgrounds=backgrounds,
+            front_tiles=[],
+            back_tiles=[],
+            pipes=[],
             pause_button=pause_button,
             scoreboard_button=scoreboard_button,
             play_button=play_button,
@@ -172,7 +174,7 @@ def main(data_path):
         state.player.speed.y = 0
         state.player.pos.x, state.player.pos.y = BIRD_INITIAL_POS
 
-        state.floors, state.backgrounds = make_tiles()
+        state.front_tiles, state.back_tiles = make_tiles()
 
         pipe_res = [cache.get_resource(x) for x in ["pipe_top", "pipe_bot"]]
         state.pipes = [
@@ -205,15 +207,22 @@ def main(data_path):
 
     def make_tiles():
         floor_resource = cache.get_resource("floor")
-        bg_resource = cache.get_resource("bg")
+        clouds_resource = cache.get_resource("bg_clouds")
+        bush_resource = cache.get_resource("bg_bush")
+        city_resource = cache.get_resource("bg_city")
 
         floor_size_x = image_size(floor_resource)[0]
-        bg_size_x, bg_size_y = image_size(bg_resource)
+        # for now the size of clouds, bush and city are the same.
+        bg_size_x, bg_size_y = image_size(clouds_resource)
 
         floor_amount = amount_to_fill_container(config.win_size[0], floor_size_x)
         bg_amount = amount_to_fill_container(config.win_size[0], bg_size_x)
 
-        floors = [
+        front_tiles = []
+        back_tiles = []
+
+        # floors
+        front_tiles += [
             ScrollingTile(
                 pos=(i * floor_size_x, config.ground_line),
                 wrap_pos=(floor_amount * floor_size_x),
@@ -221,16 +230,38 @@ def main(data_path):
                 resource=floor_resource,
             ) for i in range(floor_amount + 1)
         ]
-        backgrounds = [
+
+        # clouds
+        back_tiles += [
             ScrollingTile(
                 pos=(i * bg_size_x, config.ground_line - bg_size_y),
                 wrap_pos=(bg_amount * bg_size_x),
-                speed=(-config.scroll_speed * config.bg_parallax_coeff),
-                resource=bg_resource,
+                speed=(-config.scroll_speed * config.clouds_parallax_coeff),
+                resource=clouds_resource,
             ) for i in range(bg_amount + 1)
         ]
 
-        return (floors, backgrounds)
+        # city
+        back_tiles += [
+            ScrollingTile(
+                pos=(i * bg_size_x, config.ground_line - bg_size_y),
+                wrap_pos=(bg_amount * bg_size_x),
+                speed=(-config.scroll_speed * config.city_parallax_coeff),
+                resource=city_resource,
+            ) for i in range(bg_amount + 1)
+        ]
+
+        # bushes
+        back_tiles += [
+            ScrollingTile(
+                pos=(i * bg_size_x, config.ground_line - bg_size_y),
+                wrap_pos=(bg_amount * bg_size_x),
+                speed=(-config.scroll_speed * config.bush_parallax_coeff),
+                resource=bush_resource,
+            ) for i in range(bg_amount + 1)
+        ]
+
+        return (front_tiles, back_tiles)
 
     cache = GameCache(config)
 
@@ -300,7 +331,7 @@ def main(data_path):
                     state.current_score += 1
 
             if state.game_state != 2:
-                for tile in chain(state.floors, state.backgrounds):
+                for tile in chain(state.front_tiles, state.back_tiles):
                     tile.process()
 
             # game initialization on first frame
@@ -342,8 +373,12 @@ def main(data_path):
         # fill screen with sky color
         manager.fill_screen(cache.blit_base_color)
 
-        # render background and pipes
-        for obj in chain(state.backgrounds, state.pipes):
+        # render back tiles
+        for obj in state.back_tiles:
+            manager.render(obj)
+
+        # render pipes
+        for obj in state.pipes:
             manager.render(obj)
 
         # render the player
@@ -371,8 +406,8 @@ def main(data_path):
         if state.game_state == 1:
             state.debug_used = state.debug_used or state.debug_mode
 
-        # render the ground
-        for obj in state.floors:
+        # render front tiles
+        for obj in state.front_tiles:
             manager.render(obj)
 
         # render ground hitbox

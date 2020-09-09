@@ -27,8 +27,11 @@ class GameConfig:
     hitbox_line_size: int
     hitbox_line_color: Tuple[int, int, int]
 
-    bg_parallax_coeff: float
+    clouds_parallax_coeff: float
+    bush_parallax_coeff: float
+    city_parallax_coeff: float
     floor_parallax_coeff: float
+
     pipe_y_offset_range: Tuple[int, int]
     pipe_y_spacing: int
     pipe_x_spacing: int
