@@ -42,7 +42,7 @@ class Player(Entity):
         self.pos.y += self.speed.y
         if state.game_state == 0:
             self.speed.y = 0
-            self.pos.y += sin(state.game_timer / 10)
+            self.pos.y += sin(state.game_timer / 8)
         else:
             self.speed.y += config.gravity
 
@@ -67,7 +67,7 @@ class Player(Entity):
 
         if self.animation_id == 0:
             # introduction (flying)
-            self.animation_timer_limit = 8
+            self.animation_timer_limit = 6
         elif self.animation_id == 1:
             # transition to stop the wings (when dying)
             self.animation_timer_limit = 8
