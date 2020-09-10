@@ -2,6 +2,8 @@ from .data import FrameManager
 from .maths import Vector2
 from .render import SingularRender
 
+from pygame import Rect
+
 class SimpleEntity(SingularRender):
     """The basis for most interactive elements of the game."""
 
@@ -14,6 +16,13 @@ class SimpleEntity(SingularRender):
         Implementation is required by children of this class.
         """
         raise NotImplementedError
+
+    @property
+    def hitbox(self):
+        return Rect(
+            tuple(self.pos),
+            tuple(self.frames.current_frame.size),
+        )
 
     def get_render(self):
         return (

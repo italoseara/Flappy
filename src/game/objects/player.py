@@ -3,14 +3,15 @@ import pygame
 from math import sin
 
 from core.entity import SimpleEntity
-from core.maths import Vector2, gameobject_hitbox, gameobject_size
+from core.maths import Vector2
+from core.data import PygameSurface
 from game.data import GameMode
 
 class Player(SimpleEntity):
     def __init__(self, pos, frames):
         super().__init__(pos, frames)
 
-        self.fixed_hitbox = gameobject_hitbox(self)
+        self.fixed_hitbox = self.hitbox
 
         # reset-able variables
         self.speed = Vector2(0, 0)
@@ -55,7 +56,7 @@ class Player(SimpleEntity):
 
         # let the player stuck above the ground
         if state.game_mode == GameMode.DEAD:
-            ground_line_offset = config.ground_line - gameobject_size(self)[1] - 5
+            ground_line_offset = config.ground_line - self.frames.current_frame.size.y - 5
             if self.pos.y > ground_line_offset:
                 self.pos.y = ground_line_offset
                 self.speed.y = 0
@@ -100,10 +101,13 @@ class Player(SimpleEntity):
 
     def get_render(self):
         old_center = (self.pos.x + 15, self.pos.y + 15)
+
         new_image = pygame.transform.rotate(
-            self.frames.current_frame, self.angle
+            self.frames.current_frame.inner, self.angle
         )
+
         rect = new_image.get_rect()
         rect.center = old_center
 
-        return (new_image, (rect.x, rect.y))
+
+        return (PygameSurface(new_image), (rect.x, rect.y))

@@ -1,11 +1,14 @@
 from dataclasses import dataclass
 from typing import List, Tuple
 
+from core.data import Blittable
+
 @dataclass(frozen=True)
 class GameConfig:
     """Contains the game configuration."""
 
     resources_dir: str
+    resources_wrapper: Blittable
     resources_to_load: List[Tuple[str, str]]
 
     title: str

@@ -11,7 +11,7 @@ import shelve
 from core.input import InputHandler, BUTTON_LEFT, BUTTON_MIDDLE, BUTTON_RIGHT
 from core.entity import SimpleEntity
 from core.manager import GameManager
-from core.data import *
+from core.data import PygameSurface
 from core.maths import *
 from core.font import SpriteFont, FontManager
 
@@ -61,6 +61,7 @@ def main(data_path, audio_path):
         data["max_score"] = 0
     config = GameConfig(
         resources_dir=(Path(__file__) / "../../resources").resolve().absolute(),
+        resources_wrapper=PygameSurface,
         resources_to_load=[
             # general
             ("icon", "icon.bmp"),
@@ -145,22 +146,22 @@ def main(data_path, audio_path):
     death_sound = pygame.mixer.Sound(str(audio_path/'die.wav'))
 
     def get_state():
-        pause_button_size = image_size(cache.get_resource("pause_normal"))
-        scoreboard_button_size = image_size(cache.get_resource("scoreboard"))
-        play_button_size = image_size(cache.get_resource("play"))
+        pause_button_size = cache.get_resource("pause_normal").size
+        scoreboard_button_size = cache.get_resource("scoreboard").size
+        play_button_size = cache.get_resource("play").size
 
         pause_button = SimpleEntity(
-            (config.win_size[0] - pause_button_size[0] - 10, 10),
+            (config.win_size[0] - pause_button_size.x - 10, 10),
             [cache.get_resource("pause_normal"), cache.get_resource("paused")],
         )
 
         scoreboard_button = SimpleEntity(
-            (config.win_size[0] - scoreboard_button_size[0] - 280, 405),
+            (config.win_size[0] - scoreboard_button_size.x - 280, 405),
             [cache.get_resource("scoreboard")],
         )
 
         play_button = SimpleEntity(
-            (config.win_size[0] - play_button_size[0] - 520, 405),
+            (config.win_size[0] - play_button_size.x - 520, 405),
             [cache.get_resource("play")],
         )
 
@@ -210,9 +211,10 @@ def main(data_path, audio_path):
         ]
 
         player_center_x = state.player.pos.x - (34 * 1.5)
-        state.distance = config.win_size[0] - (player_center_x +
-            image_size(state.pipes[0].frames.frame_list[0])[0])
-        state.distance += state.pipes[0]._size_x
+        state.distance = (config.win_size[0]
+                          - player_center_x
+                          + state.pipes[0].frames.frame_list[0].size.x)
+        state.distance += state.pipes[0]._size.x
 
     def amount_to_fill_container(container_size, object_size):
         """Calculates the minimum amount of objects (size `object_size`) needed
@@ -232,9 +234,9 @@ def main(data_path, audio_path):
         bush_resource = cache.get_resource("bg_bush")
         city_resource = cache.get_resource("bg_city")
 
-        floor_size_x = image_size(floor_resource)[0]
+        floor_size_x = floor_resource.size.x
         # for now the size of clouds, bush and city are the same.
-        bg_size_x, bg_size_y = image_size(clouds_resource)
+        bg_size_x, bg_size_y = clouds_resource.size
 
         floor_amount = amount_to_fill_container(config.win_size[0], floor_size_x)
         bg_amount = amount_to_fill_container(config.win_size[0], bg_size_x)
@@ -281,10 +283,10 @@ def main(data_path, audio_path):
         padding_px=5,
     )
 
-    bird_f0_size = image_size(cache.get_resource("bird_f0"))
+    bird_f0_size = cache.get_resource("bird_f0").size
     BIRD_INITIAL_POS = (
-        config.win_size[0] / 2 - bird_f0_size[0] / 2 - 50,
-        config.win_size[1] / 2 - bird_f0_size[1] / 2,
+        config.win_size[0] / 2 - bird_f0_size.x / 2 - 50,
+        config.win_size[1] / 2 - bird_f0_size.x / 2,
     )
     restart_game = initialize_game # temp alias
 
@@ -335,7 +337,7 @@ def main(data_path, audio_path):
                     pipe.process()
 
                     # die if colliding with the pipe
-                    if pipe.is_colliding(gameobject_hitbox(state.player)):
+                    if pipe.is_colliding(state.player.hitbox):
                         if not state.debug_mode:
                             state.game_mode = GameMode.DEAD
                             state.player.speed.y = config.jump_speed
@@ -366,7 +368,7 @@ def main(data_path, audio_path):
         should_pause = (ih.keymap[K_ESCAPE].first
                         and state.game_mode != GameMode.DEAD)
         should_pause |= (
-            gameobject_hitbox(state.pause_button).collidepoint(ih.mouse_pos)
+            state.pause_button.hitbox.collidepoint(ih.mouse_pos)
             and state.game_mode != GameMode.DEAD
             and ih.keymap[BUTTON_LEFT].first
         )
@@ -388,7 +390,7 @@ def main(data_path, audio_path):
                 pygame.mixer.Channel(2).play(hit_sound)
                 pygame.mixer.Channel(3).play(death_sound)
             elif (state.death_timer >= 70
-                and (gameobject_hitbox(state.play_button).collidepoint(ih.mouse_pos)
+                and (state.play_button.hitbox.collidepoint(ih.mouse_pos)
                     and ih.keymap[BUTTON_LEFT].first)):
                 restart_game()
 
@@ -419,7 +421,7 @@ def main(data_path, audio_path):
         # render player hitboxes
         if state.debug_mode:
             manager.render_rect(
-                rect=gameobject_hitbox(state.player),
+                rect=state.player.hitbox,
                 line_color=config.hitbox_line_color,
                 line_size=config.hitbox_line_size,
             )
@@ -471,7 +473,7 @@ def main(data_path, audio_path):
             )
 
         if config.score_text_enabled and state.game_mode == GameMode.PLAYING:
-            manager.blit(state.score_text_rendered, config.score_text_pos)
+            manager.blit(PygameSurface(state.score_text_rendered), config.score_text_pos)
 
         font_manager.update_string("50030")
         manager.render(font_manager)

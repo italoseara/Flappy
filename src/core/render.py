@@ -13,8 +13,8 @@ class SingularRender(Render):
 
     def draw_to(self, surface: Surface):
         render, position = self.get_render()
-        surface.blit(
-            render,
+        render.draw_to(
+            surface,
             (int(position[0]), int(position[1])),
         )
 
@@ -24,7 +24,7 @@ class BatchRender(Render):
 
     def draw_to(self, surface: Surface):
         for (render, position) in self.get_render():
-            surface.blit(
-                render,
+            render.draw_to(
+                surface,
                 (int(position[0]), int(position[1])),
             )

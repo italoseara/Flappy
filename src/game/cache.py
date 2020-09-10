@@ -16,7 +16,7 @@ class GameCache:
             name, filename = pre_resource
             fpath = rdir / filename
             with open(fpath, "r") as f:
-                self.resources[str(name)] = pygame.image.load(f)
+                self.resources[str(name)] = config.resources_wrapper(pygame.image.load(f))
 
         self.blit_base_color = make_color(config.blit_base_color)
         self.score_text_font_color = make_color(config.score_text_font_color)

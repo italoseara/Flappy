@@ -1,5 +1,5 @@
 from .render import BatchRender
-from .maths import Vector2, image_size
+from .maths import Vector2
 
 class SpriteFont:
     def __init__(self, font_dict):
@@ -29,6 +29,6 @@ class FontManager(BatchRender):
         current_x = base_x
         for char_surface in self.sprite_font.render_string(self._string):
             ls.append((char_surface, (current_x, base_y)))
-            current_x += image_size(char_surface)[0] + self.padding_px
+            current_x += char_surface.size.x + self.padding_px
 
         return ls
