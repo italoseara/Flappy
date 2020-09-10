@@ -212,9 +212,9 @@ def main(data_path, audio_path):
 
         player_center_x = state.player.pos.x - (34 * 1.5)
         state.distance = (config.win_size[0]
-                          - player_center_x
-                          + state.pipes[0].frames.frame_list[0].size.x)
-        state.distance += state.pipes[0]._size.x
+                          - (player_center_x
+                             + state.pipes[0].frames.frame_list[0].size.x)
+                          + state.pipes[0]._size.x)
 
     def amount_to_fill_container(container_size, object_size):
         """Calculates the minimum amount of objects (size `object_size`) needed
