@@ -1,0 +1,1 @@
+pyinstaller --noconfirm --onedir --windowed --icon "src/resources/app_icon.ico" --name "Flappy Bird" --add-data "src/audio;audio/" --add-data "src/core;core/" --add-data "src/game;game/" --add-data "src/resources;resources/"  "src/main.py"
