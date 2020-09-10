@@ -196,7 +196,7 @@ def main(data_path, audio_path):
         state.player.speed.y = 0
         state.player.pos.x, state.player.pos.y = BIRD_INITIAL_POS
 
-        state.front_tiles, state.back_tiles = make_tiles()
+        state.front_tiles, state.back_tiles = make_tiles(state.current_score)
 
         pipe_res = [cache.get_resource(x) for x in ["pipe_top", "pipe_bot"]]
         state.pipes = [
@@ -228,7 +228,7 @@ def main(data_path, audio_path):
             calculation += (1 - calculation % 1)
         return int(calculation)
 
-    def make_tiles():
+    def make_tiles(current_score):
         floor_resource = cache.get_resource("floor")
         clouds_resource = cache.get_resource("bg_clouds")
         bush_resource = cache.get_resource("bg_bush")
@@ -273,14 +273,9 @@ def main(data_path, audio_path):
         return (front_tiles, back_tiles)
 
     cache = GameCache(config)
-
+    
     font = SpriteFont(
         font_dict=pairs_to_dict([(str(n), cache.get_resource(f"font_{n}")) for n in range(10)]),
-    )
-    font_manager = FontManager(
-        pos=(0, 0),
-        sprite_font=font,
-        padding_px=5,
     )
 
     bird_f0_size = cache.get_resource("bird_f0").size
@@ -459,24 +454,31 @@ def main(data_path, audio_path):
                  or state.previous_score < state.current_score
                  or was_debug_mode != state.debug_mode
                  or state.score_text_rendered is None)):
-            state.debug_text = "{}Score: {}".format(
-                "[DEBUG] FPS: {} | MaxScore: {} ".format(
-                    int(clock.get_fps()),
-                    data["max_score"],
-                ) if state.debug_mode else "",
-                state.current_score,
+            if state.debug_mode:
+                state.debug_text = "[DEBUG] FPS: {} | MaxScore: {} ".format(
+                int(clock.get_fps()),
+                data["max_score"]
             )
+            else:
+                state.debug_text = ''
+
             state.score_text_rendered = cache.score_text_font.render(
                 state.debug_text,
                 True,
                 cache.score_text_font_color
             )
-
+        
+        font_manager = FontManager(
+            pos=(config.win_size[0] / 2 - (15 * len(str(state.current_score))), 10),
+            sprite_font=font,
+            padding_px=5,
+        )
+        
         if config.score_text_enabled and state.game_mode == GameMode.PLAYING:
-            manager.blit(PygameSurface(state.score_text_rendered), config.score_text_pos)
+            font_manager.update_string(str(state.current_score))
 
-        font_manager.update_string("50030")
-        manager.render(font_manager)
+            manager.render(font_manager)
+            manager.blit(PygameSurface(state.score_text_rendered), config.score_text_pos)
 
         # pause menu
         if state.is_paused:
