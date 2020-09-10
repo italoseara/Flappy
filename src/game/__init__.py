@@ -244,14 +244,14 @@ def main(data_path, audio_path):
         front_tiles = []
         back_tiles = []
 
-        def move_bg(parallax_coeff, resource, back_tiles):
-            back_tiles += [
-            ScrollingTile(
-                pos=(i * bg_size_x, config.ground_line - bg_size_y),
-                wrap_pos=(bg_amount * bg_size_x),
-                speed=(-config.scroll_speed * parallax_coeff),
-                resource=resource,
-            ) for i in range(bg_amount + 1)
+        def make_back_tile(parallax_coeff, resource, back_tiles):
+            return [
+                ScrollingTile(
+                    pos=(i * bg_size_x, config.ground_line - bg_size_y),
+                    wrap_pos=(bg_amount * bg_size_x),
+                    speed=(-config.scroll_speed * parallax_coeff),
+                    resource=resource,
+                ) for i in range(bg_amount + 1)
             ]
 
         # floors
@@ -263,12 +263,10 @@ def main(data_path, audio_path):
                 resource=floor_resource,
             ) for i in range(floor_amount + 1)
         ]
-        # clouds
-        move_bg(config.clouds_parallax_coeff, clouds_resource, back_tiles)
-        # city
-        move_bg(config.city_parallax_coeff, city_resource, back_tiles)
-        # bushes
-        move_bg(config.bush_parallax_coeff, bush_resource, back_tiles)
+
+        back_tiles += make_back_tile(config.clouds_parallax_coeff, clouds_resource, back_tiles)
+        back_tiles += make_back_tile(config.city_parallax_coeff, city_resource, back_tiles)
+        back_tiles += make_back_tile(config.bush_parallax_coeff, bush_resource, back_tiles)
 
         return (front_tiles, back_tiles)
 
@@ -283,7 +281,6 @@ def main(data_path, audio_path):
         config.win_size[0] / 2 - bird_f0_size.x / 2 - 50,
         config.win_size[1] / 2 - bird_f0_size.x / 2,
     )
-    restart_game = initialize_game # temp alias
 
     clock = pygame.time.Clock()
     state = get_state()
@@ -387,7 +384,7 @@ def main(data_path, audio_path):
             elif (state.death_timer >= 70
                 and (state.play_button.hitbox.collidepoint(ih.mouse_pos)
                     and ih.keymap[BUTTON_LEFT].first)):
-                restart_game()
+                initialize_game()
 
         # fill screen with sky color
         manager.fill_screen(cache.blit_base_color)
