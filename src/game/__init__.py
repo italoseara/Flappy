@@ -279,7 +279,7 @@ def main(data_path, audio_path):
     bird_f0_size = cache.get_resource("bird_f0").size
     BIRD_INITIAL_POS = (
         config.win_size[0] / 2 - bird_f0_size.x / 2 - 50,
-        config.win_size[1] / 2 - bird_f0_size.x / 2,
+        config.win_size[1] / 2 - bird_f0_size.y / 2,
     )
 
     clock = pygame.time.Clock()
