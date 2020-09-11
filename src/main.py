@@ -24,11 +24,22 @@ Logger.log("Pygame loaded.")
 
 # start the game
 if __name__ == "__main__":
-    import game
-    # Open or Create the data file if it does not exist
-    data_path = (Path(__file__) / ".." / "data").resolve()
-    audio_path = (Path(__file__) / ".." / "audio").resolve()
-    data_path.mkdir(parents=True, exist_ok=True)
+    from game import GameCore
+
+    # paths
+    save_path = (Path(__file__) / "../save").resolve()
+    resources_path = (Path(__file__) / "../resources").resolve()
+    audio_path = (Path(__file__) / "../audio").resolve()
+    save_path.mkdir(parents=True, exist_ok=True)
+
+    # TODO: move this from here
     pygame.mixer.pre_init(44100, -16, 2, 2048)
     pygame.init()
-    game.main(data_path, audio_path)
+
+    g = GameCore(
+        save_path = save_path,
+        resources_path = resources_path,
+        audio_path = audio_path,
+    )
+
+    g.main_loop()

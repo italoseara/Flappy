@@ -15,7 +15,7 @@ class InputKey:
     held: bool = False
     first: bool = False
 
-class InputHandler:
+class KeyHandler:
     """Processes input data (mouse, keyboard etc.)"""
     def __init__(self):
         self.keymap = {}

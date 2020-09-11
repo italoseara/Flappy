@@ -10,7 +10,7 @@ class TBPipes(BatchRender):
                  win_size, resources, speed,
                  x_offset, y_offset_range, y_spacing):
         self.speed = speed
-        self._win_size = win_size
+        self._win_size = tuple(win_size)
         self.x_offset = x_offset,
         self.y_offset_range = y_offset_range
         self.y_spacing = y_spacing
@@ -20,7 +20,7 @@ class TBPipes(BatchRender):
         self.current_y_offset = 0 # initial, before calculation
 
         self.pos = Vector2(
-            win_size[0] + x_offset,
+            self._win_size[0] + x_offset,
             self.get_y_pos(),
         )
         self.frames = FrameManager(resources)

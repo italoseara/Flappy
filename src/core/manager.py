@@ -7,7 +7,7 @@ from .maths import Vector2
 class GameManager:
     def __init__(self, title, win_size, icon):
         self.title = title
-        self.win_size = win_size
+        self.win_size = tuple(win_size)
 
         self._screen = pygame.display.set_mode(self.win_size)
         pygame.display.set_caption(self.title)
