@@ -1,70 +1,155 @@
 import pygame
-from pygame.locals import (
-    K_UP, K_k, K_SPACE, K_w, K_h, K_ESCAPE
-)
 
+from enum import IntEnum, unique, auto
 from dataclasses import dataclass
+from typing import Set
 
-BUTTON_LEFT = 0
-BUTTON_MIDDLE = 1
-BUTTON_RIGHT = 2
+from .maths import Vector2
+
+@unique
+class InputValue(IntEnum):
+    ARROW_UP = auto()
+    # ARROW_DOWN = auto()
+    # ARROW_LEFT = auto()
+    # ARROW_RIGHT = auto()
+
+    K = auto()
+    H = auto()
+
+    MOUSE_BTN_LEFT = auto()
+    MOUSE_BTN_MIDDLE = auto()
+    MOUSE_BTN_RIGHT = auto()
+
+    SPACE = auto()
+    ESC = auto()
 
 @dataclass
-class InputKey:
-    keycode: int
-    held: bool = False
-    first: bool = False
+class KeyData:
+    held: bool
+    first: bool
 
 class KeyHandler:
-    """Processes input data (mouse, keyboard etc.)"""
-    def __init__(self):
-        self.keymap = {}
-        self.mouse_pos = pygame.mouse.get_pos()
+    PYGAME_REGISTER_MAP = {
+        pygame.K_UP: InputValue.ARROW_UP,
+        pygame.K_h: InputValue.H,
+        pygame.K_k: InputValue.K,
+        pygame.K_SPACE: InputValue.SPACE,
+        pygame.K_ESCAPE: InputValue.ESC,
+    }
 
-        self.keymap[K_UP] = InputKey(K_UP)
-        self.keymap[K_h] = InputKey(K_h)
-        self.keymap[K_ESCAPE] = InputKey(K_ESCAPE)
-        self.keymap[BUTTON_LEFT] = InputKey(BUTTON_LEFT)
-        self.keymap[BUTTON_MIDDLE] = InputKey(BUTTON_MIDDLE)
-        self.keymap[BUTTON_RIGHT] = InputKey(BUTTON_RIGHT)
+    PYGAME_REGISTER_MAP_REV = {v: k for k, v in PYGAME_REGISTER_MAP.items()}
+
+    UPKEYS_CHECK_SET = {
+        InputValue.ARROW_UP,
+        InputValue.K,
+        InputValue.SPACE,
+        InputValue.MOUSE_BTN_LEFT,
+    }
+
+    MOUSE_BTN_INDEXED = {
+        0: InputValue.MOUSE_BTN_LEFT,
+        1: InputValue.MOUSE_BTN_MIDDLE,
+        2: InputValue.MOUSE_BTN_RIGHT,
+    }
+
+    def __init__(self):
+        self._key_map = {}
+        self._reserved_keys = set()
+        self._upkeys = KeyData(False, False)
+
+        self._mouse_pos = None
+
+    def reserve_keys(self, keys: Set[InputValue]):
+        for key in keys:
+            self._reserved_keys.add(key)
+
+    def is_first(self, code: InputValue) -> bool:
+        """Gets the "first" value of the key identified by the code `code`.
+        This "first" value/attribute means that, of a sequence of
+        frames where the key is pressed, this is the first frame. This
+        can be used in e.g. code for the player to jump.
+
+        Throws a ValueError if the key is not reserved."""
+
+        if code in self._reserved_keys:
+            return self._key_map.get(code).first or False
+        else:
+            raise ValueError(f"code {code} is not reserved")
+
+    def is_held(self, code: InputValue) -> bool:
+        """Gets the "held" value of the key identified by the code `code`.
+        
+        Works pretty much the same as self.is_first, but for every
+        frame the key has been pressed."""
+
+        if code in self._reserved_keys:
+            return self._key_map.get(code).first or False
+        else:
+            raise ValueError(f"code {code} is not reserved")
+
+    def upkeys_first(self) -> bool:
+        return self._upkeys.first
+
+    def upkeys_held(self) -> bool:
+        return self._upkeys.held
+
+    @property
+    def mouse_pos(self) -> Vector2:
+        if self._mouse_pos is None:
+            return ValueError("mouse position has not been grabbed yet")
+        else:
+            return self._mouse_pos
 
     def update_keys(self):
-        raw_keymap = pygame.key.get_pressed()
-        raw_mouse = pygame.mouse.get_pressed()
-        self.mouse_pos = pygame.mouse.get_pos()
+        from_keyboard = pygame.key.get_pressed()
+        from_mouse = pygame.mouse.get_pressed()
 
-        m = bool(raw_mouse[0])
-        upkeys = raw_keymap[K_UP] or raw_keymap[K_k] or raw_keymap[K_SPACE] or raw_keymap[K_w] or m
+        for iv in self._reserved_keys:
+            if iv not in KeyHandler.MOUSE_BTN_INDEXED.values():
+                # get the key data
+                data = self._key_map.get(iv) or KeyData(False, False)
+                data.first = False
 
-        # `first` variables
-        # these variables mean that, in the current frame, the key has been started pressing.
-        self.keymap[K_UP].first = False
-        self.keymap[K_h].first = False
-        self.keymap[BUTTON_LEFT].first = False
-        self.keymap[BUTTON_MIDDLE].first = False
-        self.keymap[BUTTON_RIGHT].first = False
-        self.keymap[K_ESCAPE].first = False
+                # if the key has been pressed in the current frame
+                if from_keyboard[KeyHandler.PYGAME_REGISTER_MAP_REV[iv]]:
+                    # check if should mark as FIRST
+                    if not data.held:
+                        data.first = True
 
-        # fill the `first` variables
-        if upkeys and not self.keymap[K_UP].held:
-            self.keymap[K_UP].first = True
-        if raw_keymap[K_h] and not self.keymap[K_h].held:
-            self.keymap[K_h].first = True
-        if raw_mouse[0] and not self.keymap[BUTTON_LEFT].held:
-            self.keymap[BUTTON_LEFT].first = True
-        if raw_mouse[1] and not self.keymap[BUTTON_MIDDLE].held:
-            self.keymap[BUTTON_MIDDLE].first = True
-        if raw_mouse[2] and not self.keymap[BUTTON_RIGHT].held:
-            self.keymap[BUTTON_RIGHT].first = True
-        if raw_keymap[K_ESCAPE] and not self.keymap[K_ESCAPE].held:
-            self.keymap[K_ESCAPE].first = True
+                    # always mark as HELD
+                    data.held = True
+                else:
+                    data.held = False
 
-        # `held` variables
-        # these variables are true whenever the key is held. This # includes its first frame (when
-        # `first` is True, `held` is also True)
-        self.keymap[K_UP].held = upkeys
-        self.keymap[K_h].held = raw_keymap[K_h]
-        self.keymap[BUTTON_LEFT].held = raw_mouse[0]
-        self.keymap[BUTTON_MIDDLE].held = raw_mouse[1]
-        self.keymap[BUTTON_RIGHT].held = raw_mouse[2]
-        self.keymap[K_ESCAPE].held = raw_keymap[K_ESCAPE]
+                # place back the key data
+                self._key_map[iv] = data
+
+        # mouse
+        for i, v in KeyHandler.MOUSE_BTN_INDEXED.items():
+            if v in self._reserved_keys:
+                data = self._key_map.get(v) or KeyData(False, False)
+                data.first = False
+
+                if from_mouse[i]:
+                    if not data.held:
+                        data.first = True
+                    data.held = True
+                else:
+                    data.held = False
+
+                self._key_map[v] = data
+
+        self._mouse_pos = Vector2(pygame.mouse.get_pos())
+
+        self._upkeys.held = False
+        self._upkeys.first = False
+
+        for iv in KeyHandler.UPKEYS_CHECK_SET:
+            if iv in self._reserved_keys and self._key_map[iv].first:
+                self._upkeys.first = True
+                break
+
+        for iv in KeyHandler.UPKEYS_CHECK_SET:
+            if iv in self._reserved_keys and self._key_map[iv].held:
+                self._upkeys.held = True
+                break

@@ -109,5 +109,4 @@ class Player(SimpleEntity):
         rect = new_image.get_rect()
         rect.center = old_center
 
-
         return (PygameSurface(new_image), (rect.x, rect.y))

@@ -6,7 +6,7 @@ import math
 from pathlib import Path
 from typing import Any
 
-from core import key
+from core.key import InputValue, KeyHandler
 from core.entity import SimpleEntity
 from core.maths import Vector2
 from core.data import PygameSurface
@@ -15,13 +15,12 @@ from core.font import SpriteFont, FontManager
 
 from .data import GameMode, GameConfig, GameCache
 from .utils import dict_from_pairs, amount_to_fill_container
-from .objects import ScrollingTile, Player, TBPipes # TODO: rename to PipeGap
+from .objects import ScrollingTile, Player, TBPipes
 
 class GameCore:
     DEFAULT_WIN_SIZE = Vector2(960, 540)
 
     # TODO: document most variables inside this function
-    # resources_path = Path(__file__) / "../../resources" .resolve() .absolute()
     def __init__(self, save_path, audio_path, resources_path):
         # paths
         self.save_path = Path(save_path)
@@ -116,7 +115,15 @@ class GameCore:
             self.save_file["max_score"] = 0
 
         # fill in default values
-        self.input_handler = key.KeyHandler()
+        self.input_handler = KeyHandler()
+        self.input_handler.reserve_keys({
+            InputValue.ARROW_UP,
+            InputValue.K,
+            InputValue.H,
+            InputValue.MOUSE_BTN_LEFT,
+            InputValue.SPACE,
+            InputValue.ESC,
+        })
         self.is_running = True
         self.is_paused = False
         self.game_mode = GameMode.START
@@ -244,9 +251,7 @@ class GameCore:
 
         player_point_offset_x = self.player.pos.x - (34 * 1.5)
         self.distance_to_next_score = (self.config.win_size.x
-                                       - player_point_offset_x
-                                       - self.pipes[0].frames.frame_list[0].size.x
-                                       + self.pipes[0]._size.x)
+                                       - player_point_offset_x)
 
     def pre_processing(self):
         self.clock.tick(self.config.framerate)
@@ -256,7 +261,7 @@ class GameCore:
         if not self.is_paused:
             self.player.process_extra(self)
 
-            if self.input_handler.keymap[pygame.K_UP].first:
+            if self.input_handler.upkeys_first():
                 # start the game
                 if self.game_mode == GameMode.START:
                     self.game_mode = GameMode.PLAYING
@@ -289,17 +294,17 @@ class GameCore:
                 for tile in itertools.chain(self.front_tiles, self.back_tiles):
                     tile.process()
 
-        if self.input_handler.keymap[pygame.K_h].first:
+        if self.input_handler.is_first(InputValue.H):
             self.debug_mode = not self.debug_mode
 
-        # |= is to `or` what += is to `+`
-        # yeah, it's bitwise, but it doesn't matter here, does it?
-        should_pause = (self.input_handler.keymap[pygame.K_ESCAPE].first
-                        and self.game_mode != GameMode.DEAD)
-        should_pause |= (
-            self.pause_button.hitbox.collidepoint(self.input_handler.mouse_pos)
+        should_pause = (
+            self.input_handler.is_first(InputValue.ESC)
             and self.game_mode != GameMode.DEAD
-            and self.input_handler.keymap[key.BUTTON_LEFT].first
+            or (
+                self.pause_button.hitbox.collidepoint(tuple(self.input_handler.mouse_pos))
+                and self.game_mode != GameMode.DEAD
+                and self.input_handler.is_first(InputValue.MOUSE_BTN_LEFT)
+            )
         )
 
         # pause the game
@@ -320,8 +325,8 @@ class GameCore:
                 pygame.mixer.Channel(2).play(self.ab_hit)
                 pygame.mixer.Channel(3).play(self.ab_death)
             elif (self.after_death_timer >= 70
-                  and self.play_button.hitbox.collidepoint(self.input_handler.mouse_pos)
-                  and self.input_handler.keymap[key.BUTTON_LEFT].first):
+                  and self.play_button.hitbox.collidepoint(tuple(self.input_handler.mouse_pos))
+                  and self.input_handler.is_first(InputValue.MOUSE_BTN_LEFT)):
                 # restart after death
                 self.prepare_turn()
 
