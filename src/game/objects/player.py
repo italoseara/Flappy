@@ -36,7 +36,7 @@ class Player(SimpleEntity):
     def process(self):
         pass
 
-    def process_extra(self, state, config):
+    def process_extra(self, state):
         self.jump_counter += 1
 
         # MOVEMENT ###########################
@@ -45,9 +45,9 @@ class Player(SimpleEntity):
 
         if state.game_mode == GameMode.START:
             self.speed.y = 0
-            self.pos.y += sin(state.game_timer / 8)
+            self.pos.y += sin(state.turn_timer / 8)
         else:
-            self.speed.y += config.gravity
+            self.speed.y += state.config.gravity
 
         # cap the Y speed if the player goes through the top of the screen
         if self.pos.y < 0:
@@ -56,15 +56,15 @@ class Player(SimpleEntity):
 
         # let the player stuck above the ground
         if state.game_mode == GameMode.DEAD:
-            ground_line_offset = config.ground_line - self.frames.current_frame.size.y - 5
+            ground_line_offset = state.config.ground_line - self.frames.current_frame.size.y - 5
             if self.pos.y > ground_line_offset:
                 self.pos.y = ground_line_offset
                 self.speed.y = 0
 
         # die when touch the ground
-        elif (self.pos.y >= config.ground_line - self.fixed_hitbox[3]
+        elif (self.pos.y >= state.config.ground_line - self.fixed_hitbox[3]
               and state.game_mode == GameMode.PLAYING):
-            self.pos.y = config.ground_line - self.fixed_hitbox[3]
+            self.pos.y = state.config.ground_line - self.fixed_hitbox[3]
             state.game_mode = GameMode.DEAD
             self.speed.y = -8
 
@@ -108,6 +108,5 @@ class Player(SimpleEntity):
 
         rect = new_image.get_rect()
         rect.center = old_center
-
 
         return (PygameSurface(new_image), (rect.x, rect.y))
