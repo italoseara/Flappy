@@ -22,6 +22,8 @@ if "%1" == "pip" (
    cd src
    %PYCMD% main.py
    cd ..
+) else if "%1" == "install" (
+  pyinstaller --noconfirm --onedir --windowed --icon "src/resources/app_icon.ico" --name "Flappy Bird" --add-data "src/audio;audio/" --add-data "src/core;core/" --add-data "src/game;game/" --add-data "src/resources;resources/" "src/main.py"
 ) else (
    echo Unknown subcommand: "%1"
    goto usage
