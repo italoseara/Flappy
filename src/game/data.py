@@ -1,11 +1,8 @@
 import pygame
 
-from enum import Enum
+from enum import Enum, IntEnum, unique, auto
 from dataclasses import dataclass
-from pathlib import Path
-from typing import List, Tuple
-
-from core.data import Blittable
+from typing import Tuple
 
 class GameMode(Enum):
     START = 0
@@ -17,15 +14,6 @@ class GameCache:
     def __init__(self, config):
         assert isinstance(config, GameConfig)
 
-        # Carregar arquivos de imagem
-        self.resources = {}
-        rdir = Path(config.resources_dir)
-        for pre_resource in config.resources_to_load:
-            name, filename = pre_resource
-            fpath = rdir / filename
-            with open(fpath, "r") as f:
-                self.resources[str(name)] = config.resources_wrapper(pygame.image.load(f))
-
         self.blit_base_color = _make_color(config.blit_base_color)
         self.score_text_font_color = _make_color(config.score_text_font_color)
         self.score_text_font = pygame.font.SysFont(
@@ -33,23 +21,14 @@ class GameCache:
             config.score_text_font_size,
         )
 
-    def get_resource(self, resource_name):
-        return self.resources[resource_name]
-
 def _make_color(arg):
     if isinstance(arg, tuple):
         return pygame.Color(*arg)
     return pygame.Color(arg)
 
-
 @dataclass(frozen=True)
 class GameConfig:
     """Contains the game configuration."""
-
-    resources_dir: str
-    resources_wrapper: Blittable
-    resources_to_load: List[Tuple[str, str]]
-
     title: str
     debug_mode_default: bool
     framerate: int
@@ -79,3 +58,50 @@ class GameConfig:
     pipe_x_spacing: int
 
     ground_line: int
+
+@unique
+class Gfx(IntEnum):
+    ICON = auto()
+
+    CHAR_0 = auto()
+    CHAR_1 = auto()
+    CHAR_2 = auto()
+    CHAR_3 = auto()
+    CHAR_4 = auto()
+    CHAR_5 = auto()
+    CHAR_6 = auto()
+    CHAR_7 = auto()
+    CHAR_8 = auto()
+    CHAR_9 = auto()
+
+    FLOOR = auto()
+    BG_BUSH = auto()
+    BG_CITY = auto()
+    BG_CLOUDS = auto()
+    PIPE_TOP = auto()
+    PIPE_BOT = auto()
+
+    BIRD_F0 = auto()
+    BIRD_F1 = auto()
+    BIRD_F2 = auto()
+
+    MSG_GAME_OVER = auto()
+    MSG_FLAPPY = auto()
+    MSG_READY = auto()
+
+    BTN_PAUSE_NORMAL = auto()
+    BTN_PAUSE_PAUSED = auto()
+    BTN_PLAY = auto()
+    BTN_SCOREBOARD = auto()
+
+    BOX_MENU = auto()
+    BOX_END = auto()
+
+    STARTER_TIP = auto()
+
+@unique
+class Aud(IntEnum):
+    WING = auto()
+    HIT = auto()
+    POINT = auto()
+    DIE = auto()

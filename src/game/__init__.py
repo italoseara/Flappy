@@ -12,8 +12,9 @@ from core.maths import Vector2
 from core.data import PygameSurface
 from core.manager import GameManager
 from core.font import SpriteFont, FontManager
+from core.resource import ResourceManager
 
-from .data import GameMode, GameConfig, GameCache
+from .data import GameMode, GameConfig, GameCache, Gfx, Aud
 from .utils import dict_from_pairs, amount_to_fill_container
 from .objects import ScrollingTile, Player, TBPipes
 
@@ -58,54 +59,92 @@ class GameCore:
             pipe_x_spacing = 200,
 
             ground_line = (GameCore.DEFAULT_WIN_SIZE.y - 64),
+        )
 
-            resources_dir = self.resources_path,
-            resources_wrapper = PygameSurface,
-            resources_to_load = [
+        def load_gfx_resource(x):
+            fpath = self.resources_path / x
+            with open(fpath, "r") as f:
+                return PygameSurface(pygame.image.load(f))
+
+        self.gfx = ResourceManager(
+            load_gfx_resource,
+            {
                 # general
-                ("icon", "icon.bmp"),
+                Gfx.ICON: "icon.bmp",
 
                 # font - numbers
-                *[(f"font_{n}", f"numbers/{n}.png") for n in range(10)],
+                Gfx.CHAR_0: "numbers/0.png",
+                Gfx.CHAR_1: "numbers/1.png",
+                Gfx.CHAR_2: "numbers/2.png",
+                Gfx.CHAR_3: "numbers/3.png",
+                Gfx.CHAR_4: "numbers/4.png",
+                Gfx.CHAR_5: "numbers/5.png",
+                Gfx.CHAR_6: "numbers/6.png",
+                Gfx.CHAR_7: "numbers/7.png",
+                Gfx.CHAR_8: "numbers/8.png",
+                Gfx.CHAR_9: "numbers/9.png",
 
                 # tiles
-                ("floor", "tiles/floor.png"),
-                ("bg_bush", "tiles/bush.png"),
-                ("bg_city", "tiles/city.png"),
-                ("bg_clouds", "tiles/clouds.png"),
-                ("pipe_top", "tiles/pipe_top.png"),
-                ("pipe_bot", "tiles/pipe_bot.png"),
+                Gfx.FLOOR: "tiles/floor.png",
+                Gfx.BG_BUSH: "tiles/bush.png",
+                Gfx.BG_CITY: "tiles/city.png",
+                Gfx.BG_CLOUDS: "tiles/clouds.png",
+                Gfx.PIPE_TOP: "tiles/pipe_top.png",
+                Gfx.PIPE_BOT: "tiles/pipe_bot.png",
 
                 # bird
-                ("bird_f0", "bird/bird_f0.png"),
-                ("bird_f1", "bird/bird_f1.png"),
-                ("bird_f2", "bird/bird_f2.png"),
+                Gfx.BIRD_F0: "bird/bird_f0.png",
+                Gfx.BIRD_F1: "bird/bird_f1.png",
+                Gfx.BIRD_F2: "bird/bird_f2.png",
 
                 # text
-                ("game_over", "text/msg_game_over.png"),
-                ("flappy", "text/msg_flappy.png"),
-                ("ready", "text/msg_ready.png"),
+                Gfx.MSG_GAME_OVER: "text/msg_game_over.png",
+                Gfx.MSG_FLAPPY: "text/msg_flappy.png",
+                Gfx.MSG_READY: "text/msg_ready.png",
 
                 # ui.buttons
-                ("pause_normal", "ui/btn_pause_normal.png"),
-                ("paused", "ui/btn_pause_paused.png"),
-                ("play", "ui/btn_play.png"),
-                ("scoreboard", "ui/btn_scoreboard.png"),
+                Gfx.BTN_PAUSE_NORMAL: "ui/btn_pause_normal.png",
+                Gfx.BTN_PAUSE_PAUSED: "ui/btn_pause_paused.png",
+                Gfx.BTN_PLAY: "ui/btn_play.png",
+                Gfx.BTN_SCOREBOARD: "ui/btn_scoreboard.png",
 
                 # ui.boxes
-                ("menu", "ui/box_menu.png"),
-                ("over_menu", "ui/box_end.png"),
+                Gfx.BOX_MENU: "ui/box_menu.png",
+                Gfx.BOX_END: "ui/box_end.png",
 
                 # ui.etc
-                ("starter_tip", "ui/starter_tip.png"),
-            ],
+                Gfx.STARTER_TIP: "ui/starter_tip.png",
+            }
+        )
+
+        def load_aud_resource(x):
+            fpath = self.audio_path / x
+            return pygame.mixer.Sound(str(fpath))
+
+        self.aud = ResourceManager(
+            load_aud_resource,
+            {
+                Aud.WING: "wing.wav",
+                Aud.HIT: "hit.wav",
+                Aud.POINT: "point.wav",
+                Aud.DIE: "die.wav",
+            }
         )
 
         self.cache = GameCache(self.config)
         self.clock = pygame.time.Clock()
-        self.font = SpriteFont(dict_from_pairs(
-            [(str(n), self.cache.get_resource(f"font_{n}")) for n in range(10)]
-        ))
+        self.font = SpriteFont({
+            "0": self.gfx.get(Gfx.CHAR_0),
+            "1": self.gfx.get(Gfx.CHAR_1),
+            "2": self.gfx.get(Gfx.CHAR_2),
+            "3": self.gfx.get(Gfx.CHAR_3),
+            "4": self.gfx.get(Gfx.CHAR_4),
+            "5": self.gfx.get(Gfx.CHAR_5),
+            "6": self.gfx.get(Gfx.CHAR_6),
+            "7": self.gfx.get(Gfx.CHAR_7),
+            "8": self.gfx.get(Gfx.CHAR_8),
+            "9": self.gfx.get(Gfx.CHAR_9),
+        })
 
         self.debug_mode = self.config.debug_mode_default
         self.save_file = shelve.open(str(self.save_path / "data"))
@@ -139,13 +178,17 @@ class GameCore:
         self.pipes = None
         self.player = Player(
             Vector2(0, 0),
-            [self.cache.get_resource(f"bird_f{x}") for x in range(3)],
+            [
+                self.gfx.get(Gfx.BIRD_F0),
+                self.gfx.get(Gfx.BIRD_F1),
+                self.gfx.get(Gfx.BIRD_F2),
+            ],
         )
 
-        r_pause_button_normal = self.cache.get_resource("pause_normal")
-        r_pause_button_paused = self.cache.get_resource("paused")
-        r_scoreboard_button = self.cache.get_resource("scoreboard")
-        r_play_button = self.cache.get_resource("play")
+        r_pause_button_normal = self.gfx.get(Gfx.BTN_PAUSE_NORMAL)
+        r_pause_button_paused = self.gfx.get(Gfx.BTN_PAUSE_PAUSED)
+        r_scoreboard_button = self.gfx.get(Gfx.BTN_SCOREBOARD)
+        r_play_button = self.gfx.get(Gfx.BTN_PLAY)
 
         self.pause_button = SimpleEntity(
             (self.config.win_size.x - r_pause_button_normal.size.x - 10, 10),
@@ -166,24 +209,6 @@ class GameCore:
         for chid in range(8):
             pygame.mixer.Channel(chid).set_volume(0.2)
 
-        # audio bank
-        # TODO: move this somewhere else
-        self.ab_wing = pygame.mixer.Sound(str(audio_path / "wing.wav"))
-        self.ab_hit = pygame.mixer.Sound(str(audio_path / "hit.wav"))
-        self.ab_point = pygame.mixer.Sound(str(audio_path / "point.wav"))
-        self.ab_death = pygame.mixer.Sound(str(audio_path / "die.wav"))
-
-        # TODO: find a fast yet good way to do this (enum.IntEnum?)
-        # also use @enum.unique
-        # and https://stackoverflow.com/questions/29503339/how-to-get-all-values-from-python-enum-class
-        # and https://stackoverflow.com/questions/5944708/python-forcing-a-list-to-a-fixed-size
-        self.r_menu = self.cache.get_resource("menu")
-        self.r_flappy = self.cache.get_resource("flappy")
-        self.r_game_over = self.cache.get_resource("game_over")
-        self.r_over_menu = self.cache.get_resource("over_menu")
-        self.r_play = self.cache.get_resource("play")
-        self.r_scoreboard = self.cache.get_resource("scoreboard")
-
         # TODO: remove these cached variables
         self.c_debug_text = None
         self.c_was_debug_mode = self.debug_mode
@@ -197,7 +222,7 @@ class GameCore:
                 self.config.title,
             ),
             win_size = self.config.win_size,
-            icon = self.cache.get_resource("icon"),
+            icon = self.gfx.get(Gfx.ICON),
         )
 
     def main_loop(self):
@@ -214,7 +239,7 @@ class GameCore:
         A turn is a moment that lasts until a restart (after a death) is done.
         """
 
-        bird_f0_size = self.cache.get_resource("bird_f0").size
+        bird_f0_size = self.gfx.get(Gfx.BIRD_F0).size
         
         BIRD_CENTER_OFFSET_X = 50
         BIRD_POS_X = (self.config.win_size.x / 2
@@ -235,7 +260,10 @@ class GameCore:
 
         self.front_tiles, self.back_tiles = self.make_tiles()
 
-        r_pipes = [self.cache.get_resource(x) for x in ["pipe_top", "pipe_bot"]]
+        r_pipes = [
+            self.gfx.get(Gfx.PIPE_TOP),
+            self.gfx.get(Gfx.PIPE_BOT),
+        ]
         self.pipes = [
             TBPipes(
                 win_size = self.config.win_size,
@@ -268,7 +296,7 @@ class GameCore:
 
                 # jump
                 if self.game_mode == GameMode.PLAYING:
-                    pygame.mixer.Channel(0).play(self.ab_wing)
+                    pygame.mixer.Channel(0).play(self.aud.get(Aud.WING))
                     # TODO: turn this into self.player.jump()
                     self.player.speed.y = -8
                     self.player.jump_counter = 0
@@ -286,7 +314,7 @@ class GameCore:
 
                 self.distance_to_next_score -= self.config.scroll_speed
                 if self.distance_to_next_score <= 0:
-                    pygame.mixer.Channel(1).play(self.ab_point)
+                    pygame.mixer.Channel(1).play(self.aud.get(Aud.POINT))
                     self.distance_to_next_score += self.config.pipe_x_spacing
                     self.current_score += 1
 
@@ -322,8 +350,8 @@ class GameCore:
             if self.after_death_timer == 0:
                 # play sounds on death
                 # TODO: use Channel(_).get_busy() to find free channels
-                pygame.mixer.Channel(2).play(self.ab_hit)
-                pygame.mixer.Channel(3).play(self.ab_death)
+                pygame.mixer.Channel(2).play(self.aud.get(Aud.HIT))
+                pygame.mixer.Channel(3).play(self.aud.get(Aud.DIE))
             elif (self.after_death_timer >= 70
                   and self.play_button.hitbox.collidepoint(tuple(self.input_handler.mouse_pos))
                   and self.input_handler.is_first(InputValue.MOUSE_BTN_LEFT)):
@@ -381,11 +409,11 @@ class GameCore:
         if self.game_mode == GameMode.START and not self.is_paused:
             # TODO: center this properly
             self.manager.blit(
-                self.cache.get_resource("ready"),
+                self.gfx.get(Gfx.MSG_READY),
                 (222, 20),
             )
             self.manager.blit(
-                self.cache.get_resource("starter_tip"),
+                self.gfx.get(Gfx.STARTER_TIP),
                 (450, 200),
             )
 
@@ -433,8 +461,8 @@ class GameCore:
 
         # pause menu
         if self.is_paused:
-            self.manager.blit(self.r_menu, (258, 155))
-            self.manager.blit(self.r_flappy, (222, 20))
+            self.manager.blit(self.gfx.get(Gfx.BOX_MENU), (258, 155))
+            self.manager.blit(self.gfx.get(Gfx.MSG_FLAPPY), (222, 20))
 
         # game over
         if self.game_mode == GameMode.DEAD:
@@ -446,10 +474,10 @@ class GameCore:
                 self.save_file["max_score"] = self.current_score
 
             if self.after_death_timer >= 70: # wait some time for showing the death screen
-                self.manager.blit(self.r_game_over, (222, 20))
-                self.manager.blit(self.r_over_menu, (258, 145))
-                self.manager.blit(self.r_play, (280, 405))
-                self.manager.blit(self.r_scoreboard, (520, 405))
+                self.manager.blit(self.gfx.get(Gfx.MSG_GAME_OVER), (222, 20))
+                self.manager.blit(self.gfx.get(Gfx.BOX_END), (258, 145))
+                self.manager.blit(self.gfx.get(Gfx.BTN_PLAY), (280, 405))
+                self.manager.blit(self.gfx.get(Gfx.BTN_SCOREBOARD), (520, 405))
 
             self.after_death_timer += 1
 
@@ -465,10 +493,10 @@ class GameCore:
         self.turn_timer += 1
 
     def make_tiles(self):
-        r_floor = self.cache.get_resource("floor")
-        r_clouds = self.cache.get_resource("bg_clouds")
-        r_bush = self.cache.get_resource("bg_bush")
-        r_city = self.cache.get_resource("bg_city")
+        r_floor = self.gfx.get(Gfx.FLOOR)
+        r_clouds = self.gfx.get(Gfx.BG_CLOUDS)
+        r_bush = self.gfx.get(Gfx.BG_BUSH)
+        r_city = self.gfx.get(Gfx.BG_CITY)
 
         front, back = [], []
 
