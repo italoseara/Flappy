@@ -16,7 +16,7 @@ from core.resource import ResourceManager
 
 from .data import GameMode, GameConfig, Gfx, Aud
 from .utils import dict_from_pairs, make_color, amount_to_fill_container
-from .objects import ScrollingTile, Player, TBPipes
+from .objects import ScrollingTileH, Player, TBPipes
 
 class GameCore:
     DEFAULT_WIN_SIZE = Vector2(960, 540)
@@ -512,22 +512,22 @@ class GameCore:
         bg_amount = amount_to_fill_container(self.config.win_size.x, r_clouds.size.x)
 
         def make_back_tile(parallax_coeff, resource):
-            return [ScrollingTile(
-                pos=(i * r_clouds.size.x, self.config.ground_line - r_clouds.size.y),
-                wrap_pos=(bg_amount * r_clouds.size.x),
-                speed=(-self.config.scroll_speed * parallax_coeff),
-                resource=resource,
-            ) for i in range(bg_amount + 1)]
+            return [ScrollingTileH(
+                pos_y = (self.config.ground_line - r_clouds.size.y),
+                win_size = self.config.win_size,
+                speed = (-self.config.scroll_speed * parallax_coeff),
+                resource = resource,
+            )]
 
         back += make_back_tile(self.config.clouds_parallax_coeff, r_clouds)
         back += make_back_tile(self.config.city_parallax_coeff, r_city)
         back += make_back_tile(self.config.bush_parallax_coeff, r_bush)
 
-        front += [ScrollingTile(
-            pos=(i * r_floor.size.x, self.config.ground_line),
-            wrap_pos=(floor_amount * r_floor.size.x),
-            speed=(-self.config.scroll_speed * self.config.floor_parallax_coeff),
-            resource=r_floor,
+        front += [ScrollingTileH(
+            pos_y = self.config.ground_line,
+            win_size = self.config.win_size,
+            speed = (-self.config.scroll_speed * self.config.floor_parallax_coeff),
+            resource = r_floor,
         ) for i in range(floor_amount + 1)]
 
         return (front, back)
