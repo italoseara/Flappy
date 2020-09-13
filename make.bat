@@ -14,6 +14,7 @@ if "%PYCMD%" == "" (
    exit /b
 )
 
+rem TODO: iterate through arguments instead of only reading arg #1
 if "%1" == "pip" (
    %PYCMD% -m pip install pygame
    %PYCMD% -m pip install pyinstaller
