@@ -8,7 +8,7 @@ class Blittable:
     def size(self) -> Vector2:
         raise NotImplementedError
 
-    def draw_to(self, other_surface: Surface, pos: tuple):
+    def draw_to(self, other_surface: Surface, pos: Vector2):
         raise NotImplementedError
 
 class PygameSurface(Blittable):
@@ -19,7 +19,7 @@ class PygameSurface(Blittable):
     def size(self) -> Vector2:
         return Vector2(self.inner.get_rect().size)
 
-    def draw_to(self, other_surface: Surface, pos: tuple):
+    def draw_to(self, other_surface: Surface, pos: Vector2):
         other_surface.blit(self.inner, tuple(pos))
 
     def into_pygame(self):

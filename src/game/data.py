@@ -1,5 +1,3 @@
-import pygame
-
 from enum import Enum, IntEnum, unique, auto
 from dataclasses import dataclass
 from typing import Tuple
@@ -8,23 +6,6 @@ class GameMode(Enum):
     START = 0
     PLAYING = 1
     DEAD = 2
-
-class GameCache:
-    """Contains game cache, helping with speed."""
-    def __init__(self, config):
-        assert isinstance(config, GameConfig)
-
-        self.blit_base_color = _make_color(config.blit_base_color)
-        self.score_text_font_color = _make_color(config.score_text_font_color)
-        self.score_text_font = pygame.font.SysFont(
-            config.score_text_font_name,
-            config.score_text_font_size,
-        )
-
-def _make_color(arg):
-    if isinstance(arg, tuple):
-        return pygame.Color(*arg)
-    return pygame.Color(arg)
 
 @dataclass(frozen=True)
 class GameConfig:

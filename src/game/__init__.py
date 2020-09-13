@@ -11,11 +11,11 @@ from core.entity import SimpleEntity
 from core.maths import Vector2
 from core.data import PygameSurface
 from core.manager import GameManager
-from core.font import SpriteFont, FontManager
+from core.font import SpriteFontManager, RegularFontManager
 from core.resource import ResourceManager
 
-from .data import GameMode, GameConfig, GameCache, Gfx, Aud
-from .utils import dict_from_pairs, amount_to_fill_container
+from .data import GameMode, GameConfig, Gfx, Aud
+from .utils import dict_from_pairs, make_color, amount_to_fill_container
 from .objects import ScrollingTile, Player, TBPipes
 
 class GameCore:
@@ -131,20 +131,32 @@ class GameCore:
             }
         )
 
-        self.cache = GameCache(self.config)
         self.clock = pygame.time.Clock()
-        self.font = SpriteFont({
-            "0": self.gfx.get(Gfx.CHAR_0),
-            "1": self.gfx.get(Gfx.CHAR_1),
-            "2": self.gfx.get(Gfx.CHAR_2),
-            "3": self.gfx.get(Gfx.CHAR_3),
-            "4": self.gfx.get(Gfx.CHAR_4),
-            "5": self.gfx.get(Gfx.CHAR_5),
-            "6": self.gfx.get(Gfx.CHAR_6),
-            "7": self.gfx.get(Gfx.CHAR_7),
-            "8": self.gfx.get(Gfx.CHAR_8),
-            "9": self.gfx.get(Gfx.CHAR_9),
-        })
+
+        self.blit_base_color = make_color(self.config.blit_base_color)
+
+        self.debug_fm = RegularFontManager(
+            color = make_color(self.config.score_text_font_color),
+            name = self.config.score_text_font_name,
+            size = self.config.score_text_font_size,
+        )
+        self.debug_fm.update_string("")
+
+        self.score_fm = SpriteFontManager(
+            font_dict = {
+                "0": self.gfx.get(Gfx.CHAR_0),
+                "1": self.gfx.get(Gfx.CHAR_1),
+                "2": self.gfx.get(Gfx.CHAR_2),
+                "3": self.gfx.get(Gfx.CHAR_3),
+                "4": self.gfx.get(Gfx.CHAR_4),
+                "5": self.gfx.get(Gfx.CHAR_5),
+                "6": self.gfx.get(Gfx.CHAR_6),
+                "7": self.gfx.get(Gfx.CHAR_7),
+                "8": self.gfx.get(Gfx.CHAR_8),
+                "9": self.gfx.get(Gfx.CHAR_9),
+            },
+            padding_px = 5,
+        )
 
         self.debug_mode = self.config.debug_mode_default
         self.save_file = shelve.open(str(self.save_path / "data"))
@@ -170,6 +182,7 @@ class GameCore:
         self.turn_timer = 0
         self.after_death_timer = 0
         self.turn_debug_used = False
+        self.turn_was_debug_mode = self.debug_mode
 
         # values to be filled later
         self.distance_to_next_score = 0
@@ -211,7 +224,6 @@ class GameCore:
 
         # TODO: remove these cached variables
         self.c_debug_text = None
-        self.c_was_debug_mode = self.debug_mode
         self.c_previous_score = 0
         self.c_score_text_rendered = None
 
@@ -284,6 +296,7 @@ class GameCore:
     def pre_processing(self):
         self.clock.tick(self.config.framerate)
         self.input_handler.update_keys()
+        self.turn_was_debug_mode = self.debug_mode
 
     def processing(self):
         if not self.is_paused:
@@ -360,7 +373,7 @@ class GameCore:
 
     def post_processing(self):
         # fill screen with sky color
-        self.manager.fill_screen(self.cache.blit_base_color)
+        self.manager.fill_screen(self.blit_base_color)
 
         # render back tiles
         for obj in self.back_tiles:
@@ -423,40 +436,35 @@ class GameCore:
 
         # show score text on the top-left corner
         if (self.config.score_text_enabled
+            and self.debug_mode
             and self.game_mode == GameMode.PLAYING
             and (self.turn_timer % 60 == 0
                  or self.c_previous_score < self.current_score
-                 or self.c_was_debug_mode != self.debug_mode
-                 or self.c_score_text_rendered is None)):
+                 or self.turn_was_debug_mode != self.debug_mode)):
 
-            if self.debug_mode:
-                self.c_debug_text = "[DEBUG] FPS: {} | MaxScore: {} ".format(
-                    int(self.clock.get_fps()),
-                    self.save_file["max_score"]
+            self.debug_fm.update_string(
+                "(:fps {:.2f} :max-score {})".format(
+                    self.clock.get_fps(),
+                    self.save_file["max_score"],
                 )
-            else:
-                self.c_debug_text = ""
-
-            self.c_score_text_rendered = self.cache.score_text_font.render(
-                self.c_debug_text,
-                True,
-                self.cache.score_text_font_color
             )
-
-        font_manager = FontManager(
-            pos = (self.config.win_size.x / 2 - (15 * len(str(self.current_score))), 10),
-            sprite_font = self.font,
-            padding_px = 5,
-        )
 
         if (self.config.score_text_enabled
             and self.game_mode == GameMode.PLAYING):
-            font_manager.update_string(str(self.current_score))
 
-            self.manager.render(font_manager)
+            xpos = self.config.win_size.x / 2 - 15 * len(str(self.current_score))
+            ypos = 10
+
+            self.score_fm.update_string(str(self.current_score))
             self.manager.blit(
-                PygameSurface(self.c_score_text_rendered),
-                self.config.score_text_pos
+                self.score_fm,
+                (xpos, ypos),
+            )
+
+        if self.debug_mode:
+            self.manager.blit(
+                self.debug_fm,
+                self.config.score_text_pos,
             )
 
         # pause menu

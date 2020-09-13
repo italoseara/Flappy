@@ -1,3 +1,4 @@
+import pygame
 from typing import List, Tuple, Dict, Any
 
 def dict_from_pairs(pairs: List[Tuple[Any, Any]]) -> Dict[Any, Any]:
@@ -17,3 +18,8 @@ def amount_to_fill_container(container_size, object_size):
     if result % 1 > 0:
         result += (1 - result % 1)
     return int(result)
+
+def make_color(arg):
+    if isinstance(arg, tuple):
+        return pygame.Color(*arg)
+    return pygame.Color(arg)
