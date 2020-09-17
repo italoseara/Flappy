@@ -155,7 +155,7 @@ class GameCore:
                 "8": self.gfx.get(Gfx.CHAR_8),
                 "9": self.gfx.get(Gfx.CHAR_9),
             },
-            padding_px = 5,
+            padding_px = 0,
         )
 
         self.debug_mode = self.config.debug_mode_default
