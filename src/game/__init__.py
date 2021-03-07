@@ -23,6 +23,7 @@ class GameCore:
 
     # TODO: document most variables inside this function
     def __init__(self, save_path, audio_path, resources_path):
+        pygame.display.set_mode((1, 1))
         # paths
         self.save_path = Path(save_path)
         self.audio_path = Path(audio_path)
@@ -64,7 +65,7 @@ class GameCore:
         def load_gfx_resource(x):
             fpath = self.resources_path / x
             with open(fpath, "r") as f:
-                return PygameSurface(pygame.image.load(f))
+                return PygameSurface(pygame.image.load(f).convert_alpha())
 
         self.gfx = ResourceManager(
             load_gfx_resource,
