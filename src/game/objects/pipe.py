@@ -4,6 +4,7 @@ from pygame import Rect
 from core.render import BatchRender
 from core.maths import Vector2
 from core.data import FrameManager
+from core.time import DeltaTime
 
 class TBPipes(BatchRender):
     def __init__(self,
@@ -30,7 +31,7 @@ class TBPipes(BatchRender):
         self.calc_pipes()
 
     def process(self):
-        self.pos.x += self.speed
+        self.pos.x += self.speed * DeltaTime.get()
 
         # if the pipe has passed entirely through the left size of the screen
         if self.pos.x < -self._size.x:

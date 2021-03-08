@@ -13,6 +13,7 @@ from core.data import PygameSurface
 from core.manager import GameManager
 from core.font import SpriteFontManager, RegularFontManager
 from core.resource import ResourceManager
+from core.time import DeltaTime
 
 from .data import GameMode, GameConfig, Gfx, Aud
 from .utils import dict_from_pairs, make_color, amount_to_fill_container
@@ -36,9 +37,9 @@ class GameCore:
             win_size = GameCore.DEFAULT_WIN_SIZE,
             blit_base_color = (11, 200, 215),
 
-            scroll_speed = 3,
-            jump_speed = -8.0,
-            gravity = 0.5,
+            scroll_speed = 180,
+            jump_speed = -480,
+            gravity = 30,
             framerate = 60,
 
             score_text_font_name = "Cascadia Code, Consolas, Tahoma",
@@ -295,7 +296,9 @@ class GameCore:
                                        - player_point_offset_x)
 
     def pre_processing(self):
-        self.clock.tick(self.config.framerate)
+        DeltaTime.process(
+            self.clock.tick(self.config.framerate)
+        )
         self.input_handler.update_keys()
         self.turn_was_debug_mode = self.debug_mode
 
@@ -323,10 +326,10 @@ class GameCore:
                         if not self.debug_mode:
                             self.game_mode = GameMode.DEAD
                             # TODO: turn this into self.player.die()
-                            self.player.speed.y = self.config.jump_speed
+                            self.player.speed.y = self.config.jump_speed * DeltaTime.get()
                             break
 
-                self.distance_to_next_score -= self.config.scroll_speed
+                self.distance_to_next_score -= self.config.scroll_speed * DeltaTime.get()
                 if self.distance_to_next_score <= 0:
                     pygame.mixer.Channel(1).play(self.aud.get(Aud.POINT))
                     self.distance_to_next_score += self.config.pipe_x_spacing
@@ -516,7 +519,7 @@ class GameCore:
             return [ScrollingTileH(
                 pos_y = (self.config.ground_line - r_clouds.size.y),
                 win_size = self.config.win_size,
-                speed = (-self.config.scroll_speed * parallax_coeff),
+                speed = (-self.config.scroll_speed * parallax_coeff * DeltaTime.get()),
                 resource = resource,
             )]
 
@@ -527,7 +530,7 @@ class GameCore:
         front += [ScrollingTileH(
             pos_y = self.config.ground_line,
             win_size = self.config.win_size,
-            speed = (-self.config.scroll_speed * self.config.floor_parallax_coeff),
+            speed = (-self.config.scroll_speed * self.config.floor_parallax_coeff * DeltaTime.get()),
             resource = r_floor,
         ) for i in range(floor_amount + 1)]
 
