@@ -46,7 +46,7 @@ class Player(SimpleEntity):
 
         if state.game_mode == GameMode.START:
             self.speed.y = 0
-            self.pos.y += sin(state.turn_timer / 8)
+            self.pos.y += sin(state.turn_timer / 8) * DeltaTime.get()
         else:
             self.speed.y += state.config.gravity * DeltaTime.get()
 
