@@ -1,4 +1,3 @@
-from core.time import DeltaTime
 import pygame
 
 from math import sin
@@ -48,7 +47,7 @@ class Player(SimpleEntity):
             self.speed.y = 0
             self.pos.y += sin(state.turn_timer / 8) * DeltaTime.get()
         else:
-            self.speed.y += state.config.gravity * DeltaTime.get()
+            self.speed.y += state.config.gravity
 
         # cap the Y speed if the player goes through the top of the screen
         if self.pos.y < 0:
