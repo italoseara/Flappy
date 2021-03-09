@@ -1,9 +1,9 @@
 class DeltaTime:
-    value = 0
-    @staticmethod
-    def process(pygame_delta):
-        DeltaTime.value = pygame_delta / 1000
+    def __init__(self):
+        self.value = 0
 
-    @staticmethod
-    def get():
-        return DeltaTime.value
+    def process(self, pygame_delta):
+        self.value = pygame_delta / 1000
+
+    def get(self):
+        return self.value
