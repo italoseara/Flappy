@@ -25,6 +25,7 @@ class GameCore:
     # TODO: document most variables inside this function
     def __init__(self, save_path, audio_path, resources_path):
         pygame.display.set_mode((1, 1))
+        self.deltatime = DeltaTime()
         # paths
         self.save_path = Path(save_path)
         self.audio_path = Path(audio_path)
@@ -296,7 +297,7 @@ class GameCore:
                                        - player_point_offset_x)
 
     def pre_processing(self):
-        DeltaTime.process(
+        self.deltatime.process(
             self.clock.tick(self.config.framerate)
         )
         self.input_handler.update_keys()
@@ -304,7 +305,7 @@ class GameCore:
 
     def processing(self):
         if not self.is_paused:
-            self.player.process_extra(self)
+            self.player.process_extra(self.deltatime, self)
 
             if self.input_handler.upkeys_first():
                 # start the game
@@ -320,16 +321,16 @@ class GameCore:
 
             if self.game_mode == GameMode.PLAYING:
                 for pipe in self.pipes:
-                    pipe.process()
+                    pipe.process(self.deltatime)
 
                     if pipe.is_colliding(self.player.hitbox):
                         if not self.debug_mode:
                             self.game_mode = GameMode.DEAD
                             # TODO: turn this into self.player.die()
-                            self.player.speed.y = self.config.jump_speed * DeltaTime.get()
+                            self.player.speed.y = self.config.jump_speed * self.deltatime.get()
                             break
 
-                self.distance_to_next_score -= self.config.scroll_speed * DeltaTime.get()
+                self.distance_to_next_score -= self.config.scroll_speed * self.deltatime.get()
                 if self.distance_to_next_score <= 0:
                     pygame.mixer.Channel(1).play(self.aud.get(Aud.POINT))
                     self.distance_to_next_score += self.config.pipe_x_spacing
@@ -519,7 +520,7 @@ class GameCore:
             return [ScrollingTileH(
                 pos_y = (self.config.ground_line - r_clouds.size.y),
                 win_size = self.config.win_size,
-                speed = (-self.config.scroll_speed * parallax_coeff * DeltaTime.get()),
+                speed = (-self.config.scroll_speed * parallax_coeff * self.deltatime.get()),
                 resource = resource,
             )]
 
@@ -530,7 +531,7 @@ class GameCore:
         front += [ScrollingTileH(
             pos_y = self.config.ground_line,
             win_size = self.config.win_size,
-            speed = (-self.config.scroll_speed * self.config.floor_parallax_coeff * DeltaTime.get()),
+            speed = (-self.config.scroll_speed * self.config.floor_parallax_coeff * self.deltatime.get()),
             resource = r_floor,
         ) for i in range(floor_amount + 1)]
 

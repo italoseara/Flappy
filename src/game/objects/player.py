@@ -37,7 +37,7 @@ class Player(SimpleEntity):
     def process(self):
         pass
 
-    def process_extra(self, state):
+    def process_extra(self, deltatime, state):
         self.jump_counter += 1
 
         # MOVEMENT ###########################
@@ -48,7 +48,7 @@ class Player(SimpleEntity):
             self.speed.y = 0
             self.pos.y += sin(state.turn_timer / 8) * DeltaTime.get()
         else:
-            self.speed.y += state.config.gravity * DeltaTime.get()
+            self.speed.y += state.config.gravity * deltatime.get()
 
         # cap the Y speed if the player goes through the top of the screen
         if self.pos.y < 0:
