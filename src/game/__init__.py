@@ -24,7 +24,6 @@ class GameCore:
 
     # TODO: document most variables inside this function
     def __init__(self, save_path, audio_path, resources_path):
-        pygame.display.set_mode((1, 1))
         self.deltatime = DeltaTime()
         # paths
         self.save_path = Path(save_path)
@@ -68,6 +67,15 @@ class GameCore:
             fpath = self.resources_path / x
             with open(fpath, "r") as f:
                 return PygameSurface(pygame.image.load(f).convert_alpha())
+
+        self.manager = GameManager(
+            title = "({}x{}) {}".format(
+                self.config.win_size.x,
+                self.config.win_size.y,
+                self.config.title,
+            ),
+            win_size = self.config.win_size,
+        )
 
         self.gfx = ResourceManager(
             load_gfx_resource,
@@ -119,6 +127,8 @@ class GameCore:
                 Gfx.STARTER_TIP: "ui/starter_tip.png",
             }
         )
+
+        self.manager.set_icon(self.gfx.get(Gfx.ICON))
 
         def load_aud_resource(x):
             fpath = self.audio_path / x
@@ -229,16 +239,6 @@ class GameCore:
         self.c_debug_text = None
         self.c_previous_score = 0
         self.c_score_text_rendered = None
-
-        self.manager = GameManager(
-            title = "({}x{}) {}".format(
-                self.config.win_size.x,
-                self.config.win_size.y,
-                self.config.title,
-            ),
-            win_size = self.config.win_size,
-            icon = self.gfx.get(Gfx.ICON),
-        )
 
     def main_loop(self):
         self.prepare_turn()
