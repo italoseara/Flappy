@@ -249,12 +249,12 @@ class GameCore:
 
     def prepare_turn(self):
         """Initializes variables for every turn.
-        
+
         A turn is a moment that lasts until a restart (after a death) is done.
         """
 
         bird_f0_size = self.gfx.get(Gfx.BIRD_F0).size
-        
+
         BIRD_CENTER_OFFSET_X = 50
         BIRD_POS_X = (self.config.win_size.x / 2
                       - bird_f0_size.y / 2

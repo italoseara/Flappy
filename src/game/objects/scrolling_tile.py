@@ -12,7 +12,7 @@ class ScrollingTileH(BatchRender):
         self._win_size = Vector2(win_size)
 
     def process(self):
-        self.pos.x = ((self.pos.x + self.speed) % self.frames.current_frame.size.x) * DeltaTime.get()
+        self.pos.x = ((self.pos.x + self.speed * DeltaTime.get()) % self.frames.current_frame.size.x)
 
     def get_render(self):
         result = []
