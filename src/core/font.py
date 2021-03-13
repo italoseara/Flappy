@@ -1,3 +1,5 @@
+# TODO: remake this API (probably using abc and dataclasses) and make it more readable
+
 import pygame
 
 from .data import Blittable
@@ -6,9 +8,15 @@ from pygame import Surface
 
 class FontManager(Blittable):
     def __init__(self):
+        super().__init__()
         self._current_string = None
+        self._current_rendered_string = None
         self._current_render_cache = None
         self._should_render = True
+
+    @property
+    def size(self):
+        raise NotImplementedError # TODO: calculate a FontManager's total size
 
     def get_string_render(self, string):
         raise NotImplementedError

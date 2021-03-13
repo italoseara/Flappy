@@ -1,13 +1,12 @@
-from core.time import DeltaTime
 import pygame
 
 from math import sin
 
+from game.data import GameMode
 from core.time import DeltaTime
 from core.entity import SimpleEntity
 from core.maths import Vector2
 from core.data import PygameSurface
-from game.data import GameMode
 
 class Player(SimpleEntity):
     def __init__(self, pos, frames):

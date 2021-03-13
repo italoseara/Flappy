@@ -14,7 +14,6 @@ class GameManager:
 
     def set_icon(self, icon):
         pygame.display.set_icon(icon.into_pygame())
-        
 
     def fill_screen(self, color):
         self._screen.fill(color)
