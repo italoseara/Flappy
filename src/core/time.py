@@ -1,9 +1,9 @@
 class DeltaTime:
-    def __init__(self):
-        self.value = 0
+    value = 1
+    @classmethod
+    def process(cls, pygame_delta):
+        cls.value = pygame_delta / 1000
 
-    def process(self, pygame_delta):
-        self.value = pygame_delta / 1000
-
-    def get(self):
-        return self.value
+    @classmethod
+    def get(cls):
+        return cls.value

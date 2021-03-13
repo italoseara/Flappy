@@ -3,6 +3,7 @@ class ResourceManager:
         self._resource_wrapper = resource_wrapper
         self._resource_map = {}
         for k, r in resources.items():
+            print(k)
             self.add_resource(k, r)
         
     def add_resource(self, key, resource):
