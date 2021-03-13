@@ -304,7 +304,7 @@ class GameCore:
 
     def processing(self):
         if not self.is_paused:
-            self.player.process_extra(DeltaTime, self)
+            self.player.process_extra(self)
 
             if self.input_handler.upkeys_first():
                 # start the game
@@ -320,7 +320,7 @@ class GameCore:
 
             if self.game_mode == GameMode.PLAYING:
                 for pipe in self.pipes:
-                    pipe.process(DeltaTime)
+                    pipe.process()
 
                     if pipe.is_colliding(self.player.hitbox):
                         if not self.debug_mode:

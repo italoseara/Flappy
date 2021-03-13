@@ -30,8 +30,8 @@ class TBPipes(BatchRender):
         self._calculated_pipes = None
         self.calc_pipes()
 
-    def process(self, deltatime):
-        self.pos.x += self.speed * deltatime.get()
+    def process(self):
+        self.pos.x += self.speed * DeltaTime.get()
 
         # if the pipe has passed entirely through the left size of the screen
         if self.pos.x < -self._size.x:
