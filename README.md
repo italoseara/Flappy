@@ -9,7 +9,7 @@ Made by:
 
 ## Installation
 
-Currently there's no way to install this. For debugging, see (Debugging)[#debugging].
+Currently there's no way to install this. For debugging, see [Debugging](#debugging).
 
 ## Debugging <a href="#debugging"></a>
 
@@ -36,7 +36,7 @@ make pip
 make run
 ```
 
-<!-- TODO: VSCode -->
+<!-- TODO: VSCode setup -->
 
 ## Credits
 
