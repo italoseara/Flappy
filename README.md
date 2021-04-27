@@ -9,9 +9,9 @@ Made by:
 
 ## Installation
 
-Currently there's no way to install this. For debugging, see [Debugging](#debugging).
+Currently there's no way to install this. For debugging, see [Debugging](#Debugging).
 
-## Debugging <a href="#debugging"></a>
+## Debugging
 
 ### Mac/Linux (with bash + make)
 
