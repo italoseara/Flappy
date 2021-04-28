@@ -2,16 +2,13 @@
 
 A *Flappy Bird* clone made in Python 3.7+, using the *pygame* library.
 
-Made by:
-
-* [Ítalo Seara](https://github.com/italoseara);
-* [YohananDiamond](https://github.com/YohananDiamond);
+Made by [Ítalo Seara](https://github.com/italoseara) & [YohananDiamond](https://github.com/YohananDiamond)
 
 ## Installation
 
-Currently there's no way to install this. For debugging, see (Debugging)[#debugging].
+Currently there's no way to install this, but you can still [run it](#Running).
 
-## Debugging <a href="#debugging"></a>
+## Running
 
 ### Mac/Linux (with bash + make)
 
@@ -36,7 +33,7 @@ make pip
 make run
 ```
 
-<!-- TODO: VSCode -->
+<!-- TODO: VSCode setup -->
 
 ## Credits
 
