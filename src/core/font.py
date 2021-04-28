@@ -68,10 +68,11 @@ class RegularFontManager(FontManager):
         surface.blit(self._current_render_cache, tuple(offset))
 
 class SpriteFontManager(FontManager):
-    def __init__(self, font_dict, padding_px: int, initial_string: str):
+    def __init__(self, font_dict, padding_px: int, initial_string: str, scale: float = 5.0):
         super().__init__(initial_string=initial_string)
         self.font_dict = font_dict
         self.padding_px = padding_px
+        self.scale = scale
 
     def get_width(self, string: str) -> int:
         renders = self.get_string_render(string)
@@ -101,11 +102,11 @@ class SpriteFontManager(FontManager):
 
         current_x_offset = 0
         for char in string:
-            r_char = self.font_dict[char]
+            r_char = self.font_dict[char].scaled(Vector2(self.scale, self.scale))
 
             y_offset = -r_char.size.y
             result.append((r_char, Vector2(current_x_offset, y_offset), r_char.size))
-            current_x_offset += self.padding_px + r_char.size.x
+            current_x_offset += self.padding_px * self.scale + r_char.size.x
 
         return result
 

@@ -1,4 +1,8 @@
+from __future__ import annotations
+
 from .maths import Vector2
+
+import pygame
 from pygame import Surface
 
 import abc
@@ -24,6 +28,9 @@ class PygameSurface(Blittable):
 
     def draw_to(self, surface: Surface, pos: Vector2) -> None:
         surface.blit(self.inner, tuple(pos))
+
+    def scaled(self, scale: Vector2) -> PygameSurface:
+        return PygameSurface(pygame.transform.scale(self.inner, (int(scale.x * self.size.x), int(scale.y * self.size.y))))
 
     def into_pygame(self):
         return self.inner
