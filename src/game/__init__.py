@@ -457,10 +457,12 @@ class GameCore:
         if (self.config.score_text_enabled
             and self.game_mode == GameMode.PLAYING):
 
-            xpos = self.config.win_size.x / 2 - 15 * len(str(self.current_score))
-            ypos = 50
-
             self.score_fm.update_string(str(self.current_score))
+
+            size = self.score_fm.size
+            xpos = self.config.win_size.x / 2 - size.x / 2
+            ypos = 15 + size.y
+
             self.manager.blit(
                 self.score_fm,
                 Vector2(xpos, ypos)
@@ -469,7 +471,7 @@ class GameCore:
         if self.debug_mode:
             self.manager.blit(
                 self.debug_fm,
-                self.config.score_text_pos,
+                Vector2(self.config.score_text_pos),
             )
 
         # pause menu
