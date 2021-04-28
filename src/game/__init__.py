@@ -149,10 +149,10 @@ class GameCore:
 
         self.debug_fm = RegularFontManager(
             color = make_color(self.config.score_text_font_color),
-            name = self.config.score_text_font_name,
-            size = self.config.score_text_font_size,
+            font_name = self.config.score_text_font_name,
+            font_size = self.config.score_text_font_size,
+            initial_string = "",
         )
-        self.debug_fm.update_string("")
 
         self.score_fm = SpriteFontManager(
             font_dict = {
@@ -168,6 +168,7 @@ class GameCore:
                 "9": self.gfx.get(Gfx.CHAR_9),
             },
             padding_px = 0,
+            initial_string = "",
         )
 
         self.debug_mode = self.config.debug_mode_default

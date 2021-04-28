@@ -1,80 +1,83 @@
 # TODO: remake this API (probably using abc and dataclasses) and make it more readable
 
 import pygame
+import abc
+from pygame import Surface
+from typing import Any, List, Tuple
 
 from .data import Blittable
 from .maths import Vector2
-from pygame import Surface
 
 class FontManager(Blittable):
-    def __init__(self):
+    def __init__(self, initial_string: str):
         super().__init__()
-        self._current_string = None
+        self._current_string = initial_string
         self._current_rendered_string = None
         self._current_render_cache = None
         self._should_render = True
 
-    @property
-    def size(self):
-        raise NotImplementedError # TODO: calculate a FontManager's total size
+    @abc.abstractmethod
+    def get_width(self) -> int: ...
 
-    def get_string_render(self, string):
-        raise NotImplementedError
+    @abc.abstractmethod
+    def get_height(self) -> int: ...
 
-    def _font_draw_to(self, other_surface: Surface, pos: Vector2):
-        raise NotImplementedError
+    @abc.abstractmethod
+    def get_string_render(self, string: str) -> List[Tuple[Surface, int, int]]: ...
 
-    def update_string(self, string):
+    @abc.abstractmethod
+    def _font_draw_to(self, surface: Surface, offset: Vector2) -> None: ...
+
+    def update_string(self, string: str) -> None:
         if string != self._current_string:
             self._should_render = True
         self._current_string = string
 
-    def draw_to(self, other_surface: Surface, pos: Vector2):
+    def draw_to(self, surface: Surface, pos: Vector2) -> None:
         if self._should_render:
-            if self._current_string is None:
-                raise ValueError("attempted to draw font to surface without setting it first.")
-            else:
-                self._current_rendered_string = self._current_string
-                self._current_render_cache = self.get_string_render(self._current_rendered_string)
+            self._current_rendered_string = self._current_string
+            self._current_render_cache = self.get_string_render(self._current_rendered_string)
 
-        self._font_draw_to(other_surface, pos)
+        self._font_draw_to(surface, pos)
 
 class RegularFontManager(FontManager):
-    def __init__(self, color, name, size, anti_alias=True):
-        super().__init__()
+    def __init__(self, color, font_name: int, font_size: float, initial_string: str, anti_alias: bool = True):
+        super().__init__(initial_string=initial_string)
         self._color = color
-        self._font = pygame.font.SysFont(name, size)
+        self._font = pygame.font.SysFont(font_name, font_size)
         self._anti_alias = anti_alias
 
-    def get_string_render(self, string):
+    def get_string_render(self, string: str) -> Any:
         return self._font.render(string, self._anti_alias, self._color)
 
-    def _font_draw_to(self, other_surface, pos):
+    def _font_draw_to(self, surface: Surface, offset: Vector2) -> None:
         other_surface.blit(self._current_render_cache, tuple(pos))
 
 class SpriteFontManager(FontManager):
-    def __init__(self, font_dict, padding_px):
-        super().__init__()
+    def __init__(self, font_dict, padding_px: int, initial_string: str):
+        super().__init__(initial_string=initial_string)
         self.font_dict = font_dict
         self.padding_px = padding_px
 
-    def get_string_render(self, string):
+    def get_width(self, string: str) -> int:
+        renders = self.get_string_render(string)
+
+        (_, start_x, _) = renders[0]
+        (_, end_x, char_width) = renders[-1]
+
+        return (end_x + char_width) - start_x
+
+    def get_string_render(self, string: str) -> List[Tuple[Surface, int, int]]:
         result = []
 
         current_x_offset = 0
         for char in string:
             r_char = self.font_dict[char]
-            result.append((
-                r_char,
-                current_x_offset,
-            ))
+            result.append((r_char, current_x_offset, r_char.size.x))
             current_x_offset += self.padding_px + r_char.size.x
 
         return result
 
-    def _font_draw_to(self, other_surface, pos):
-        for (render, offset) in self._current_render_cache:
-            other_surface.blit(
-                render.inner,
-                (pos[0] + offset, pos[1])
-            )
+    def _font_draw_to(self, surface: Surface, offset: Vector2) -> None:
+        for (render, h_offset, _) in self._current_render_cache:
+            surface.blit(render.inner, (offset[0] + h_offset, offset[1]))
