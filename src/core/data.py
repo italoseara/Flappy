@@ -1,15 +1,18 @@
 from .maths import Vector2
 from pygame import Surface
 
+import abc
 from typing import List
 
 class Blittable:
     @property
+    @abc.abstractmethod
     def size(self) -> Vector2:
         raise NotImplementedError
 
-    def draw_to(self, other_surface: Surface, pos: Vector2):
-        raise NotImplementedError
+    @abc.abstractmethod
+    def draw_to(self, surface: Surface, pos: Vector2) -> None:
+        pass
 
 class PygameSurface(Blittable):
     def __init__(self, surface: Surface):
@@ -19,8 +22,8 @@ class PygameSurface(Blittable):
     def size(self) -> Vector2:
         return Vector2(self.inner.get_rect().size)
 
-    def draw_to(self, other_surface: Surface, pos: Vector2):
-        other_surface.blit(self.inner, tuple(pos))
+    def draw_to(self, surface: Surface, pos: Vector2) -> None:
+        surface.blit(self.inner, tuple(pos))
 
     def into_pygame(self):
         return self.inner

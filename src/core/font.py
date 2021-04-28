@@ -1,5 +1,3 @@
-# TODO: remake this API (probably using abc and dataclasses) and make it more readable
-
 import pygame
 import abc
 from pygame import Surface
@@ -17,13 +15,20 @@ class FontManager(Blittable):
         self._should_render = True
 
     @abc.abstractmethod
-    def get_width(self) -> int: ...
+    def get_width(self, string: str) -> int: ...
 
     @abc.abstractmethod
-    def get_height(self) -> int: ...
+    def get_height(self, string: str) -> int: ...
+
+    def get_width_and_height(self, string: str) -> Vector2:
+        return (self.get_width(string), self.get_height(string))
+
+    @property
+    def size(self) -> Vector2:
+        self.get_width_and_height(self._current_string)
 
     @abc.abstractmethod
-    def get_string_render(self, string: str) -> List[Tuple[Surface, int, int]]: ...
+    def get_string_render(self, string: str) -> List[Tuple[Surface, int, Vector2]]: ...
 
     @abc.abstractmethod
     def _font_draw_to(self, surface: Surface, offset: Vector2) -> None: ...
@@ -47,11 +52,20 @@ class RegularFontManager(FontManager):
         self._font = pygame.font.SysFont(font_name, font_size)
         self._anti_alias = anti_alias
 
+    def get_width(self, string: str) -> int:
+        return self._font.size(string)[0]
+
+    def get_height(self, string: str) -> int:
+        return self._font.size(string)[1]
+
+    def get_width_and_height(self, string: str) -> Vector2:
+        return Vector2(self._font.size(string))
+
     def get_string_render(self, string: str) -> Any:
         return self._font.render(string, self._anti_alias, self._color)
 
     def _font_draw_to(self, surface: Surface, offset: Vector2) -> None:
-        other_surface.blit(self._current_render_cache, tuple(pos))
+        surface.blit(self._current_render_cache, tuple(offset))
 
 class SpriteFontManager(FontManager):
     def __init__(self, font_dict, padding_px: int, initial_string: str):
@@ -63,17 +77,32 @@ class SpriteFontManager(FontManager):
         renders = self.get_string_render(string)
 
         (_, start_x, _) = renders[0]
-        (_, end_x, char_width) = renders[-1]
+        (_, end_x, (char_width, _)) = renders[-1]
 
         return (end_x + char_width) - start_x
 
-    def get_string_render(self, string: str) -> List[Tuple[Surface, int, int]]:
+    def get_height(self, string: str) -> int:
+        return max(map(lambda render: render[2].y, # get char height
+                       self.get_string_render(string))) # get the chars' renders
+
+    def get_width_and_height(self, string: str) -> Vector2:
+        renders = self.get_string_render(string)
+
+        (_, start_x, _) = renders[0]
+        (_, end_x, (char_width, _)) = renders[-1]
+        width = (end_x + char_width) - start_x
+
+        height = max(map(lambda render: render[2].y, renders))
+
+        return Vector2(width, height)
+
+    def get_string_render(self, string: str) -> List[Tuple[Surface, int, Vector2]]:
         result = []
 
         current_x_offset = 0
         for char in string:
             r_char = self.font_dict[char]
-            result.append((r_char, current_x_offset, r_char.size.x))
+            result.append((r_char, current_x_offset, r_char.size))
             current_x_offset += self.padding_px + r_char.size.x
 
         return result
