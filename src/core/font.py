@@ -28,7 +28,7 @@ class FontManager(Blittable):
         self.get_width_and_height(self._current_string)
 
     @abc.abstractmethod
-    def get_string_render(self, string: str, bottom_up: bool = False) -> List[Tuple[Surface, int, Vector2]]: ...
+    def get_string_render(self, string: str) -> List[Tuple[Surface, int, Vector2]]: ...
 
     @abc.abstractmethod
     def _font_draw_to(self, surface: Surface, offset: Vector2) -> None: ...
@@ -61,8 +61,7 @@ class RegularFontManager(FontManager):
     def get_width_and_height(self, string: str) -> Vector2:
         return Vector2(self._font.size(string))
 
-    def get_string_render(self, string: str, bottom_up: bool = False) -> Any:
-        # TODO: handle or explicitly prohibit `bottom_up` here
+    def get_string_render(self, string: str) -> Any:
         return self._font.render(string, self._anti_alias, self._color)
 
     def _font_draw_to(self, surface: Surface, offset: Vector2) -> None:
@@ -97,14 +96,14 @@ class SpriteFontManager(FontManager):
 
         return Vector2(width, height)
 
-    def get_string_render(self, string: str, bottom_up: bool = False) -> List[Tuple[Surface, Vector2, Vector2]]:
+    def get_string_render(self, string: str) -> List[Tuple[Surface, Vector2, Vector2]]:
         result = []
 
         current_x_offset = 0
         for char in string:
             r_char = self.font_dict[char]
 
-            y_offset = -r_char.size.y if bottom_up else 0
+            y_offset = -r_char.size.y
             result.append((r_char, Vector2(current_x_offset, y_offset), r_char.size))
             current_x_offset += self.padding_px + r_char.size.x
 

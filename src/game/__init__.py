@@ -458,7 +458,7 @@ class GameCore:
             and self.game_mode == GameMode.PLAYING):
 
             xpos = self.config.win_size.x / 2 - 15 * len(str(self.current_score))
-            ypos = 10
+            ypos = 50
 
             self.score_fm.update_string(str(self.current_score))
             self.manager.blit(
