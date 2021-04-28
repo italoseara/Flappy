@@ -463,7 +463,7 @@ class GameCore:
             self.score_fm.update_string(str(self.current_score))
             self.manager.blit(
                 self.score_fm,
-                (xpos, ypos),
+                Vector2(xpos, ypos)
             )
 
         if self.debug_mode:

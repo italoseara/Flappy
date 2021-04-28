@@ -20,6 +20,12 @@ class Vector2:
     def into_tuple(self) -> tuple:
         return (self.x, self.y)
 
+    def __add__(self, rhs: Vector2) -> Vector2:
+        return Vector2(
+            self.x + rhs.x,
+            self.y + rhs.y,
+        )
+
     def __iter__(self):
         yield self.x
         yield self.y
