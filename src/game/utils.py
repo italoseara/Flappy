@@ -3,11 +3,11 @@ from typing import List, Tuple, Dict, Any
 
 def dict_from_pairs(pairs: List[Tuple[Any, Any]]) -> Dict[Any, Any]:
     result = {}
-    for (k, v) in pairs:
+    for k, v in pairs:
         result[k] = v
     return result
 
-def amount_to_fill_container(container_size, object_size):
+def amount_to_fill_container(container_size: int, object_size: int) -> int:
     """Calculates the minimum amount of objects (size `object_size`) needed
     to fill the container (size `container_size`).
 
