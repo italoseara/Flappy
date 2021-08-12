@@ -32,10 +32,6 @@ if __name__ == "__main__":
     audio_path = (Path(__file__) / "../audio").resolve()
     save_path.mkdir(parents=True, exist_ok=True)
 
-    # TODO: move this from here
-    pygame.mixer.pre_init(44100, -16, 2, 2048)
-    pygame.init()
-
     g = GameCore(
         save_path = save_path,
         resources_path = resources_path,

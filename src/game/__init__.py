@@ -24,6 +24,12 @@ class GameCore:
 
     # TODO: document most variables inside this function
     def __init__(self, save_path, audio_path, resources_path):
+        # preinitialize pygame's audio mixer
+        pygame.mixer.pre_init(44100, -16, 2, 2048)
+
+        # initialize pygame
+        pygame.init()
+
         # paths
         self.save_path = Path(save_path)
         self.audio_path = Path(audio_path)
