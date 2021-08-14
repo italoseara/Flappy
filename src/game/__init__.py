@@ -528,7 +528,7 @@ class GameCore:
             return [ScrollingTileH(
                 pos_y = (self.config.ground_line - r_clouds.size.y),
                 win_size = self.config.win_size,
-                speed = (-self.config.scroll_speed * parallax_coeff * DeltaTime.get()),
+                speed = (-self.config.scroll_speed * parallax_coeff),
                 resource = resource,
             )]
 
@@ -539,7 +539,7 @@ class GameCore:
         front += [ScrollingTileH(
             pos_y = self.config.ground_line,
             win_size = self.config.win_size,
-            speed = (-self.config.scroll_speed * self.config.floor_parallax_coeff * DeltaTime.get()),
+            speed = (-self.config.scroll_speed * self.config.floor_parallax_coeff),
             resource = r_floor,
         ) for i in range(floor_amount + 1)]
 
