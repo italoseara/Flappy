@@ -9,7 +9,7 @@ class GameManager:
         self.title = title
         self.win_size = tuple(win_size)
 
-        self._screen = pygame.display.set_mode(self.win_size)
+        self._screen = pygame.display.set_mode(self.win_size, vsync=True)
         pygame.display.set_caption(self.title)
 
     def set_icon(self, icon):

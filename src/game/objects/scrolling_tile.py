@@ -1,7 +1,6 @@
 from core.maths import Vector2
 from core.data import FrameManager
 from core.render import BatchRender
-from core.time import DeltaTime
 
 class ScrollingTileH(BatchRender):
     def __init__(self, pos_y, resource, speed, win_size):
@@ -11,8 +10,8 @@ class ScrollingTileH(BatchRender):
         self.speed = speed
         self._win_size = Vector2(win_size)
 
-    def process(self):
-        self.pos.x = ((self.pos.x + self.speed * DeltaTime.get()) % self.frames.current_frame.size.x)
+    def process(self, state):
+        self.pos.x = ((self.pos.x + self.speed * state.delta_time) % self.frames.current_frame.size.x)
 
     def get_render(self):
         result = []

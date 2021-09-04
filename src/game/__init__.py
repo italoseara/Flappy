@@ -2,6 +2,7 @@ import pygame
 import shelve
 import itertools
 import math
+import time
 
 from pathlib import Path
 from typing import Any
@@ -13,7 +14,6 @@ from core.data import PygameSurface
 from core.manager import GameManager
 from core.font import SpriteFontManager, RegularFontManager
 from core.resource import ResourceManager
-from core.time import DeltaTime
 
 from .data import GameMode, GameConfig, Gfx, Aud
 from .utils import dict_from_pairs, make_color, amount_to_fill_container
@@ -35,6 +35,10 @@ class GameCore:
         self.audio_path = Path(audio_path)
         self.resources_path = Path(resources_path)
 
+        self._clock = pygame.time.Clock()
+
+        framerate = 60
+
         self.config = GameConfig(
             title = "Flappy Birb",
             debug_mode_default = False,
@@ -44,8 +48,8 @@ class GameCore:
 
             scroll_speed = 180,
             jump_speed = -480,
-            gravity = 30,
-            framerate = 60,
+            gravity = 1410,
+            framerate = framerate,
 
             score_text_font_name = "Cascadia Code, Consolas, Tahoma",
             score_text_font_size = 20,
@@ -149,8 +153,6 @@ class GameCore:
             }
         )
 
-        self.clock = pygame.time.Clock()
-
         self.blit_base_color = make_color(self.config.blit_base_color)
 
         self.debug_fm = RegularFontManager(
@@ -173,7 +175,7 @@ class GameCore:
                 "8": self.gfx.get(Gfx.CHAR_8),
                 "9": self.gfx.get(Gfx.CHAR_9),
             },
-            padding_px = 0,
+            padding_px = 3,
             initial_string = "",
         )
 
@@ -246,6 +248,11 @@ class GameCore:
         self.c_previous_score = 0
         self.c_score_text_rendered = None
 
+        # the time since last frame, in seconds
+        self.delta_time = 0.0
+
+        self._time_last_frame_ns = None # this is set in self.pre_processing()
+
     def main_loop(self):
         self.prepare_turn()
 
@@ -299,13 +306,28 @@ class GameCore:
         ]
 
         player_point_offset_x = self.player.pos.x - (34 * 1.5)
-        self.distance_to_next_score = (self.config.win_size.x
-                                       - player_point_offset_x)
+        self.distance_to_next_score = (self.config.win_size.x - player_point_offset_x)
 
     def pre_processing(self):
-        DeltaTime.process(
-            self.clock.tick(self.config.framerate)
-        )
+        if self._clock is not None:
+            self.delta_time = self._clock.tick(self.config.framerate) / 1_000
+            self.pseudo_framerate = self._clock.get_fps()
+        else:
+            time_now_ns = time.time_ns()
+            min_ns_per_frame = 1_000_000_000 // self.config.framerate
+
+            if self._time_last_frame_ns is None:
+                ns_since_last_frame = min_ns_per_frame
+            else:
+                ns_since_last_frame = time_now_ns - self._time_last_frame_ns
+
+            if ns_since_last_frame < min_ns_per_frame:
+                time.sleep((min_ns_per_frame - ns_since_last_frame) / 1_000_000_000)
+
+            self.delta_time = ns_since_last_frame / 1_000_000_000
+            self.pseudo_framerate = 1_000_000_000 / ns_since_last_frame
+            self._time_last_frame_ns = time_now_ns
+
         self.input_handler.update_keys()
         self.turn_was_debug_mode = self.debug_mode
 
@@ -320,23 +342,18 @@ class GameCore:
 
                 # jump
                 if self.game_mode == GameMode.PLAYING:
-                    pygame.mixer.Channel(0).play(self.aud.get(Aud.WING))
-                    # TODO: turn this into self.player.jump()
-                    self.player.speed.y = -8
-                    self.player.jump_counter = 0
+                    self.player.jump(state=self, sound_fx=self.aud.get(Aud.WING))
 
             if self.game_mode == GameMode.PLAYING:
                 for pipe in self.pipes:
-                    pipe.process()
+                    pipe.process(self)
 
                     if pipe.is_colliding(self.player.hitbox):
                         if not self.debug_mode:
-                            self.game_mode = GameMode.DEAD
-                            # TODO: turn this into self.player.die()
-                            self.player.speed.y = self.config.jump_speed * DeltaTime.get()
+                            self.player.die(state=self)
                             break
 
-                self.distance_to_next_score -= self.config.scroll_speed * DeltaTime.get()
+                self.distance_to_next_score += -self.config.scroll_speed * self.delta_time
                 if self.distance_to_next_score <= 0:
                     pygame.mixer.Channel(1).play(self.aud.get(Aud.POINT))
                     self.distance_to_next_score += self.config.pipe_x_spacing
@@ -344,7 +361,7 @@ class GameCore:
 
             if self.game_mode != GameMode.DEAD:
                 for tile in itertools.chain(self.front_tiles, self.back_tiles):
-                    tile.process()
+                    tile.process(self)
 
         if self.input_handler.is_first(InputValue.H):
             self.debug_mode = not self.debug_mode
@@ -454,8 +471,8 @@ class GameCore:
                  or self.turn_was_debug_mode != self.debug_mode)):
 
             self.debug_fm.update_string(
-                "(:fps {:.2f} :max-score {})".format(
-                    self.clock.get_fps(),
+                "(:fps {} :max-score {})".format(
+                    int(self.pseudo_framerate),
                     self.save_file["max_score"],
                 )
             )

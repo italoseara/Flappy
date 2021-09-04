@@ -16,11 +16,10 @@ if sys.version_info < (3, 7):
 from core.logger import Logger
 
 # import pygame and try to supress the annoying startup message.
-Logger.log("Loading pygame...")
+Logger.log("Initializing pygame...")
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 import pygame
-
-Logger.log("Pygame loaded.")
+Logger.log("Pygame initialized successfully")
 
 # start the game
 if __name__ == "__main__":

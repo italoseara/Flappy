@@ -11,7 +11,7 @@ class SimpleEntity(SingularRender):
         self.pos = Vector2(pos)
         self.frames = FrameManager(frames)
 
-    def process(self):
+    def process(self, state):
         """Made in order to group code related to the object to be called once per frame.
         Implementation is required by children of this class.
         """
