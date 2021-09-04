@@ -36,6 +36,7 @@ class GameCore:
         self.resources_path = Path(resources_path)
 
         self._clock = pygame.time.Clock()
+        self.wait_for_events = False
 
         framerate = 60
 
@@ -380,6 +381,7 @@ class GameCore:
         # (can't pause if the game hasn't started, though)
         if should_pause and self.game_mode != GameMode.START:
             self.is_paused = not self.is_paused
+            self.wait_for_events = self.is_paused
 
         # change pause button sprite depending on whether the game is paused or not
         if self.is_paused:
@@ -398,6 +400,7 @@ class GameCore:
                   and self.input_handler.is_first(InputValue.MOUSE_BTN_LEFT)):
                 # restart after death
                 self.prepare_turn()
+                self.wait_for_events = False
 
     def post_processing(self):
         # fill screen with sky color
@@ -512,6 +515,7 @@ class GameCore:
                 self.save_file["max_score"] = self.current_score
 
             if self.after_death_timer >= 70: # wait some time for showing the death screen
+                self.wait_for_events = True
                 self.manager.blit(self.gfx.get(Gfx.MSG_GAME_OVER), Vector2(222, 20))
                 self.manager.blit(self.gfx.get(Gfx.BOX_END), Vector2(258, 145))
                 self.manager.blit(self.gfx.get(Gfx.BTN_PLAY), Vector2(280, 405))
@@ -522,10 +526,19 @@ class GameCore:
         # update screen
         pygame.display.update()
 
-        for event in pygame.event.get():
+        def process_event(event) -> None:
             # exit via the QUIT event (window manager-specific)
             if event.type == pygame.QUIT:
                 self.is_running = False
+
+        if self.wait_for_events:
+            if (event := pygame.event.wait()).type != pygame.NOEVENT:
+                process_event(event)
+                while (event := pygame.event.poll()).type != pygame.NOEVENT:
+                    process_event(event)
+        else:
+            while (event := pygame.event.poll()).type != pygame.NOEVENT:
+                process_event(event)
 
         # increase timer
         self.turn_timer += 1
