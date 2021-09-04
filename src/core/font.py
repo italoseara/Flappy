@@ -1,7 +1,7 @@
 import pygame
 import abc
 from pygame import Surface
-from typing import List, Tuple
+from typing import List, Tuple, Optional, cast, Dict, Any
 
 from .data import Blittable, PygameSurface
 from .maths import Vector2
@@ -12,8 +12,8 @@ class FontManager(Blittable):
     def __init__(self, initial_string: str):
         super().__init__()
         self._current_string = initial_string
-        self._current_rendered_string = None
-        self._current_render_cache = None
+        self._current_rendered_string: Optional[str] = None
+        self._current_render_cache: Optional[List[RenderInfo]] = None
         self._should_render = True
 
     @abc.abstractmethod
@@ -32,14 +32,14 @@ class FontManager(Blittable):
 
         Overriding is recommended for when there is a more lightweight way of calculating both width and height at the same time.
         """
-        return (self.get_width(), self.get_height())
+        return Vector2(self.get_width(), self.get_height())
 
     def get_render(self) -> List[RenderInfo]:
         """Analyze the current string and returns a list of surfaces (with positions and their sizes).
 
         If not overrided, uses `get_render_for_string` internally, and, therefore, depends on its implementation.
         """
-        if self._should_render:
+        if self._should_render or self._current_render_cache is None:
             self._current_rendered_string = self._current_string
             self._current_render_cache = self.get_render_for_string(self._current_rendered_string)
             self._should_render = True
@@ -59,11 +59,12 @@ class FontManager(Blittable):
         if self._should_render:
             self.get_render()
 
+        assert self._current_render_cache is not None
         for (render, offset) in self._current_render_cache:
-            surface.blit(render.inner, tuple(pos + offset))
+            surface.blit(render.inner, pos.map_with_other(offset, lambda a, b: a + b).to_tuple())
 
 class RegularFontManager(FontManager):
-    def __init__(self, color, font_name: int, font_size: float, initial_string: str, anti_alias: bool = True):
+    def __init__(self, color, font_name: str, font_size: int, initial_string: str, anti_alias: bool = True):
         super().__init__(initial_string=initial_string)
         self._color = color
         self._font = pygame.font.SysFont(font_name, font_size)
@@ -77,18 +78,18 @@ class RegularFontManager(FontManager):
 
     @property
     def size(self) -> Vector2:
-        return Vector2(self._font.size(self._current_string))
+        return Vector2.from_tuple(self._font.size(self._current_string))
 
     def get_render_for_string(self, string: str) -> List[RenderInfo]:
         return [(
-            PygameSurface(self._font.render(string, self._anti_alias, self._color)),
+            PygameSurface(cast(pygame.Surface, self._font.render(string, self._anti_alias, self._color))),
             Vector2(0, 0),
         )]
 
 class SpriteFontManager(FontManager):
     def __init__(
         self,
-        font_dict,
+        font_dict: Dict[str, Any],
         padding_px: int,
         initial_string: str,
         scale: float = 1.0,
@@ -97,18 +98,6 @@ class SpriteFontManager(FontManager):
         self.font_dict = font_dict
         self.padding_px = padding_px
         self.scale = scale
-
-    def get_width(self) -> int:
-        renders = self.get_render()
-
-        (_, start_x, _) = renders[0]
-        (_, end_x, (char_width, _)) = renders[-1]
-
-        return (end_x + char_width) - start_x
-
-    def get_height(self) -> int:
-        return max(map(lambda render: render[2].y, # get char height
-                       self.get_render())) # get the chars' renders
 
     @property
     def size(self) -> Vector2:

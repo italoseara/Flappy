@@ -1,6 +1,7 @@
 import pygame
 
 from math import sin
+from typing import Tuple
 
 from game.data import GameMode
 from core.entity import SimpleEntity
@@ -114,8 +115,8 @@ class Player(SimpleEntity):
         self.speed.y = state.config.jump_speed
         self.jump_counter = 0
 
-    def get_render(self):
-        old_center = (self.pos.x + 15, self.pos.y + 15)
+    def get_render(self) -> Tuple[PygameSurface, Vector2]:
+        old_center = (int(self.pos.x) + 15, int(self.pos.y) + 15)
 
         new_image = pygame.transform.rotate(
             self.frames.current_frame.inner, self.angle
@@ -124,4 +125,4 @@ class Player(SimpleEntity):
         rect = new_image.get_rect()
         rect.center = old_center
 
-        return (PygameSurface(new_image), (rect.x, rect.y))
+        return (PygameSurface(new_image), Vector2(rect.x, rect.y))

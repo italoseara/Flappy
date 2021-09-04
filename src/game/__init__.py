@@ -225,17 +225,17 @@ class GameCore:
         r_play_button = self.gfx.get(Gfx.BTN_PLAY)
 
         self.pause_button = SimpleEntity(
-            (self.config.win_size.x - r_pause_button_normal.size.x - 10, 10),
+            Vector2(self.config.win_size.x - r_pause_button_normal.size.x - 10, 10),
             [r_pause_button_normal, r_pause_button_paused],
         )
 
         self.scoreboard_button = SimpleEntity(
-            (self.config.win_size.x - r_scoreboard_button.size.x - 280, 405),
+            Vector2(self.config.win_size.x - r_scoreboard_button.size.x - 280, 405),
             [r_scoreboard_button],
         )
 
         self.play_button = SimpleEntity(
-            (self.config.win_size.x - r_play_button.size.x - 520, 405),
+            Vector2(self.config.win_size.x - r_play_button.size.x - 520, 405),
             [r_play_button],
         )
 
@@ -370,7 +370,7 @@ class GameCore:
             self.input_handler.is_first(InputValue.ESC)
             and self.game_mode != GameMode.DEAD
             or (
-                self.pause_button.hitbox.collidepoint(tuple(self.input_handler.mouse_pos))
+                self.pause_button.hitbox.collidepoint(self.input_handler.mouse_pos.to_tuple())
                 and self.game_mode != GameMode.DEAD
                 and self.input_handler.is_first(InputValue.MOUSE_BTN_LEFT)
             )
@@ -394,7 +394,7 @@ class GameCore:
                 pygame.mixer.Channel(2).play(self.aud.get(Aud.HIT))
                 pygame.mixer.Channel(3).play(self.aud.get(Aud.DIE))
             elif (self.after_death_timer >= 70
-                  and self.play_button.hitbox.collidepoint(tuple(self.input_handler.mouse_pos))
+                  and self.play_button.hitbox.collidepoint(self.input_handler.mouse_pos.to_tuple())
                   and self.input_handler.is_first(InputValue.MOUSE_BTN_LEFT)):
                 # restart after death
                 self.prepare_turn()
@@ -441,7 +441,7 @@ class GameCore:
         # render ground hitbox
         if self.debug_mode:
             self.manager.render_rect(
-                rect = (0, self.config.ground_line, *self.config.win_size),
+                rect = (0, self.config.ground_line, *self.config.win_size.to_tuple()),
                 line_size = self.config.hitbox_line_size,
                 line_color = self.config.hitbox_line_color,
             )
@@ -451,11 +451,11 @@ class GameCore:
             # TODO: center this properly
             self.manager.blit(
                 self.gfx.get(Gfx.MSG_READY),
-                (222, 20),
+                Vector2(222, 20),
             )
             self.manager.blit(
                 self.gfx.get(Gfx.STARTER_TIP),
-                (450, 200),
+                Vector2(450, 200),
             )
 
         # show pause button
@@ -494,13 +494,13 @@ class GameCore:
         if self.debug_mode:
             self.manager.blit(
                 self.debug_fm,
-                Vector2(self.config.score_text_pos),
+                Vector2.from_tuple(self.config.score_text_pos),
             )
 
         # pause menu
         if self.is_paused:
-            self.manager.blit(self.gfx.get(Gfx.BOX_MENU), (258, 155))
-            self.manager.blit(self.gfx.get(Gfx.MSG_FLAPPY), (222, 20))
+            self.manager.blit(self.gfx.get(Gfx.BOX_MENU), Vector2(258, 155))
+            self.manager.blit(self.gfx.get(Gfx.MSG_FLAPPY), Vector2(222, 20))
 
         # game over
         if self.game_mode == GameMode.DEAD:
@@ -512,10 +512,10 @@ class GameCore:
                 self.save_file["max_score"] = self.current_score
 
             if self.after_death_timer >= 70: # wait some time for showing the death screen
-                self.manager.blit(self.gfx.get(Gfx.MSG_GAME_OVER), (222, 20))
-                self.manager.blit(self.gfx.get(Gfx.BOX_END), (258, 145))
-                self.manager.blit(self.gfx.get(Gfx.BTN_PLAY), (280, 405))
-                self.manager.blit(self.gfx.get(Gfx.BTN_SCOREBOARD), (520, 405))
+                self.manager.blit(self.gfx.get(Gfx.MSG_GAME_OVER), Vector2(222, 20))
+                self.manager.blit(self.gfx.get(Gfx.BOX_END), Vector2(258, 145))
+                self.manager.blit(self.gfx.get(Gfx.BTN_PLAY), Vector2(280, 405))
+                self.manager.blit(self.gfx.get(Gfx.BTN_SCOREBOARD), Vector2(520, 405))
 
             self.after_death_timer += 1
 
