@@ -13,7 +13,7 @@ class InputValue(IntEnum):
     # ARROW_LEFT = auto()
     # ARROW_RIGHT = auto()
 
-    K = auto()
+    W = auto()
     H = auto()
 
     MOUSE_BTN_LEFT = auto()
@@ -32,7 +32,7 @@ class KeyHandler:
     PYGAME_REGISTER_MAP = {
         pygame.K_UP: InputValue.ARROW_UP,
         pygame.K_h: InputValue.H,
-        pygame.K_k: InputValue.K,
+        pygame.K_w: InputValue.W,
         pygame.K_SPACE: InputValue.SPACE,
         pygame.K_ESCAPE: InputValue.ESC,
     }
@@ -41,7 +41,7 @@ class KeyHandler:
 
     UPKEYS_CHECK_SET = {
         InputValue.ARROW_UP,
-        InputValue.K,
+        InputValue.W,
         InputValue.SPACE,
         InputValue.MOUSE_BTN_LEFT,
     }

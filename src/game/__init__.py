@@ -116,7 +116,6 @@ class GameCore:
                 # bird
                 Gfx.BIRD_F0: "bird/bird_f0.png",
                 Gfx.BIRD_F1: "bird/bird_f1.png",
-                Gfx.BIRD_F2: "bird/bird_f2.png",
 
                 # text
                 Gfx.MSG_GAME_OVER: "text/msg_game_over.png",
@@ -191,7 +190,7 @@ class GameCore:
         self.input_handler = KeyHandler()
         self.input_handler.reserve_keys({
             InputValue.ARROW_UP,
-            InputValue.K,
+            InputValue.W,
             InputValue.H,
             InputValue.MOUSE_BTN_LEFT,
             InputValue.SPACE,
@@ -208,6 +207,7 @@ class GameCore:
 
         # values to be filled later
         self.distance_to_next_score = 0
+        self.last_score = 0
         self.front_tiles = None
         self.back_tiles = None
         self.pipes = None
@@ -216,7 +216,6 @@ class GameCore:
             [
                 self.gfx.get(Gfx.BIRD_F0),
                 self.gfx.get(Gfx.BIRD_F1),
-                self.gfx.get(Gfx.BIRD_F2),
             ],
         )
 
@@ -306,9 +305,6 @@ class GameCore:
             )
         ]
 
-        player_point_offset_x = self.player.pos.x - (34 * 1.5)
-        self.distance_to_next_score = (self.config.win_size.x - player_point_offset_x)
-
     def pre_processing(self):
         if self._clock is not None:
             self.delta_time = self._clock.tick(self.config.framerate) / 1_000
@@ -354,10 +350,18 @@ class GameCore:
                             self.player.die(state=self)
                             break
 
-                self.distance_to_next_score += -self.config.scroll_speed * self.delta_time
-                if self.distance_to_next_score <= 0:
+                pipe_distances = []
+                for pipe in self.pipes:
+                    distance = pipe.pos.x + pipe.size.x - self.player.pos.x
+
+                    if distance >= 0:
+                        pipe_distances.append(distance)
+                     
+                self.distance_to_next_score = min(pipe_distances)
+
+                if self.distance_to_next_score <= 10 and (time.time() - self.last_score > .5):
                     pygame.mixer.Channel(1).play(self.aud.get(Aud.POINT))
-                    self.distance_to_next_score += self.config.pipe_x_spacing
+                    self.last_score = time.time()
                     self.current_score += 1
 
             if self.game_mode != GameMode.DEAD:
@@ -372,8 +376,8 @@ class GameCore:
             and self.game_mode != GameMode.DEAD
             or (
                 self.pause_button.hitbox.collidepoint(self.input_handler.mouse_pos.to_tuple())
-                and self.game_mode != GameMode.DEAD
                 and self.input_handler.is_first(InputValue.MOUSE_BTN_LEFT)
+                and self.game_mode != GameMode.DEAD
             )
         )
 
@@ -395,9 +399,17 @@ class GameCore:
                 # TODO: use Channel(_).get_busy() to find free channels
                 pygame.mixer.Channel(2).play(self.aud.get(Aud.HIT))
                 pygame.mixer.Channel(3).play(self.aud.get(Aud.DIE))
-            elif (self.after_death_timer >= 70
-                  and self.play_button.hitbox.collidepoint(self.input_handler.mouse_pos.to_tuple())
-                  and self.input_handler.is_first(InputValue.MOUSE_BTN_LEFT)):
+            elif (
+                    self.after_death_timer >= 70 and
+                    # Wait for the player to click on restart button
+                    (
+                        self.play_button.hitbox.collidepoint(self.input_handler.mouse_pos.to_tuple())
+                        and self.input_handler.is_first(InputValue.MOUSE_BTN_LEFT)
+                    ) 
+                    # or wait for the player to press "jump"
+                    or self.input_handler.is_first(InputValue.SPACE)
+                    or self.input_handler.is_first(InputValue.ARROW_UP)
+                ):
                 # restart after death
                 self.prepare_turn()
                 self.wait_for_events = False
@@ -474,10 +486,9 @@ class GameCore:
                  or self.turn_was_debug_mode != self.debug_mode)):
 
             self.debug_fm.update_string(
-                "(:fps {} :max-score {})".format(
-                    int(self.pseudo_framerate),
-                    self.save_file["max_score"],
-                )
+                f':fps {int(self.pseudo_framerate)} ' + 
+                f':max-score {self.save_file["max_score"]} ' +
+                f':next-score: {round(self.distance_to_next_score)}'
             )
 
         if (self.config.score_text_enabled
@@ -527,8 +538,8 @@ class GameCore:
         pygame.display.update()
 
         def process_event(event) -> None:
-            # exit via the QUIT event (window manager-specific)
-            if event.type == pygame.QUIT:
+            # exit via the QUIT event (window manager-specific) or the Q key
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_q):
                 self.is_running = False
 
         if self.wait_for_events:

@@ -64,7 +64,6 @@ class Gfx(IntEnum):
 
     BIRD_F0 = auto()
     BIRD_F1 = auto()
-    BIRD_F2 = auto()
 
     MSG_GAME_OVER = auto()
     MSG_FLAPPY = auto()
