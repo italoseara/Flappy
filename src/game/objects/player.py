@@ -14,6 +14,7 @@ class Player(SimpleEntity):
     def __init__(self, pos, frames):
         super().__init__(pos, frames)
 
+        self.size = Vector2(self.hitbox.width, self.hitbox.height)
         self.fixed_hitbox = self.hitbox
 
         # reset-able variables

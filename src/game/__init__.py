@@ -284,6 +284,7 @@ class GameCore:
         self.turn_debug_used = self.debug_mode
         self.after_death_timer = 0
         self.current_score = 0
+        self.distance_to_next_score = 0
         self.game_mode = GameMode.START
 
         self.front_tiles, self.back_tiles = self.make_tiles()
@@ -331,7 +332,7 @@ class GameCore:
     def processing(self):
         if not self.is_paused:
             self.player.process_extra(self)
-
+                
             if self.input_handler.upkeys_first():
                 # start the game
                 if self.game_mode == GameMode.START:
@@ -352,7 +353,7 @@ class GameCore:
 
                 pipe_distances = []
                 for pipe in self.pipes:
-                    distance = pipe.pos.x + pipe.size.x - self.player.pos.x
+                    distance = pipe.pos.x + pipe.size.x//2 - self.player.pos.x - self.player.size.x//2
 
                     if distance >= 0:
                         pipe_distances.append(distance)
@@ -407,8 +408,7 @@ class GameCore:
                         and self.input_handler.is_first(InputValue.MOUSE_BTN_LEFT)
                     ) 
                     # or wait for the player to press "jump"
-                    or self.input_handler.is_first(InputValue.SPACE)
-                    or self.input_handler.is_first(InputValue.ARROW_UP)
+                    or self.input_handler.upkeys_first()
                 ):
                 # restart after death
                 self.prepare_turn()
@@ -459,6 +459,21 @@ class GameCore:
                 rect = (0, self.config.ground_line, *self.config.win_size.to_tuple()),
                 line_size = self.config.hitbox_line_size,
                 line_color = self.config.hitbox_line_color,
+            )
+
+            # draw line from player to next pipe
+            pygame.draw.line(
+                surface=self.manager.screen.into_pygame(), 
+                color=(255, 0, 0), 
+                start_pos=(
+                    self.player.pos.x + self.player.size.x//2, 
+                    self.player.pos.y + self.player.size.y//2
+                ), 
+                end_pos=(
+                    self.player.pos.x + self.player.size.x//2 + self.distance_to_next_score, 
+                    self.player.pos.y + self.player.size.y//2
+                ), 
+                width=2
             )
 
         # show initial tip
