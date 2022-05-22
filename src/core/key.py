@@ -20,6 +20,7 @@ class InputValue(IntEnum):
     MOUSE_BTN_MIDDLE = auto()
     MOUSE_BTN_RIGHT = auto()
 
+    ENTER = auto()
     SPACE = auto()
     ESC = auto()
 
@@ -34,6 +35,7 @@ class KeyHandler:
         pygame.K_h: InputValue.H,
         pygame.K_w: InputValue.W,
         pygame.K_SPACE: InputValue.SPACE,
+        pygame.K_RETURN: InputValue.ENTER,
         pygame.K_ESCAPE: InputValue.ESC,
     }
 

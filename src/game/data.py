@@ -20,11 +20,11 @@ class GameConfig:
     win_size: Tuple[int, int]
     blit_base_color: Tuple[int, int, int]
 
-    score_text_font_name: str
-    score_text_font_size: int
-    score_text_font_color: str
-    score_text_enabled: bool
-    score_text_pos: Tuple[int, int]
+    debug_text_font: str
+    debug_text_font_size: int
+    debug_text_font_color: str
+    debug_text_enabled: bool
+    debug_text_pos: Tuple[int, int]
 
     hitbox_line_size: int
     hitbox_line_color: Tuple[int, int, int]
@@ -44,16 +44,27 @@ class GameConfig:
 class Gfx(IntEnum):
     ICON = auto()
 
-    CHAR_0 = auto()
-    CHAR_1 = auto()
-    CHAR_2 = auto()
-    CHAR_3 = auto()
-    CHAR_4 = auto()
-    CHAR_5 = auto()
-    CHAR_6 = auto()
-    CHAR_7 = auto()
-    CHAR_8 = auto()
-    CHAR_9 = auto()
+    CHAR_B0 = auto()
+    CHAR_B1 = auto()
+    CHAR_B2 = auto()
+    CHAR_B3 = auto()
+    CHAR_B4 = auto()
+    CHAR_B5 = auto()
+    CHAR_B6 = auto()
+    CHAR_B7 = auto()
+    CHAR_B8 = auto()
+    CHAR_B9 = auto()
+
+    CHAR_S0 = auto()
+    CHAR_S1 = auto()
+    CHAR_S2 = auto()
+    CHAR_S3 = auto()
+    CHAR_S4 = auto()
+    CHAR_S5 = auto()
+    CHAR_S6 = auto()
+    CHAR_S7 = auto()
+    CHAR_S8 = auto()
+    CHAR_S9 = auto()
 
     FLOOR = auto()
     BG_BUSH = auto()
@@ -76,6 +87,10 @@ class Gfx(IntEnum):
 
     BOX_MENU = auto()
     BOX_END = auto()
+
+    MEDAL_BRONZE = auto()
+    MEDAL_SILVER = auto()
+    MEDAL_GOLD = auto()
 
     STARTER_TIP = auto()
 

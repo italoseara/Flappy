@@ -91,7 +91,7 @@ class SpriteFontManager(FontManager):
         self,
         font_dict: Dict[str, Any],
         padding_px: int,
-        initial_string: str,
+        initial_string: str = "",
         scale: float = 1.0,
     ):
         super().__init__(initial_string=initial_string)

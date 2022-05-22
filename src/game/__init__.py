@@ -41,22 +41,22 @@ class GameCore:
         framerate = 60
 
         self.config = GameConfig(
-            title = "Flappy Birb",
+            title = "Flappy Bird Clone",
             debug_mode_default = False,
 
             win_size = GameCore.DEFAULT_WIN_SIZE,
             blit_base_color = (11, 200, 215),
 
-            scroll_speed = 180,
-            jump_speed = -480,
+            scroll_speed = 200,
+            jump_speed = -400,
             gravity = 1410,
             framerate = framerate,
 
-            score_text_font_name = "Cascadia Code, Consolas, Tahoma",
-            score_text_font_size = 20,
-            score_text_font_color = (255, 255, 255),
-            score_text_enabled = True,
-            score_text_pos = (15, 10),
+            debug_text_font = "Consolas, Cascadia Code, Tahoma",
+            debug_text_font_size = 20,
+            debug_text_font_color = (0, 0, 0),
+            debug_text_enabled = True,
+            debug_text_pos = (15, 510),
 
             hitbox_line_size = 2,
             hitbox_line_color = (255, 0, 0),
@@ -94,16 +94,27 @@ class GameCore:
                 Gfx.ICON: "icon.bmp",
 
                 # font - numbers
-                Gfx.CHAR_0: "numbers/0.png",
-                Gfx.CHAR_1: "numbers/1.png",
-                Gfx.CHAR_2: "numbers/2.png",
-                Gfx.CHAR_3: "numbers/3.png",
-                Gfx.CHAR_4: "numbers/4.png",
-                Gfx.CHAR_5: "numbers/5.png",
-                Gfx.CHAR_6: "numbers/6.png",
-                Gfx.CHAR_7: "numbers/7.png",
-                Gfx.CHAR_8: "numbers/8.png",
-                Gfx.CHAR_9: "numbers/9.png",
+                Gfx.CHAR_B0: "numbers/big/0.png",
+                Gfx.CHAR_B1: "numbers/big/1.png",
+                Gfx.CHAR_B2: "numbers/big/2.png",
+                Gfx.CHAR_B3: "numbers/big/3.png",
+                Gfx.CHAR_B4: "numbers/big/4.png",
+                Gfx.CHAR_B5: "numbers/big/5.png",
+                Gfx.CHAR_B6: "numbers/big/6.png",
+                Gfx.CHAR_B7: "numbers/big/7.png",
+                Gfx.CHAR_B8: "numbers/big/8.png",
+                Gfx.CHAR_B9: "numbers/big/9.png",
+
+                Gfx.CHAR_S0: "numbers/small/0.png",
+                Gfx.CHAR_S1: "numbers/small/1.png",
+                Gfx.CHAR_S2: "numbers/small/2.png",
+                Gfx.CHAR_S3: "numbers/small/3.png",
+                Gfx.CHAR_S4: "numbers/small/4.png",
+                Gfx.CHAR_S5: "numbers/small/5.png",
+                Gfx.CHAR_S6: "numbers/small/6.png",
+                Gfx.CHAR_S7: "numbers/small/7.png",
+                Gfx.CHAR_S8: "numbers/small/8.png",
+                Gfx.CHAR_S9: "numbers/small/9.png",
 
                 # tiles
                 Gfx.FLOOR: "tiles/floor.png",
@@ -123,17 +134,22 @@ class GameCore:
                 Gfx.MSG_READY: "text/msg_ready.png",
 
                 # ui.buttons
-                Gfx.BTN_PAUSE_NORMAL: "ui/btn_pause_normal.png",
-                Gfx.BTN_PAUSE_PAUSED: "ui/btn_pause_paused.png",
-                Gfx.BTN_PLAY: "ui/btn_play.png",
-                Gfx.BTN_SCOREBOARD: "ui/btn_scoreboard.png",
+                Gfx.BTN_PAUSE_NORMAL: "ui/buttons/btn_pause_normal.png",
+                Gfx.BTN_PAUSE_PAUSED: "ui/buttons/btn_pause_paused.png",
+                Gfx.BTN_PLAY: "ui/buttons/btn_play.png",
+                Gfx.BTN_SCOREBOARD: "ui/buttons/btn_scoreboard.png",
 
                 # ui.boxes
-                Gfx.BOX_MENU: "ui/box_menu.png",
-                Gfx.BOX_END: "ui/box_end.png",
+                Gfx.BOX_MENU: "ui/boxes/box_menu.png",
+                Gfx.BOX_END: "ui/boxes/box_end.png",
 
                 # ui.etc
-                Gfx.STARTER_TIP: "ui/starter_tip.png",
+                Gfx.STARTER_TIP: "ui/etc/starter_tip.png",
+
+                # ui.medals
+                Gfx.MEDAL_BRONZE: "ui/medals/medal_bronze.png",
+                Gfx.MEDAL_SILVER: "ui/medals/medal_silver.png",
+                Gfx.MEDAL_GOLD: "ui/medals/medal_gold.png",
             }
         )
 
@@ -156,27 +172,29 @@ class GameCore:
         self.blit_base_color = make_color(self.config.blit_base_color)
 
         self.debug_fm = RegularFontManager(
-            color = make_color(self.config.score_text_font_color),
-            font_name = self.config.score_text_font_name,
-            font_size = self.config.score_text_font_size,
+            color = make_color(self.config.debug_text_font_color),
+            font_name = self.config.debug_text_font,
+            font_size = self.config.debug_text_font_size,
             initial_string = "",
         )
 
-        self.score_fm = SpriteFontManager(
+        self.score_big_fm = SpriteFontManager(
             font_dict = {
-                "0": self.gfx.get(Gfx.CHAR_0),
-                "1": self.gfx.get(Gfx.CHAR_1),
-                "2": self.gfx.get(Gfx.CHAR_2),
-                "3": self.gfx.get(Gfx.CHAR_3),
-                "4": self.gfx.get(Gfx.CHAR_4),
-                "5": self.gfx.get(Gfx.CHAR_5),
-                "6": self.gfx.get(Gfx.CHAR_6),
-                "7": self.gfx.get(Gfx.CHAR_7),
-                "8": self.gfx.get(Gfx.CHAR_8),
-                "9": self.gfx.get(Gfx.CHAR_9),
+                str(i): self.gfx.get(eval(f"Gfx.CHAR_B{i}")) for i in range(10)
             },
             padding_px = 3,
-            initial_string = "",
+        )
+        self.score_small_fm = SpriteFontManager(
+            font_dict = {
+                str(i): self.gfx.get(eval(f"Gfx.CHAR_S{i}")) for i in range(10)
+            },
+            padding_px = 2,
+        )
+        self.max_score_fm = SpriteFontManager(
+            font_dict = {
+                str(i): self.gfx.get(eval(f"Gfx.CHAR_S{i}")) for i in range(10)
+            },
+            padding_px = 2,
         )
 
         self.debug_mode = self.config.debug_mode_default
@@ -193,6 +211,7 @@ class GameCore:
             InputValue.W,
             InputValue.H,
             InputValue.MOUSE_BTN_LEFT,
+            InputValue.ENTER,
             InputValue.SPACE,
             InputValue.ESC,
         })
@@ -407,8 +426,8 @@ class GameCore:
                         self.play_button.hitbox.collidepoint(self.input_handler.mouse_pos.to_tuple())
                         and self.input_handler.is_first(InputValue.MOUSE_BTN_LEFT)
                     ) 
-                    # or wait for the player to press "jump"
-                    or self.input_handler.upkeys_first()
+                    # or wait for the player to press "enter"
+                    or self.input_handler.is_first(InputValue.ENTER)
                 ):
                 # restart after death
                 self.prepare_turn()
@@ -493,7 +512,7 @@ class GameCore:
             self.manager.render(self.pause_button)
 
         # show score text on the top-left corner
-        if (self.config.score_text_enabled
+        if (self.config.debug_text_enabled
             and self.debug_mode
             and self.game_mode == GameMode.PLAYING
             and (self.turn_timer % 60 == 0
@@ -503,37 +522,41 @@ class GameCore:
             self.debug_fm.update_string(
                 f':fps {int(self.pseudo_framerate)} ' + 
                 f':max-score {self.save_file["max_score"]} ' +
-                f':next-score: {round(self.distance_to_next_score)}'
+                f':next-score {round(self.distance_to_next_score)}'
             )
 
-        if (self.config.score_text_enabled
+        if (self.config.debug_text_enabled
             and self.game_mode == GameMode.PLAYING):
 
-            self.score_fm.update_string(str(self.current_score))
+            self.score_big_fm.update_string(str(self.current_score))
 
-            size = self.score_fm.size
+            size = self.score_big_fm.size
             xpos = self.config.win_size.x / 2 - size.x / 2
             ypos = 15 + size.y
 
             self.manager.blit(
-                self.score_fm,
+                self.score_big_fm,
                 Vector2(xpos, ypos)
             )
 
         if self.debug_mode:
             self.manager.blit(
                 self.debug_fm,
-                Vector2.from_tuple(self.config.score_text_pos),
+                Vector2.from_tuple(self.config.debug_text_pos),
             )
 
+        #! Removed
         # pause menu
-        if self.is_paused:
-            self.manager.blit(self.gfx.get(Gfx.BOX_MENU), Vector2(258, 155))
-            self.manager.blit(self.gfx.get(Gfx.MSG_FLAPPY), Vector2(222, 20))
+        # if self.is_paused:
+            # self.manager.blit(self.gfx.get(Gfx.BOX_MENU), Vector2(258, 155))
+            # self.manager.blit(self.gfx.get(Gfx.MSG_FLAPPY), Vector2(222, 20))
 
         # game over
         if self.game_mode == GameMode.DEAD:
             self.player.animation_timer = 0
+
+            self.score_small_fm.update_string(str(self.current_score))
+            self.max_score_fm.update_string(str(self.save_file["max_score"]))
 
             if (self.after_death_timer == 0
                 and self.current_score > self.save_file["max_score"]
@@ -547,6 +570,25 @@ class GameCore:
                 self.manager.blit(self.gfx.get(Gfx.BTN_PLAY), Vector2(280, 405))
                 self.manager.blit(self.gfx.get(Gfx.BTN_SCOREBOARD), Vector2(520, 405))
 
+                # show score
+                score_x = 655 - self.score_small_fm.size.x
+                self.manager.blit(self.score_small_fm, Vector2(score_x, 235))
+                max_score_x = 655 - self.max_score_fm.size.x
+                self.manager.blit(self.max_score_fm, Vector2(max_score_x, 320))
+
+                # show medal
+                medal = None
+                
+                if self.current_score >= 60:
+                    medal = Gfx.MEDAL_GOLD
+                elif self.current_score >= 30:
+                    medal = Gfx.MEDAL_SILVER
+                elif self.current_score >= 15:
+                    medal = Gfx.MEDAL_BRONZE
+
+                if medal:
+                    self.manager.blit(self.gfx.get(medal), Vector2(308, 225))
+                    
             self.after_death_timer += 1
 
         # update screen
