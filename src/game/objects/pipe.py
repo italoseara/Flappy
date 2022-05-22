@@ -37,8 +37,8 @@ class TBPipes(BatchRender):
 
         self._calculated_pipes = self.calc_pipes()
 
-    def get_y_pos(self):
-        return random.randint(*self.y_offset_range)
+    def get_y_pos(self, multiple=20):
+        return random.randint(*self.y_offset_range)//multiple*multiple
 
     def is_colliding(self, other):
         for pipe in self._calculated_pipes:
