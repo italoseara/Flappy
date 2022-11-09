@@ -2,6 +2,7 @@ import pygame
 import shelve
 import itertools
 import math
+import time
 
 from pathlib import Path
 from typing import Any
@@ -23,28 +24,39 @@ class GameCore:
 
     # TODO: document most variables inside this function
     def __init__(self, save_path, audio_path, resources_path):
+        # preinitialize pygame's audio mixer
+        pygame.mixer.pre_init(44100, -16, 2, 2048)
+
+        # initialize pygame
+        pygame.init()
+
         # paths
         self.save_path = Path(save_path)
         self.audio_path = Path(audio_path)
         self.resources_path = Path(resources_path)
 
+        self._clock = pygame.time.Clock()
+        self.wait_for_events = False
+
+        framerate = 60
+
         self.config = GameConfig(
-            title = "Flappy Birb",
+            title = "Flappy Bird Clone",
             debug_mode_default = False,
 
             win_size = GameCore.DEFAULT_WIN_SIZE,
             blit_base_color = (11, 200, 215),
 
-            scroll_speed = 3,
-            jump_speed = -8.0,
-            gravity = 0.5,
-            framerate = 60,
+            scroll_speed = 200,
+            jump_speed = -400,
+            gravity = 1410,
+            framerate = framerate,
 
-            score_text_font_name = "Cascadia Code, Consolas, Tahoma",
-            score_text_font_size = 20,
-            score_text_font_color = (255, 255, 255),
-            score_text_enabled = True,
-            score_text_pos = (15, 10),
+            debug_text_font = "Consolas, Cascadia Code, Tahoma",
+            debug_text_font_size = 20,
+            debug_text_font_color = (0, 0, 0),
+            debug_text_enabled = True,
+            debug_text_pos = (15, 510),
 
             hitbox_line_size = 2,
             hitbox_line_color = (255, 0, 0),
@@ -64,7 +76,16 @@ class GameCore:
         def load_gfx_resource(x):
             fpath = self.resources_path / x
             with open(fpath, "r") as f:
-                return PygameSurface(pygame.image.load(f))
+                return PygameSurface(pygame.image.load(f).convert_alpha())
+
+        self.manager = GameManager(
+            title = "({}x{}) {}".format(
+                self.config.win_size.x,
+                self.config.win_size.y,
+                self.config.title,
+            ),
+            win_size = self.config.win_size,
+        )
 
         self.gfx = ResourceManager(
             load_gfx_resource,
@@ -73,16 +94,27 @@ class GameCore:
                 Gfx.ICON: "icon.bmp",
 
                 # font - numbers
-                Gfx.CHAR_0: "numbers/0.png",
-                Gfx.CHAR_1: "numbers/1.png",
-                Gfx.CHAR_2: "numbers/2.png",
-                Gfx.CHAR_3: "numbers/3.png",
-                Gfx.CHAR_4: "numbers/4.png",
-                Gfx.CHAR_5: "numbers/5.png",
-                Gfx.CHAR_6: "numbers/6.png",
-                Gfx.CHAR_7: "numbers/7.png",
-                Gfx.CHAR_8: "numbers/8.png",
-                Gfx.CHAR_9: "numbers/9.png",
+                Gfx.CHAR_B0: "numbers/big/0.png",
+                Gfx.CHAR_B1: "numbers/big/1.png",
+                Gfx.CHAR_B2: "numbers/big/2.png",
+                Gfx.CHAR_B3: "numbers/big/3.png",
+                Gfx.CHAR_B4: "numbers/big/4.png",
+                Gfx.CHAR_B5: "numbers/big/5.png",
+                Gfx.CHAR_B6: "numbers/big/6.png",
+                Gfx.CHAR_B7: "numbers/big/7.png",
+                Gfx.CHAR_B8: "numbers/big/8.png",
+                Gfx.CHAR_B9: "numbers/big/9.png",
+
+                Gfx.CHAR_S0: "numbers/small/0.png",
+                Gfx.CHAR_S1: "numbers/small/1.png",
+                Gfx.CHAR_S2: "numbers/small/2.png",
+                Gfx.CHAR_S3: "numbers/small/3.png",
+                Gfx.CHAR_S4: "numbers/small/4.png",
+                Gfx.CHAR_S5: "numbers/small/5.png",
+                Gfx.CHAR_S6: "numbers/small/6.png",
+                Gfx.CHAR_S7: "numbers/small/7.png",
+                Gfx.CHAR_S8: "numbers/small/8.png",
+                Gfx.CHAR_S9: "numbers/small/9.png",
 
                 # tiles
                 Gfx.FLOOR: "tiles/floor.png",
@@ -95,7 +127,6 @@ class GameCore:
                 # bird
                 Gfx.BIRD_F0: "bird/bird_f0.png",
                 Gfx.BIRD_F1: "bird/bird_f1.png",
-                Gfx.BIRD_F2: "bird/bird_f2.png",
 
                 # text
                 Gfx.MSG_GAME_OVER: "text/msg_game_over.png",
@@ -103,19 +134,26 @@ class GameCore:
                 Gfx.MSG_READY: "text/msg_ready.png",
 
                 # ui.buttons
-                Gfx.BTN_PAUSE_NORMAL: "ui/btn_pause_normal.png",
-                Gfx.BTN_PAUSE_PAUSED: "ui/btn_pause_paused.png",
-                Gfx.BTN_PLAY: "ui/btn_play.png",
-                Gfx.BTN_SCOREBOARD: "ui/btn_scoreboard.png",
+                Gfx.BTN_PAUSE_NORMAL: "ui/buttons/btn_pause_normal.png",
+                Gfx.BTN_PAUSE_PAUSED: "ui/buttons/btn_pause_paused.png",
+                Gfx.BTN_PLAY: "ui/buttons/btn_play.png",
+                Gfx.BTN_SCOREBOARD: "ui/buttons/btn_scoreboard.png",
 
                 # ui.boxes
-                Gfx.BOX_MENU: "ui/box_menu.png",
-                Gfx.BOX_END: "ui/box_end.png",
+                Gfx.BOX_MENU: "ui/boxes/box_menu.png",
+                Gfx.BOX_END: "ui/boxes/box_end.png",
 
                 # ui.etc
-                Gfx.STARTER_TIP: "ui/starter_tip.png",
+                Gfx.STARTER_TIP: "ui/etc/starter_tip.png",
+
+                # ui.medals
+                Gfx.MEDAL_BRONZE: "ui/medals/medal_bronze.png",
+                Gfx.MEDAL_SILVER: "ui/medals/medal_silver.png",
+                Gfx.MEDAL_GOLD: "ui/medals/medal_gold.png",
             }
         )
+
+        self.manager.set_icon(self.gfx.get(Gfx.ICON))
 
         def load_aud_resource(x):
             fpath = self.audio_path / x
@@ -131,31 +169,32 @@ class GameCore:
             }
         )
 
-        self.clock = pygame.time.Clock()
-
         self.blit_base_color = make_color(self.config.blit_base_color)
 
         self.debug_fm = RegularFontManager(
-            color = make_color(self.config.score_text_font_color),
-            name = self.config.score_text_font_name,
-            size = self.config.score_text_font_size,
+            color = make_color(self.config.debug_text_font_color),
+            font_name = self.config.debug_text_font,
+            font_size = self.config.debug_text_font_size,
+            initial_string = "",
         )
-        self.debug_fm.update_string("")
 
-        self.score_fm = SpriteFontManager(
+        self.score_big_fm = SpriteFontManager(
             font_dict = {
-                "0": self.gfx.get(Gfx.CHAR_0),
-                "1": self.gfx.get(Gfx.CHAR_1),
-                "2": self.gfx.get(Gfx.CHAR_2),
-                "3": self.gfx.get(Gfx.CHAR_3),
-                "4": self.gfx.get(Gfx.CHAR_4),
-                "5": self.gfx.get(Gfx.CHAR_5),
-                "6": self.gfx.get(Gfx.CHAR_6),
-                "7": self.gfx.get(Gfx.CHAR_7),
-                "8": self.gfx.get(Gfx.CHAR_8),
-                "9": self.gfx.get(Gfx.CHAR_9),
+                str(i): self.gfx.get(eval(f"Gfx.CHAR_B{i}")) for i in range(10)
             },
-            padding_px = 5,
+            padding_px = 3,
+        )
+        self.score_small_fm = SpriteFontManager(
+            font_dict = {
+                str(i): self.gfx.get(eval(f"Gfx.CHAR_S{i}")) for i in range(10)
+            },
+            padding_px = 2,
+        )
+        self.max_score_fm = SpriteFontManager(
+            font_dict = {
+                str(i): self.gfx.get(eval(f"Gfx.CHAR_S{i}")) for i in range(10)
+            },
+            padding_px = 2,
         )
 
         self.debug_mode = self.config.debug_mode_default
@@ -169,9 +208,10 @@ class GameCore:
         self.input_handler = KeyHandler()
         self.input_handler.reserve_keys({
             InputValue.ARROW_UP,
-            InputValue.K,
+            InputValue.W,
             InputValue.H,
             InputValue.MOUSE_BTN_LEFT,
+            InputValue.ENTER,
             InputValue.SPACE,
             InputValue.ESC,
         })
@@ -186,6 +226,7 @@ class GameCore:
 
         # values to be filled later
         self.distance_to_next_score = 0
+        self.last_score = 0
         self.front_tiles = None
         self.back_tiles = None
         self.pipes = None
@@ -194,7 +235,6 @@ class GameCore:
             [
                 self.gfx.get(Gfx.BIRD_F0),
                 self.gfx.get(Gfx.BIRD_F1),
-                self.gfx.get(Gfx.BIRD_F2),
             ],
         )
 
@@ -204,17 +244,17 @@ class GameCore:
         r_play_button = self.gfx.get(Gfx.BTN_PLAY)
 
         self.pause_button = SimpleEntity(
-            (self.config.win_size.x - r_pause_button_normal.size.x - 10, 10),
+            Vector2(self.config.win_size.x - r_pause_button_normal.size.x - 10, 10),
             [r_pause_button_normal, r_pause_button_paused],
         )
 
         self.scoreboard_button = SimpleEntity(
-            (self.config.win_size.x - r_scoreboard_button.size.x - 280, 405),
+            Vector2(self.config.win_size.x - r_scoreboard_button.size.x - 280, 405),
             [r_scoreboard_button],
         )
 
         self.play_button = SimpleEntity(
-            (self.config.win_size.x - r_play_button.size.x - 520, 405),
+            Vector2(self.config.win_size.x - r_play_button.size.x - 520, 405),
             [r_play_button],
         )
 
@@ -227,15 +267,10 @@ class GameCore:
         self.c_previous_score = 0
         self.c_score_text_rendered = None
 
-        self.manager = GameManager(
-            title = "({}x{}) {}".format(
-                self.config.win_size.x,
-                self.config.win_size.y,
-                self.config.title,
-            ),
-            win_size = self.config.win_size,
-            icon = self.gfx.get(Gfx.ICON),
-        )
+        # the time since last frame, in seconds
+        self.delta_time = 0.0
+
+        self._time_last_frame_ns = None # this is set in self.pre_processing()
 
     def main_loop(self):
         self.prepare_turn()
@@ -247,12 +282,12 @@ class GameCore:
 
     def prepare_turn(self):
         """Initializes variables for every turn.
-        
+
         A turn is a moment that lasts until a restart (after a death) is done.
         """
 
         bird_f0_size = self.gfx.get(Gfx.BIRD_F0).size
-        
+
         BIRD_CENTER_OFFSET_X = 50
         BIRD_POS_X = (self.config.win_size.x / 2
                       - bird_f0_size.y / 2
@@ -268,6 +303,7 @@ class GameCore:
         self.turn_debug_used = self.debug_mode
         self.after_death_timer = 0
         self.current_score = 0
+        self.distance_to_next_score = 0
         self.game_mode = GameMode.START
 
         self.front_tiles, self.back_tiles = self.make_tiles()
@@ -289,19 +325,33 @@ class GameCore:
             )
         ]
 
-        player_point_offset_x = self.player.pos.x - (34 * 1.5)
-        self.distance_to_next_score = (self.config.win_size.x
-                                       - player_point_offset_x)
-
     def pre_processing(self):
-        self.clock.tick(self.config.framerate)
+        if self._clock is not None:
+            self.delta_time = self._clock.tick(self.config.framerate) / 1_000
+            self.pseudo_framerate = self._clock.get_fps()
+        else:
+            time_now_ns = time.time_ns()
+            min_ns_per_frame = 1_000_000_000 // self.config.framerate
+
+            if self._time_last_frame_ns is None:
+                ns_since_last_frame = min_ns_per_frame
+            else:
+                ns_since_last_frame = time_now_ns - self._time_last_frame_ns
+
+            if ns_since_last_frame < min_ns_per_frame:
+                time.sleep((min_ns_per_frame - ns_since_last_frame) / 1_000_000_000)
+
+            self.delta_time = ns_since_last_frame / 1_000_000_000
+            self.pseudo_framerate = 1_000_000_000 / ns_since_last_frame
+            self._time_last_frame_ns = time_now_ns
+
         self.input_handler.update_keys()
         self.turn_was_debug_mode = self.debug_mode
 
     def processing(self):
         if not self.is_paused:
             self.player.process_extra(self)
-
+                
             if self.input_handler.upkeys_first():
                 # start the game
                 if self.game_mode == GameMode.START:
@@ -309,31 +359,34 @@ class GameCore:
 
                 # jump
                 if self.game_mode == GameMode.PLAYING:
-                    pygame.mixer.Channel(0).play(self.aud.get(Aud.WING))
-                    # TODO: turn this into self.player.jump()
-                    self.player.speed.y = -8
-                    self.player.jump_counter = 0
+                    self.player.jump(state=self, sound_fx=self.aud.get(Aud.WING))
 
             if self.game_mode == GameMode.PLAYING:
                 for pipe in self.pipes:
-                    pipe.process()
+                    pipe.process(self)
 
                     if pipe.is_colliding(self.player.hitbox):
                         if not self.debug_mode:
-                            self.game_mode = GameMode.DEAD
-                            # TODO: turn this into self.player.die()
-                            self.player.speed.y = self.config.jump_speed
+                            self.player.die(state=self)
                             break
 
-                self.distance_to_next_score -= self.config.scroll_speed
-                if self.distance_to_next_score <= 0:
+                pipe_distances = []
+                for pipe in self.pipes:
+                    distance = pipe.pos.x + pipe.size.x//2 - self.player.pos.x - self.player.size.x//2
+
+                    if distance >= 0:
+                        pipe_distances.append(distance)
+                     
+                self.distance_to_next_score = min(pipe_distances)
+
+                if self.distance_to_next_score <= 10 and (time.time() - self.last_score > .5):
                     pygame.mixer.Channel(1).play(self.aud.get(Aud.POINT))
-                    self.distance_to_next_score += self.config.pipe_x_spacing
+                    self.last_score = time.time()
                     self.current_score += 1
 
             if self.game_mode != GameMode.DEAD:
                 for tile in itertools.chain(self.front_tiles, self.back_tiles):
-                    tile.process()
+                    tile.process(self)
 
         if self.input_handler.is_first(InputValue.H):
             self.debug_mode = not self.debug_mode
@@ -342,9 +395,9 @@ class GameCore:
             self.input_handler.is_first(InputValue.ESC)
             and self.game_mode != GameMode.DEAD
             or (
-                self.pause_button.hitbox.collidepoint(tuple(self.input_handler.mouse_pos))
-                and self.game_mode != GameMode.DEAD
+                self.pause_button.hitbox.collidepoint(self.input_handler.mouse_pos.to_tuple())
                 and self.input_handler.is_first(InputValue.MOUSE_BTN_LEFT)
+                and self.game_mode != GameMode.DEAD
             )
         )
 
@@ -352,6 +405,7 @@ class GameCore:
         # (can't pause if the game hasn't started, though)
         if should_pause and self.game_mode != GameMode.START:
             self.is_paused = not self.is_paused
+            self.wait_for_events = self.is_paused
 
         # change pause button sprite depending on whether the game is paused or not
         if self.is_paused:
@@ -365,11 +419,19 @@ class GameCore:
                 # TODO: use Channel(_).get_busy() to find free channels
                 pygame.mixer.Channel(2).play(self.aud.get(Aud.HIT))
                 pygame.mixer.Channel(3).play(self.aud.get(Aud.DIE))
-            elif (self.after_death_timer >= 70
-                  and self.play_button.hitbox.collidepoint(tuple(self.input_handler.mouse_pos))
-                  and self.input_handler.is_first(InputValue.MOUSE_BTN_LEFT)):
+            elif (
+                    self.after_death_timer >= 70 and
+                    # Wait for the player to click on restart button
+                    (
+                        self.play_button.hitbox.collidepoint(self.input_handler.mouse_pos.to_tuple())
+                        and self.input_handler.is_first(InputValue.MOUSE_BTN_LEFT)
+                    ) 
+                    # or wait for the player to press "enter"
+                    or self.input_handler.is_first(InputValue.ENTER)
+                ):
                 # restart after death
                 self.prepare_turn()
+                self.wait_for_events = False
 
     def post_processing(self):
         # fill screen with sky color
@@ -413,9 +475,24 @@ class GameCore:
         # render ground hitbox
         if self.debug_mode:
             self.manager.render_rect(
-                rect = (0, self.config.ground_line, *self.config.win_size),
+                rect = (0, self.config.ground_line, *self.config.win_size.to_tuple()),
                 line_size = self.config.hitbox_line_size,
                 line_color = self.config.hitbox_line_color,
+            )
+
+            # draw line from player to next pipe
+            pygame.draw.line(
+                surface=self.manager.screen.into_pygame(), 
+                color=(255, 0, 0), 
+                start_pos=(
+                    self.player.pos.x + self.player.size.x//2, 
+                    self.player.pos.y + self.player.size.y//2
+                ), 
+                end_pos=(
+                    self.player.pos.x + self.player.size.x//2 + self.distance_to_next_score, 
+                    self.player.pos.y + self.player.size.y//2
+                ), 
+                width=2
             )
 
         # show initial tip
@@ -423,11 +500,11 @@ class GameCore:
             # TODO: center this properly
             self.manager.blit(
                 self.gfx.get(Gfx.MSG_READY),
-                (222, 20),
+                Vector2(222, 20),
             )
             self.manager.blit(
                 self.gfx.get(Gfx.STARTER_TIP),
-                (450, 200),
+                Vector2(450, 200),
             )
 
         # show pause button
@@ -435,7 +512,7 @@ class GameCore:
             self.manager.render(self.pause_button)
 
         # show score text on the top-left corner
-        if (self.config.score_text_enabled
+        if (self.config.debug_text_enabled
             and self.debug_mode
             and self.game_mode == GameMode.PLAYING
             and (self.turn_timer % 60 == 0
@@ -443,38 +520,43 @@ class GameCore:
                  or self.turn_was_debug_mode != self.debug_mode)):
 
             self.debug_fm.update_string(
-                "(:fps {:.2f} :max-score {})".format(
-                    self.clock.get_fps(),
-                    self.save_file["max_score"],
-                )
+                f':fps {int(self.pseudo_framerate)} ' + 
+                f':max-score {self.save_file["max_score"]} ' +
+                f':next-score {round(self.distance_to_next_score)}'
             )
 
-        if (self.config.score_text_enabled
+        if (self.config.debug_text_enabled
             and self.game_mode == GameMode.PLAYING):
 
-            xpos = self.config.win_size.x / 2 - 15 * len(str(self.current_score))
-            ypos = 10
+            self.score_big_fm.update_string(str(self.current_score))
 
-            self.score_fm.update_string(str(self.current_score))
+            size = self.score_big_fm.size
+            xpos = self.config.win_size.x / 2 - size.x / 2
+            ypos = 15 + size.y
+
             self.manager.blit(
-                self.score_fm,
-                (xpos, ypos),
+                self.score_big_fm,
+                Vector2(xpos, ypos)
             )
 
         if self.debug_mode:
             self.manager.blit(
                 self.debug_fm,
-                self.config.score_text_pos,
+                Vector2.from_tuple(self.config.debug_text_pos),
             )
 
+        #! Removed
         # pause menu
-        if self.is_paused:
-            self.manager.blit(self.gfx.get(Gfx.BOX_MENU), (258, 155))
-            self.manager.blit(self.gfx.get(Gfx.MSG_FLAPPY), (222, 20))
+        # if self.is_paused:
+            # self.manager.blit(self.gfx.get(Gfx.BOX_MENU), Vector2(258, 155))
+            # self.manager.blit(self.gfx.get(Gfx.MSG_FLAPPY), Vector2(222, 20))
 
         # game over
         if self.game_mode == GameMode.DEAD:
             self.player.animation_timer = 0
+
+            self.score_small_fm.update_string(str(self.current_score))
+            self.max_score_fm.update_string(str(self.save_file["max_score"]))
 
             if (self.after_death_timer == 0
                 and self.current_score > self.save_file["max_score"]
@@ -482,20 +564,49 @@ class GameCore:
                 self.save_file["max_score"] = self.current_score
 
             if self.after_death_timer >= 70: # wait some time for showing the death screen
-                self.manager.blit(self.gfx.get(Gfx.MSG_GAME_OVER), (222, 20))
-                self.manager.blit(self.gfx.get(Gfx.BOX_END), (258, 145))
-                self.manager.blit(self.gfx.get(Gfx.BTN_PLAY), (280, 405))
-                self.manager.blit(self.gfx.get(Gfx.BTN_SCOREBOARD), (520, 405))
+                self.wait_for_events = True
+                self.manager.blit(self.gfx.get(Gfx.MSG_GAME_OVER), Vector2(222, 20))
+                self.manager.blit(self.gfx.get(Gfx.BOX_END), Vector2(258, 145))
+                self.manager.blit(self.gfx.get(Gfx.BTN_PLAY), Vector2(280, 405))
+                self.manager.blit(self.gfx.get(Gfx.BTN_SCOREBOARD), Vector2(520, 405))
 
+                # show score
+                score_x = 655 - self.score_small_fm.size.x
+                self.manager.blit(self.score_small_fm, Vector2(score_x, 235))
+                max_score_x = 655 - self.max_score_fm.size.x
+                self.manager.blit(self.max_score_fm, Vector2(max_score_x, 320))
+
+                # show medal
+                medal = None
+                
+                if self.current_score >= 60:
+                    medal = Gfx.MEDAL_GOLD
+                elif self.current_score >= 30:
+                    medal = Gfx.MEDAL_SILVER
+                elif self.current_score >= 15:
+                    medal = Gfx.MEDAL_BRONZE
+
+                if medal:
+                    self.manager.blit(self.gfx.get(medal), Vector2(308, 225))
+                    
             self.after_death_timer += 1
 
         # update screen
         pygame.display.update()
 
-        for event in pygame.event.get():
-            # exit via the QUIT event (window manager-specific)
-            if event.type == pygame.QUIT:
+        def process_event(event) -> None:
+            # exit via the QUIT event (window manager-specific) or the Q key
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_q):
                 self.is_running = False
+
+        if self.wait_for_events:
+            if (event := pygame.event.wait()).type != pygame.NOEVENT:
+                process_event(event)
+                while (event := pygame.event.poll()).type != pygame.NOEVENT:
+                    process_event(event)
+        else:
+            while (event := pygame.event.poll()).type != pygame.NOEVENT:
+                process_event(event)
 
         # increase timer
         self.turn_timer += 1

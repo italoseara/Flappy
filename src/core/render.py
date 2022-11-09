@@ -1,30 +1,26 @@
 from .maths import Vector2
+from .data import PygameSurface, Blittable
 
-from typing import List, Tuple
+import abc
 from pygame import Surface
+from typing import List, Tuple
 
 class Render:
-    def draw_to(self, surface: Surface):
-        raise NotImplementedError
+    @abc.abstractmethod
+    def draw_to(self, surface: Surface) -> None: ...
 
 class SingularRender(Render):
-    def get_render(self) -> Tuple[Surface, Vector2]:
-        raise NotImplementedError
+    @abc.abstractmethod
+    def get_render(self) -> Tuple[PygameSurface, Vector2]: ...
 
-    def draw_to(self, surface: Surface):
+    def draw_to(self, surface: Surface) -> None:
         render, position = self.get_render()
-        render.draw_to(
-            surface,
-            (int(position[0]), int(position[1])),
-        )
+        render.draw_to(surface, position)
 
 class BatchRender(Render):
-    def get_render(self) -> Tuple[List[Surface], Vector2]:
-        raise NotImplementedError
+    @abc.abstractmethod
+    def get_render(self) -> List[Tuple[Blittable, Vector2]]: ...
 
-    def draw_to(self, surface: Surface):
+    def draw_to(self, surface: Surface) -> None:
         for (render, position) in self.get_render():
-            render.draw_to(
-                surface,
-                (int(position[0]), int(position[1])),
-            )
+            render.draw_to(surface, position)

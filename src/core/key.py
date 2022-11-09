@@ -13,13 +13,14 @@ class InputValue(IntEnum):
     # ARROW_LEFT = auto()
     # ARROW_RIGHT = auto()
 
-    K = auto()
+    W = auto()
     H = auto()
 
     MOUSE_BTN_LEFT = auto()
     MOUSE_BTN_MIDDLE = auto()
     MOUSE_BTN_RIGHT = auto()
 
+    ENTER = auto()
     SPACE = auto()
     ESC = auto()
 
@@ -32,8 +33,9 @@ class KeyHandler:
     PYGAME_REGISTER_MAP = {
         pygame.K_UP: InputValue.ARROW_UP,
         pygame.K_h: InputValue.H,
-        pygame.K_k: InputValue.K,
+        pygame.K_w: InputValue.W,
         pygame.K_SPACE: InputValue.SPACE,
+        pygame.K_RETURN: InputValue.ENTER,
         pygame.K_ESCAPE: InputValue.ESC,
     }
 
@@ -41,7 +43,7 @@ class KeyHandler:
 
     UPKEYS_CHECK_SET = {
         InputValue.ARROW_UP,
-        InputValue.K,
+        InputValue.W,
         InputValue.SPACE,
         InputValue.MOUSE_BTN_LEFT,
     }
@@ -78,7 +80,7 @@ class KeyHandler:
 
     def is_held(self, code: InputValue) -> bool:
         """Gets the "held" value of the key identified by the code `code`.
-        
+
         Works pretty much the same as self.is_first, but for every
         frame the key has been pressed."""
 
@@ -96,7 +98,7 @@ class KeyHandler:
     @property
     def mouse_pos(self) -> Vector2:
         if self._mouse_pos is None:
-            return ValueError("mouse position has not been grabbed yet")
+            raise ValueError("mouse position has not been grabbed yet")
         else:
             return self._mouse_pos
 
@@ -139,7 +141,7 @@ class KeyHandler:
 
                 self._key_map[v] = data
 
-        self._mouse_pos = Vector2(pygame.mouse.get_pos())
+        self._mouse_pos = Vector2.from_tuple(pygame.mouse.get_pos())
 
         self._upkeys.held = False
         self._upkeys.first = False

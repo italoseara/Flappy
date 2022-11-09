@@ -1,51 +1,56 @@
 from __future__ import annotations
+from typing import Tuple, Callable
+from dataclasses import dataclass
 
+@dataclass
 class Vector2:
-    def __init__(self, *args):
-        if len(args) == 1 and isinstance(args[0], tuple) and len(args[0]) == 2:
-            self.x, self.y = args[0]
-        elif len(args) == 1 and isinstance(args[0], Vector2):
-            self.x = args[0].x
-            self.y = args[0].y
-        elif len(args) == 2:
-            self.x, self.y = args
-        else:
-            raise TypeError(
-                "could not find matching pattern for argument list: {}{}".format(
-                    type(self).__name__,
-                    args,
-                )
-            )
+    x: float
+    y: float
 
-    def into_tuple(self) -> tuple:
+    @staticmethod
+    def from_tuple(tup: Tuple[float, float]) -> Vector2:
+        (x, y) = tup
+        return Vector2(x, y)
+
+    def to_tuple(self) -> Tuple[float, float]:
         return (self.x, self.y)
 
-    def __iter__(self):
-        yield self.x
-        yield self.y
+    def map(self, func: Callable[[float], float]) -> Vector2:
+        return Vector2(x=func(self.x), y=func(self.y))
 
+    def map_with_other(self, rhs: Vector2, func: Callable[[float, float], float]) -> Vector2:
+        return Vector2(
+            x=func(self.x, rhs.x),
+            y=func(self.y, rhs.y),
+        )
+
+@dataclass
 class Rectangle:
-    def __init__(self, *args):
-        if len(args) == 4:
-            self.x, self.y, self.width, self.height = args
-        elif len(args) == 1 and isinstance(args[0], tuple) and len(args[0]) == 4:
-            self.x, self.y, self.width, self.height = args[0]
-        elif len(args) == 1 and isinstance(args[0], Rectangle):
-            self.x = args[0].x
-            self.y = args[0].y
-            self.width = args[0].width
-            self.height = args[0].height
-        elif (len(args) == 2
-              and isinstance(args[0], tuple)
-              and len(args[0]) == 2
-              and isinstance(args[1], tuple)
-              and len(args[1]) == 2):
-            self.x, self.y = args[0]
-            self.width, self.height = args[1]
-        else:
-            raise TypeError(
-                "could not find matching pattern for argument list: {}{}".format(
-                    type(self).__name__,
-                    args,
-                )
-            )
+    x: float
+    y: float
+    w: float
+    h: float
+
+    @staticmethod
+    def from_tuple(tup: Tuple[float, float, float, float]) -> Rectangle:
+        (x, y, w, h) = tup
+        return Rectangle(x, y, w, h)
+
+    def to_tuple(self) -> Tuple[float, float, float, float]:
+        return (self.x, self.y, self.w, self.h)
+
+    def map(self, func: Callable[[float], float]) -> Rectangle:
+        return Rectangle(
+            x=func(self.x),
+            y=func(self.y),
+            w=func(self.w),
+            h=func(self.h),
+        )
+
+    def map_with_other(self, rhs: Rectangle, func: Callable[[float, float], float]) -> Rectangle:
+        return Rectangle(
+            x=func(self.x, rhs.x),
+            y=func(self.y, rhs.y),
+            w=func(self.w, rhs.w),
+            h=func(self.h, rhs.h),
+        )

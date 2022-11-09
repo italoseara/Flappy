@@ -1,13 +1,19 @@
 import pygame
-from typing import List, Tuple, Dict, Any
+from typing import List, Tuple, Dict, TypeVar
 
-def dict_from_pairs(pairs: List[Tuple[Any, Any]]) -> Dict[Any, Any]:
-    result = {}
-    for (k, v) in pairs:
-        result[k] = v
-    return result
+K = TypeVar("K")
+V = TypeVar("V")
 
-def amount_to_fill_container(container_size, object_size):
+def dict_from_pairs(pairs: List[Tuple[K, V]]) -> Dict[K, V]:
+    return dict(iter(pairs))
+
+# def dict_from_pairs(pairs: List[Tuple[Any, Any]]) -> Dict[Any, Any]:
+#     result = {}
+#     for k, v in pairs:
+#         result[k] = v
+#     return result
+
+def amount_to_fill_container(container_size: int, object_size: int) -> int:
     """Calculates the minimum amount of objects (size `object_size`) needed
     to fill the container (size `container_size`).
 

@@ -16,11 +16,10 @@ if sys.version_info < (3, 7):
 from core.logger import Logger
 
 # import pygame and try to supress the annoying startup message.
-Logger.log("Loading pygame...")
+Logger.log("Initializing pygame...")
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 import pygame
-
-Logger.log("Pygame loaded.")
+Logger.log("Pygame initialized successfully")
 
 # start the game
 if __name__ == "__main__":
@@ -31,10 +30,6 @@ if __name__ == "__main__":
     resources_path = (Path(__file__) / "../resources").resolve()
     audio_path = (Path(__file__) / "../audio").resolve()
     save_path.mkdir(parents=True, exist_ok=True)
-
-    # TODO: move this from here
-    pygame.mixer.pre_init(44100, -16, 2, 2048)
-    pygame.init()
 
     g = GameCore(
         save_path = save_path,
