@@ -164,7 +164,8 @@ class Bird(pygame.sprite.DirtySprite):
 
         OFFSET_X = 50
         rect = pygame.Rect((0, 0), self.rect.size)
-        rect.center = GameEngine.display_rect.center
+        display_rect = GameEngine.display.get_rect()
+        rect.center = display_rect.center
         self.pos.xy = rect.topleft
         self.pos.x -= OFFSET_X
 
@@ -237,9 +238,9 @@ class Game:
         GameEngine.set_window_title("Flappy Bird [Python]")
         GameEngine.set_window_size(DEFAULT_WIN_SIZE)
 
-        self.load_resources()
-
+        GameEngine.set_framerate(60)
         GameEngine.background.fill(sky_color)
+        self.load_resources()
 
         GameEngine.set_current_scene(GameResources.get_scene("main"))
 

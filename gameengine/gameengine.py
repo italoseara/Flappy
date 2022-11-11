@@ -9,67 +9,71 @@ pygame.init()
 
 
 class GameEngine:
-    scaled_display = None
-    scaled_display_rect = pygame.Rect(0, 0, 0, 0)
     display = None
-    display_rect = None
-    window = None
+    screen_display = None
+    _window = None
     clock = None
     current_scene = None
     background = None
-    _scale = pygame.Vector2(1, 1)
+    ref_scale = pygame.Vector2(1, 1)
     events = ()
-    framerate = 60
-    deltatime = 1 / framerate
+    framerate = None
+    deltatime = 1
 
     @classmethod
     def init(cls):
         cls.clock = pygame.time.Clock()
 
     @classmethod
-    def get_mouse_pos(cls):
-        pos = pygame.mouse.get_pos()
-        return (pos[0] / cls._scale.x, pos[1] / cls._scale.y)
+    def set_framerate(cls, framerate):
+        cls.framerate = framerate
+
+    @classmethod
+    def set_display_size(cls, size):
+        cls.display = pygame.Surface(size, cls.display.get_flags())
+        cls.ref_scale.xy = (
+            cls.screen_display.get_width() / size[0],
+            cls.screen_display.get_height() / size[1],
+        )
 
     @classmethod
     def get_display_size(cls):
-        return cls.scaled_display_rect.size
+        return cls.display.get_size()
 
     @classmethod
     def get_window_size(cls):
-        return cls.display_rect.size
-
-    @classmethod
-    def get_scale(self):
-        return self._scale.xy
+        return pygame.display.get_window_size()
 
     @classmethod
     def set_window_size(cls, size, *flags):
         flag = 0
         for f in flags:
             flag |= f
-        cls.display = pygame.display.set_mode(size, flag)
-        cls.window = pygame._sdl2.Window.from_display_module()
-        cls.display_rect = cls.display.get_rect()
-        cls._update_scale(size)
+        cls.screen_display = pygame.display.set_mode(size, flag)
+        cls._window = pygame._sdl2.Window.from_display_module()
 
-        cls.background = cls.display.convert()
+        cls.set_scale(cls.ref_scale.xy)
+
+        cls.background = cls.screen_display.convert()
+
+    @classmethod
+    def get_scale(self):
+        return self.ref_scale.xy
+
+    @classmethod
+    def set_scale(cls, *scale):
+        cls.ref_scale = pygame.Vector2(*scale)
+        if not cls.screen_display is None:
+            cls.display = pygame.Surface(
+                (
+                    math.ceil(cls.screen_display.get_width() / cls.ref_scale.x),
+                    (math.ceil(cls.screen_display.get_height() / cls.ref_scale.y)),
+                )
+            )
 
     @classmethod
     def set_window_title(cls, title):
         pygame.display.set_caption(title)
-
-    @classmethod
-    def _update_scale(cls, size):
-        x, y = cls._scale.xy
-        size = (math.ceil(size[0] / x), math.ceil(size[1] / y))
-        cls.scaled_display = pygame.Surface(size)
-        cls.scaled_display_rect.size = cls.scaled_display.get_size()
-
-    @classmethod
-    def set_scale(cls, *scale):
-        cls._scale = pygame.Vector2(*scale)
-        cls._update_scale(cls.window.size)
 
     @classmethod
     def update_events(cls):
@@ -95,11 +99,13 @@ class GameEngine:
             cls.update_events()
             cls.current_scene.update()
 
-            if cls.window.size != cls.scaled_display.get_size():
-                cls.current_scene.draw(cls.scaled_display, cls.background)
-                pygame.transform.scale(cls.scaled_display, cls.window.size, cls.display)
-            else:
+            if cls._window.size != cls.display.get_size():
                 cls.current_scene.draw(cls.display, cls.background)
+                pygame.transform.scale(
+                    cls.display, cls._window.size, cls.screen_display
+                )
+            else:
+                cls.current_scene.draw(cls.screen_display, cls.background)
 
             pygame.display.update()
             cls.update_clock()
