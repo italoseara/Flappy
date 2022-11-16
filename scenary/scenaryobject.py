@@ -29,7 +29,6 @@ class ScenaryObject(pygame.sprite.DirtySprite):
         self.origin_surface_width = s_size[0]
         self.rect = self.image.get_rect()
 
-
         self.dirty = 2
 
     def update(self):
