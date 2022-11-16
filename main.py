@@ -3,7 +3,7 @@ import os
 
 import pygame
 
-from gameengine import Animations, GameEngine, GameResources, Mouse
+from gameengine import Animations, Display, GameEngine, GameResources, Mouse, Window
 from gamemode import GameMode
 
 DEFAULT_WIN_SIZE = (960, 540)
@@ -24,13 +24,13 @@ sky_color = (11, 200, 215)
 class City(pygame.sprite.DirtySprite):
     def __init__(self):
         super().__init__()
-        surface = GameResources.get_surface("BG_CITY")
+        surface = GameResources.Surface.get_surface("BG_CITY")
         s_size = surface.get_size()
 
-        cloud_rect = GameResources.get_surface("BG_CLOUDS").get_rect()
+        cloud_rect = GameResources.Surface.get_surface("BG_CLOUDS").get_rect()
 
-        w = math.ceil(GameEngine.get_display_size()[0] / s_size[0]) + 1
-        self.image = GameResources.get_new_surface((w * s_size[0], s_size[1]))
+        w = math.ceil(Display.get_size()[0] / s_size[0]) + 1
+        self.image = GameResources.Surface.get_new_surface((w * s_size[0], s_size[1]))
 
         for i in range(w):
             self.image.blit(surface, (i * s_size[0], 0))
@@ -53,13 +53,13 @@ class City(pygame.sprite.DirtySprite):
 class Clouds(pygame.sprite.DirtySprite):
     def __init__(self):
         super().__init__()
-        surface = GameResources.get_surface("BG_CLOUDS")
+        surface = GameResources.Surface.get_surface("BG_CLOUDS")
         s_size = surface.get_size()
 
-        cloud_rect = GameResources.get_surface("BG_CLOUDS").get_rect()
+        cloud_rect = GameResources.Surface.get_surface("BG_CLOUDS").get_rect()
 
-        w = math.ceil(GameEngine.get_display_size()[0] / s_size[0]) + 1
-        self.image = GameResources.get_new_surface((w * s_size[0], s_size[1]))
+        w = math.ceil(Display.get_size()[0] / s_size[0]) + 1
+        self.image = GameResources.Surface.get_new_surface((w * s_size[0], s_size[1]))
 
         for i in range(w):
             self.image.blit(surface, (i * s_size[0], 0))
@@ -82,13 +82,13 @@ class Clouds(pygame.sprite.DirtySprite):
 class Bush(pygame.sprite.DirtySprite):
     def __init__(self):
         super().__init__()
-        surface = GameResources.get_surface("BG_BUSH")
+        surface = GameResources.Surface.get_surface("BG_BUSH")
         s_size = surface.get_size()
 
-        cloud_rect = GameResources.get_surface("BG_CLOUDS").get_rect()
+        cloud_rect = GameResources.Surface.get_surface("BG_CLOUDS").get_rect()
 
-        w = math.ceil(GameEngine.get_display_size()[0] / s_size[0]) + 1
-        self.image = GameResources.get_new_surface((w * s_size[0], s_size[1]))
+        w = math.ceil(Display.get_size()[0] / s_size[0]) + 1
+        self.image = GameResources.Surface.get_new_surface((w * s_size[0], s_size[1]))
 
         for i in range(w):
             self.image.blit(surface, (i * s_size[0], 0))
@@ -111,11 +111,11 @@ class Bush(pygame.sprite.DirtySprite):
 class Floor(pygame.sprite.DirtySprite):
     def __init__(self):
         super().__init__()
-        surface = GameResources.get_surface("FLOOR")
+        surface = GameResources.Surface.get_surface("FLOOR")
         s_size = surface.get_size()
 
-        w = math.ceil(GameEngine.get_display_size()[0] / s_size[0]) + 1
-        self.image = GameResources.get_new_surface((w * s_size[0], s_size[1]))
+        w = math.ceil(Display.get_size()[0] / s_size[0]) + 1
+        self.image = GameResources.Surface.get_new_surface((w * s_size[0], s_size[1]))
 
         for i in range(w):
             self.image.blit(surface, (i * s_size[0], 0))
@@ -164,7 +164,7 @@ class Bird(pygame.sprite.DirtySprite):
 
         OFFSET_X = 50
         rect = pygame.Rect((0, 0), self.rect.size)
-        display_rect = GameEngine.display.get_rect()
+        display_rect = Display.display_surface.get_rect()
         rect.center = display_rect.center
         self.pos.xy = rect.topleft
         self.pos.x -= OFFSET_X
@@ -203,7 +203,7 @@ class Bird(pygame.sprite.DirtySprite):
         self.pos.y += self.speed_y * GameEngine.deltatime
         self.rect.topleft = self.pos.xy
         # Temp
-        self.rect.y %= GameEngine.get_display_size()[1]
+        self.rect.y %= Display.get_size()[1]
 
 
 class MainScene(pygame.sprite.LayeredDirty):
@@ -228,21 +228,22 @@ class MainScene(pygame.sprite.LayeredDirty):
                 GameMode.state = GameMode.PLAYING
                 self.bird.jump()
 
-        for event in GameEngine.events:
-            if event.type == pygame.QUIT:
-                GameEngine.request_exit()
+        if GameEngine.request_quit:
+            GameEngine.quit()
 
 
 class Game:
     def __init__(self):
-        GameEngine.set_window_title("Flappy Bird [Python]")
-        GameEngine.set_window_size(DEFAULT_WIN_SIZE)
+        Window.set_title("Flappy Bird [Python]")
 
+        GameEngine.set_window_size(DEFAULT_WIN_SIZE)
         GameEngine.set_framerate(60)
-        GameEngine.background.fill(sky_color)
+
+        Display.background = Window.window_surface.convert()
+        Display.background.fill(sky_color)
         self.load_resources()
 
-        GameEngine.set_current_scene(GameResources.get_scene("main"))
+        GameEngine.set_scene(GameResources.Scenes.get_scene("main"))
 
     def run(self):
         GameEngine.start_loop()
@@ -303,16 +304,20 @@ class Game:
         }
 
         for name, relpath in paths.items():
-            GameResources.add_surface_from_file(
+            GameResources.Surface.add_surface_from_file(
                 name, os.path.join("resources/", relpath)
             )
-        GameResources.add_scene("main", MainScene)
+        GameResources.Scenes.add_scene("main", MainScene)
 
         Animations.add_animation_data(
-            "bird_fly", "frame", GameResources.get_surface("BIRD_F0")
+            "bird_fly",
+            Animations.FRAME_TYPE,
+            GameResources.Surface.get_surface("BIRD_F0"),
         )
         Animations.add_animation_data(
-            "bird_fly", "frame", GameResources.get_surface("BIRD_F1")
+            "bird_fly",
+            Animations.FRAME_TYPE,
+            GameResources.Surface.get_surface("BIRD_F1"),
         )
 
 

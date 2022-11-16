@@ -8,9 +8,9 @@ class Mouse:
     pressed = list(_default_pressed_event)
 
     @classmethod
-    def update(cls, gameengine):
+    def update(cls, *events):
         cls.pressed_event = list(cls._default_pressed_event)
-        for event in gameengine.events:
+        for event in events:
             if event.type in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP):
                 button = None
                 if event.button in (
