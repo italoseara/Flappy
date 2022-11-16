@@ -3,137 +3,10 @@ import os
 
 import pygame
 
+from constants import DEFAULT_WIN_SIZE, SKY_COLOR
 from gameengine import Animations, Display, GameEngine, GameResources, Mouse, Window
 from gamemode import GameMode
-
-DEFAULT_WIN_SIZE = (960, 540)
-
-clouds_parallax_coeff = 0.1
-city_parallax_coeff = 0.3
-bush_parallax_coeff = 0.4
-floor_parallax_coeff = 1
-
-scroll_speed = 200
-
-ground_line = DEFAULT_WIN_SIZE[1] - 64
-
-
-sky_color = (11, 200, 215)
-
-
-class City(pygame.sprite.DirtySprite):
-    def __init__(self):
-        super().__init__()
-        surface = GameResources.Surface.get_surface("BG_CITY")
-        s_size = surface.get_size()
-
-        cloud_rect = GameResources.Surface.get_surface("BG_CLOUDS").get_rect()
-
-        w = math.ceil(Display.get_size()[0] / s_size[0]) + 1
-        self.image = GameResources.Surface.get_new_surface((w * s_size[0], s_size[1]))
-
-        for i in range(w):
-            self.image.blit(surface, (i * s_size[0], 0))
-
-        self.origin_surface_width = s_size[0]
-        self.pos = pygame.Vector2(0, 0)
-        self.dirty = 2
-
-        self.rect = self.image.get_rect()
-        self.pos.y = ground_line - cloud_rect.h
-
-    def update(self):
-        super().update()
-
-        self.pos.x -= city_parallax_coeff * scroll_speed * GameEngine.deltatime
-        self.pos.x %= -self.origin_surface_width
-        self.rect.topleft = self.pos.xy
-
-
-class Clouds(pygame.sprite.DirtySprite):
-    def __init__(self):
-        super().__init__()
-        surface = GameResources.Surface.get_surface("BG_CLOUDS")
-        s_size = surface.get_size()
-
-        cloud_rect = GameResources.Surface.get_surface("BG_CLOUDS").get_rect()
-
-        w = math.ceil(Display.get_size()[0] / s_size[0]) + 1
-        self.image = GameResources.Surface.get_new_surface((w * s_size[0], s_size[1]))
-
-        for i in range(w):
-            self.image.blit(surface, (i * s_size[0], 0))
-
-        self.origin_surface_width = s_size[0]
-        self.pos = pygame.Vector2(0, 0)
-        self.dirty = 2
-
-        self.rect = self.image.get_rect()
-        self.pos.y = ground_line - cloud_rect.h
-
-    def update(self):
-        super().update()
-
-        self.pos.x -= clouds_parallax_coeff * scroll_speed * GameEngine.deltatime
-        self.pos.x %= -self.origin_surface_width
-        self.rect.topleft = self.pos.xy
-
-
-class Bush(pygame.sprite.DirtySprite):
-    def __init__(self):
-        super().__init__()
-        surface = GameResources.Surface.get_surface("BG_BUSH")
-        s_size = surface.get_size()
-
-        cloud_rect = GameResources.Surface.get_surface("BG_CLOUDS").get_rect()
-
-        w = math.ceil(Display.get_size()[0] / s_size[0]) + 1
-        self.image = GameResources.Surface.get_new_surface((w * s_size[0], s_size[1]))
-
-        for i in range(w):
-            self.image.blit(surface, (i * s_size[0], 0))
-
-        self.origin_surface_width = s_size[0]
-        self.pos = pygame.Vector2(0, 0)
-        self.dirty = 2
-
-        self.rect = self.image.get_rect()
-        self.pos.y = ground_line - cloud_rect.h
-
-    def update(self):
-        super().update()
-
-        self.pos.x -= bush_parallax_coeff * scroll_speed * GameEngine.deltatime
-        self.pos.x %= -self.origin_surface_width
-        self.rect.topleft = self.pos.xy
-
-
-class Floor(pygame.sprite.DirtySprite):
-    def __init__(self):
-        super().__init__()
-        surface = GameResources.Surface.get_surface("FLOOR")
-        s_size = surface.get_size()
-
-        w = math.ceil(Display.get_size()[0] / s_size[0]) + 1
-        self.image = GameResources.Surface.get_new_surface((w * s_size[0], s_size[1]))
-
-        for i in range(w):
-            self.image.blit(surface, (i * s_size[0], 0))
-
-        self.origin_surface_width = s_size[0]
-        self.pos = pygame.Vector2(0, 0)
-        self.dirty = 2
-
-        self.rect = self.image.get_rect()
-        self.pos.y = ground_line
-
-    def update(self):
-        super().update()
-
-        self.pos.x -= floor_parallax_coeff * scroll_speed * GameEngine.deltatime
-        self.pos.x %= -self.origin_surface_width
-        # self.pos.x -= self.origin_surface_width
-        self.rect.topleft = self.pos.xy
+from scenary import ScenaryGroup
 
 
 class Bird(pygame.sprite.DirtySprite):
@@ -210,14 +83,10 @@ class MainScene(pygame.sprite.LayeredDirty):
     def __init__(self):
         super().__init__()
         self.bird = Bird()
-        self.floor = Floor()
-        self.bush = Bush()
-        self.city = City()
-        self.clouds = Clouds()
 
         self.bird.prepare()
 
-        self.add(self.bird, self.clouds, self.city, self.bush, self.floor)
+        self.add(self.bird, ScenaryGroup())
 
         self.change_layer(self.bird, self.bird._layer + 1)
 
@@ -240,7 +109,7 @@ class Game:
         GameEngine.set_framerate(60)
 
         Display.background = Window.window_surface.convert()
-        Display.background.fill(sky_color)
+        Display.background.fill(SKY_COLOR)
         self.load_resources()
 
         GameEngine.set_scene(GameResources.Scenes.get_scene("main"))

@@ -21,7 +21,7 @@ class Display:
             ).convert_alpha()
 
         except pygame.error:
-            ...
+            pass
 
     @classmethod
     def get_scale(self):

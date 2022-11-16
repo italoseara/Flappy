@@ -69,14 +69,3 @@ class GameResources:
             if alpha:
                 flag |= pygame.SRCALPHA
             return pygame.Surface(size, flag)
-
-    class Global:
-        global_data = {}
-
-        @classmethod
-        def set_global_data(cls, name, value):
-            cls.global_data[name] = value
-
-        @classmethod
-        def get_global_data(cls, name):
-            return cls.global_data[name]
