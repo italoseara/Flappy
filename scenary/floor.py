@@ -1,17 +1,8 @@
-from constants import FLOOR_PARALLAX_COEFF, SCROLL_SPEED
+from constants import FLOOR_PARALLAX_COEFF
 
 from .scenaryobject import ScenaryObject
-from gameengine import GameEngine
 
 
 class Floor(ScenaryObject):
     def __init__(self):
-        super().__init__("FLOOR", True)
-
-    def update(self):
-        super().update()
-
-        self.pos.x -= FLOOR_PARALLAX_COEFF * SCROLL_SPEED * GameEngine.deltatime
-        self.pos.x %= -self.origin_surface_width
-        # self.pos.x -= self.origin_surface_width
-        self.rect.topleft = self.pos.xy
+        super().__init__("FLOOR", FLOOR_PARALLAX_COEFF, ignore_cloud_line=True)
