@@ -1,1 +1,0 @@
-python -m pip install git+https://github.com/pygame/pygame.git@v2.1.3
