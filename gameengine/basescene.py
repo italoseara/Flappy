@@ -18,11 +18,11 @@ class BaseScene(HierarchicalObject):
             if update_priority:
                 self.children.append(self.children.pop(self.children.index(obj)))
 
-    def update(self, *args, **kwargs):
+    def update(self):
         # update reference to display surface
         self.surface = Display.surface
 
-        super().update(*args, **kwargs)
+        super().update()
         self.update_focus()
 
     def update_focus(self, *args, **kwargs):
