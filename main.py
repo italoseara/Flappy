@@ -2,7 +2,7 @@ import os
 
 import pygame
 
-from constants import Graphics
+from constants import Graphics, Sounds
 from gameengine.display import Display
 from gameengine.engine import Engine
 from gameengine.resources import Resources
@@ -78,6 +78,17 @@ class Program:
 
         for enum, path in graphics_data.items():
             Resources.Surface.add_from_file(enum, os.path.join(graphics_path, path))
+
+        sounds_data = {
+            Sounds.WING: "wing.wav",
+            Sounds.HIT: "hit.wav",
+            Sounds.POINT: "point.wav",
+            Sounds.DIE: "die.wav",
+        }
+        sounds_path = "assets/audio/"
+
+        for enum, path in sounds_data.items():
+            Resources.Sound.add_from_file(enum, os.path.join(sounds_path, path))
 
     def start(self):
         Engine.start_loop()

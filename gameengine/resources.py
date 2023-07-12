@@ -50,10 +50,6 @@ class Resources:
             return [surface.subsurface(rect).copy() for rect in rects]
 
         @classmethod
-        def contains(cls, key):
-            return key in cls.surfaces.keys()
-
-        @classmethod
         def get(cls, name, copy=True) -> pygame.Surface:
             surface = cls.surfaces[name]
             if copy:
@@ -70,6 +66,21 @@ class Resources:
             if alpha:
                 flag |= pygame.SRCALPHA
             return pygame.Surface(size, flag)
+
+    class Sound:
+        sounds = {}
+
+        @staticmethod
+        def load_from_file(path):
+            return pygame.mixer.Sound(abspath(path))
+
+        @classmethod
+        def add_from_file(cls, name, path):
+            cls.sounds[name] = cls.load_from_file(path)
+
+        @classmethod
+        def get(cls, name):
+            return cls.sounds[name]
 
     class Files:
         files = {}
