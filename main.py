@@ -16,9 +16,9 @@ class Program:
     def __init__(self) -> None:
         Window.set_title("Flappy Bird Clone")
         Window.set_size(self.DEFAULT_WIN_SIZE)
-        
+
         self.load_assets()
-        
+
         Display.update_display_from_window()
 
         Engine.set_scene(MainScene())

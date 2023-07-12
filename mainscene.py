@@ -1,5 +1,6 @@
 from gameengine.basescene import BaseScene
 from gameengine.engine import Engine
+from objects.bird import Bird
 
 
 class MainScene(BaseScene):
@@ -7,6 +8,8 @@ class MainScene(BaseScene):
         super().__init__()
 
         self.bg = (11, 200, 215)
+
+        self.add_children(Bird())
 
     def update(self):
         super().update()

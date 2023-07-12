@@ -6,6 +6,11 @@ class BaseChild(HierarchicalObject):
     rect = None
     bg = None
 
+    def __init__(self, surface):
+        super().__init__()
+        self.surface = surface
+        self.rect = surface.get_frect()
+
     def update_focus(self):
         pass
 
