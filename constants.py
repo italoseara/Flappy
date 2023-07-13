@@ -1,5 +1,9 @@
 from enum import Enum, IntEnum, auto
 
+import pygame
+
+DEFAULT_WIN_SIZE = pygame.Vector2(960, 540)
+
 
 class Graphics(IntEnum):
     ICON = auto()

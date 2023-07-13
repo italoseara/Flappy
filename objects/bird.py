@@ -2,7 +2,7 @@ from math import sin
 
 import pygame
 
-from constants import GameMode, Graphics
+from constants import GameMode, Graphics, Sounds
 from gameengine.animation import Animation
 from gameengine.basechild import BaseChild
 from gameengine.display import Display
@@ -61,4 +61,24 @@ class Bird(BaseChild):
                 self.speed.y = 0
 
             if GameState.game_mode == GameMode.DEAD:
-                ...
+                ground_line_offset = GameState.Config.ground_line - self.rect.height - 5
+                if self.rect.y > ground_line_offset:
+                    self.rect.y = ground_line_offset
+                    self.speed.y = 0
+
+            elif (
+                self.rect.y >= GameState.Config.ground_line - self.rect.height
+                and GameState.game_mode == GameMode.PLAYING
+            ):
+                self.rect.y = GameState.Config.ground_line - self.rect.height
+
+    def die(self):
+        GameState.game_mode = GameMode.DEAD
+        self.jump()
+
+    def jump(self):
+        if GameState.game_mode == GameMode.PLAYING:
+            pygame.mixer.Channel(0).play(Resources.Sound.get(Sounds.WING))
+
+        self.speed.y = GameState.Config.jump_speed
+        self.jump_counter = 0

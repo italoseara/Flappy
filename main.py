@@ -2,7 +2,7 @@ import os
 
 import pygame
 
-from constants import Graphics, Sounds
+from constants import DEFAULT_WIN_SIZE, Graphics, Sounds
 from gameengine.display import Display
 from gameengine.engine import Engine
 from gameengine.resources import Resources
@@ -11,11 +11,9 @@ from mainscene import MainScene
 
 
 class Program:
-    DEFAULT_WIN_SIZE = pygame.Vector2(960, 540)
-
     def __init__(self) -> None:
         Window.set_title("Flappy Bird Clone")
-        Window.set_size(self.DEFAULT_WIN_SIZE)
+        Window.set_size(DEFAULT_WIN_SIZE)
 
         self.load_assets()
 
