@@ -9,8 +9,6 @@ class MainScene(BaseScene):
 
         self.bg = (11, 200, 215)
 
-        self.is_paused = False
-
         self.add_children(Bird())
 
     def update(self):

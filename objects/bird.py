@@ -2,12 +2,13 @@ from math import sin
 
 import pygame
 
-from constants import Graphics
+from constants import GameMode, Graphics
 from gameengine.animation import Animation
 from gameengine.basechild import BaseChild
 from gameengine.display import Display
 from gameengine.engine import Engine
 from gameengine.resources import Resources
+from gamestate import GameState
 
 
 class Bird(BaseChild):
@@ -44,9 +45,20 @@ class Bird(BaseChild):
     def update(self):
         super().update()
 
-        if not self.parent.is_paused:
+        if not GameState.is_paused:
             self.jump_counter += Engine.deltatime
 
             self.rect.y += self.speed.y * Engine.deltatime
-            self.speed.y = sin(self.__idle_frames * Engine.deltatime * 3) * 30
-            self.__idle_frames += 1
+
+            if GameState.game_mode == GameMode.START:
+                self.speed.y = sin(self.__idle_frames * Engine.deltatime * 3) * 30
+                self.__idle_frames += 1
+            else:
+                self.speed.y += GameState.Config.gravity * Engine.deltatime
+
+            if self.rect.y < 0:
+                self.rect.y = 0
+                self.speed.y = 0
+
+            if GameState.game_mode == GameMode.DEAD:
+                ...

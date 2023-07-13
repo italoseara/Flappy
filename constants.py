@@ -1,5 +1,4 @@
-from enum import auto, IntEnum
-from dataclasses import dataclass
+from enum import Enum, IntEnum, auto
 
 
 class Graphics(IntEnum):
@@ -61,3 +60,9 @@ class Sounds(IntEnum):
     HIT = auto()
     POINT = auto()
     DIE = auto()
+
+
+class GameMode(Enum):
+    START = 0
+    PLAYING = 1
+    DEAD = 2
