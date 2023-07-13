@@ -1,6 +1,6 @@
 from constants import Graphics
 from gamestate import GameState
-from objects.scrolltile import ScrollTile
+from objects.background.scrolltile import ScrollTile
 
 
 class Clouds(ScrollTile):

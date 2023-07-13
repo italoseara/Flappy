@@ -1,16 +1,10 @@
-import pygame
-
-from constants import GameMode
 from gameengine.basescene import BaseScene
 from gameengine.engine import Engine
-from gameengine.keyboard import Keyboard
-from gameengine.mouse import Mouse
-from gamestate import GameState
+from objects.background.bush import Bush
+from objects.background.city import City
+from objects.background.clouds import Clouds
+from objects.background.floor import Floor
 from objects.bird import Bird
-from objects.bush import Bush
-from objects.city import City
-from objects.clouds import Clouds
-from objects.floor import Floor
 from objects.pausebutton import PauseButton
 
 
@@ -30,18 +24,5 @@ class MainScene(BaseScene):
     def update(self):
         if Engine.request_quit:
             Engine.system_exit()
-
-        if Mouse.get_pressed_in_frame(pygame.BUTTON_LEFT):
-            if GameState.game_mode == GameMode.START:
-                GameState.game_mode = GameMode.PLAYING
-
-            if GameState.game_mode == GameMode.PLAYING:
-                self.bird.jump()
-
-        should_pause = (
-            Keyboard.get_pressed(pygame.K_ESCAPE)
-            and GameState.game_mode != GameMode.DEAD
-            or ()
-        )
 
         super().update()

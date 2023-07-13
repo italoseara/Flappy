@@ -7,6 +7,7 @@ from gameengine.animation import Animation
 from gameengine.basechild import BaseChild
 from gameengine.display import Display
 from gameengine.engine import Engine
+from gameengine.mouse import Mouse
 from gameengine.resources import Resources
 from gamestate import GameState
 
@@ -79,8 +80,18 @@ class Bird(BaseChild):
                     (self.angle_target - self.rotation.angle) * 9.0 * Engine.deltatime
                 )
 
+            if Mouse.get_pressed_in_frame(pygame.BUTTON_LEFT):
+                if GameState.game_mode == GameMode.START:
+                    GameState.game_mode = GameMode.PLAYING
+
+                if GameState.game_mode == GameMode.PLAYING:
+                    self.jump()
+
     def die(self):
         GameState.game_mode = GameMode.DEAD
+        pygame.mixer.Channel(2).play(Resources.Sound.get(Sounds.HIT))
+        pygame.mixer.Channel(3).play(Resources.Sound.get(Sounds.DIE))
+
         self.jump()
 
     def jump(self):

@@ -11,19 +11,19 @@ class Animation:
         self.frames = frames
         self.fps = fps
         self.__count_dt = 0
-        self.__current_frame = 0
+        self.frame_index = 0
 
     @property
     def current_frame(self):
-        return self.frames[self.__current_frame]
+        return self.frames[self.frame_index]
 
     def update(self):
         if self.fps is not None:
             self.__count_dt += Engine.deltatime
             while self.__count_dt >= (static_dt := 1 / self.fps):
                 self.__count_dt -= static_dt
-                self.__current_frame += 1
-            self.__current_frame %= len(self.frames)
+                self.frame_index += 1
+            self.frame_index %= len(self.frames)
 
     @classmethod
     def from_assets(cls, fps, *assets):
