@@ -1,5 +1,6 @@
 from math import ceil
 
+from constants import GameMode
 from gameengine.basechild import BaseChild
 from gameengine.display import Display
 from gameengine.engine import Engine
@@ -27,7 +28,8 @@ class ScrollTile(BaseChild):
             self.image.blit(surf, (i * self.surf_w, 0))
 
     def update(self):
-        super().update()
+        if GameState.game_mode != GameMode.DEAD:
+            super().update()
 
-        self.rect.x += self.speed_x * Engine.deltatime
-        self.rect.x %= -self.surf_w
+            self.rect.x += self.speed_x * Engine.deltatime
+            self.rect.x %= -self.surf_w

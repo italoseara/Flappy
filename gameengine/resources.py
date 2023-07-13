@@ -1,7 +1,7 @@
+from io import BytesIO
 from os.path import abspath
 
 import pygame
-from io import BytesIO
 
 
 class Resources:
