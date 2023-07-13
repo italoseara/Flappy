@@ -1,7 +1,5 @@
 import os
 
-import pygame
-
 from constants import DEFAULT_WIN_SIZE, Graphics, Sounds
 from gameengine.display import Display
 from gameengine.engine import Engine

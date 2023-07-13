@@ -37,7 +37,6 @@ class Bird(BaseChild):
     def reset(self):
         self.__idle_frames = 0
         self.speed = pygame.Vector2(0, 0)
-        self.angle = 0
         self.angle_target = 0
         self.health = 0
         self.jump_counter = 0
@@ -71,6 +70,12 @@ class Bird(BaseChild):
                 and GameState.game_mode == GameMode.PLAYING
             ):
                 self.rect.y = GameState.Config.ground_line - self.rect.height
+
+            if GameState.game_mode != GameMode.START:
+                self.angle_target = 30 if self.jump_counter < 0.5 else -45
+                self.rotation.angle += (
+                    (self.angle_target - self.rotation.angle) * 9 * Engine.deltatime
+                )
 
     def die(self):
         GameState.game_mode = GameMode.DEAD
