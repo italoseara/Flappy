@@ -46,7 +46,7 @@ class Bird(BaseChild):
 
         if not GameState.is_paused:
             self.jump_counter += Engine.deltatime
-
+            
             self.rect.y += self.speed.y * Engine.deltatime
 
             if GameState.game_mode == GameMode.START:
@@ -70,11 +70,12 @@ class Bird(BaseChild):
                 and GameState.game_mode == GameMode.PLAYING
             ):
                 self.rect.y = GameState.Config.ground_line - self.rect.height
+                self.die()
 
             if GameState.game_mode != GameMode.START:
                 self.angle_target = 30 if self.jump_counter < 0.5 else -45
                 self.rotation.angle += (
-                    (self.angle_target - self.rotation.angle) * 9 * Engine.deltatime
+                    (self.angle_target - self.rotation.angle) * 9.0 * Engine.deltatime
                 )
 
     def die(self):

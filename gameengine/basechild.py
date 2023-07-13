@@ -43,6 +43,7 @@ class AnimatedChild:
 class BaseChild(HierarchicalObject, AnimatedChild, TransformedChild):
     image = None
     rect = None
+    offset = None
     bg = None
 
     def __init__(self, image):
@@ -53,6 +54,8 @@ class BaseChild(HierarchicalObject, AnimatedChild, TransformedChild):
         self.image = image
         self.surface = AnimatedChild._get_surface(self, image)
         self.rect = self.surface.get_frect()
+
+        # você precisa aplicar o offset só na rotação. boa sorte amigo
 
     def update_focus(self):
         pass

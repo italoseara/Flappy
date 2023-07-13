@@ -18,6 +18,7 @@ class Program:
         Display.update_display_from_window()
 
         Engine.set_scene(MainScene())
+        Engine.set_framerate(60)
 
     def load_assets(self):
         graphics_data = {
