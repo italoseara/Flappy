@@ -9,6 +9,7 @@ from objects.bird import Bird
 from objects.bush import Bush
 from objects.city import City
 from objects.clouds import Clouds
+from objects.floor import Floor
 
 
 class MainScene(BaseScene):
@@ -19,7 +20,7 @@ class MainScene(BaseScene):
 
         self.bird = Bird()
 
-        self.add_children(Clouds(), City(), Bush(), self.bird)
+        self.add_children(Clouds(), City(), Bush(), Floor(), self.bird)
 
     def update(self):
         if Engine.request_quit:

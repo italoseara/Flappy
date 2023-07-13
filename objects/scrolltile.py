@@ -8,14 +8,18 @@ from gamestate import GameState
 
 
 class ScrollTile(BaseChild):
-    def __init__(self, coeff, tile):
+    def __init__(self, coeff, tile, floor=False):
         surf = Resources.Surface.get(tile)
         self.surf_w = surf.get_width()
         surf_h = surf.get_height()
 
         super().__init__(Resources.Surface.new((Display.width + self.surf_w, surf_h)))
 
-        self.rect.bottom = GameState.Config.ground_line
+        ground_y = GameState.Config.ground_line
+        if floor:
+            self.rect.y = ground_y
+        else:
+            self.rect.bottom = ground_y
 
         self.speed_x = -GameState.Config.scroll_speed * coeff
 
