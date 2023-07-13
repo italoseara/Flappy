@@ -12,3 +12,4 @@ class GameState:
         scroll_speed = 200
         clouds_parallax_coeff = 0.1
         city_parallax_coeff = 0.3
+        bush_parallax_coeff = 0.4

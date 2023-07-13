@@ -6,6 +6,7 @@ from gameengine.engine import Engine
 from gameengine.mouse import Mouse
 from gamestate import GameState
 from objects.bird import Bird
+from objects.bush import Bush
 from objects.city import City
 from objects.clouds import Clouds
 
@@ -18,7 +19,7 @@ class MainScene(BaseScene):
 
         self.bird = Bird()
 
-        self.add_children(Clouds(), City(), self.bird)
+        self.add_children(Clouds(), City(), Bush(), self.bird)
 
     def update(self):
         if Engine.request_quit:
