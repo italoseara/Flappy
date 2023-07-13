@@ -25,24 +25,24 @@ class Display:
             pass
 
     @classproperty
-    def size(self):
-        return self.surface.get_size()
+    def size(cls):
+        return cls.surface.get_size()
 
     @classproperty
-    def width(self):
-        return self.surface.get_width()
+    def width(cls):
+        return cls.surface.get_width()
 
     @classproperty
-    def height(self):
-        return self.surface.get_height()
+    def height(cls):
+        return cls.surface.get_height()
 
     @classproperty
-    def rect(self):
-        return self.surface.get_rect()
+    def rect(cls):
+        return cls.surface.get_rect()
 
     @classmethod
-    def get_scale(self):
-        return self.ref_scale.xy
+    def get_scale(cls):
+        return cls.ref_scale.xy
 
     @classmethod
     def set_size(cls, size):
