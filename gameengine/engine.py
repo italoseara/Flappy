@@ -52,7 +52,7 @@ class Engine:
     @classmethod
     def draw_scene(cls):
         cls.scene.draw()
-        if Window.get_size() != Display.get_size():
+        if Window.size != Display.size:
             pygame.transform.scale(
                 Display.surface,
                 Window.size,

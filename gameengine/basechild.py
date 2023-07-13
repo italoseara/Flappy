@@ -54,8 +54,7 @@ class BaseChild(HierarchicalObject, AnimatedChild, TransformedChild):
         self.image = image
         self.surface = AnimatedChild._get_surface(self, image)
         self.rect = self.surface.get_frect()
-
-        # você precisa aplicar o offset só na rotação. boa sorte amigo
+        self.offset = pygame.Vector2(0, 0)
 
     def update_focus(self):
         pass
@@ -75,4 +74,6 @@ class BaseChild(HierarchicalObject, AnimatedChild, TransformedChild):
 
         HierarchicalObject.draw(self)
 
-        self.parent.surface.blit(self.surface, self.rect)
+        self.parent.surface.blit(
+            self.surface, (self.rect.x - self.offset.x, self.rect.y - self.offset.y)
+        )

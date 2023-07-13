@@ -12,8 +12,6 @@ from gamestate import GameState
 
 
 class Bird(BaseChild):
-    BIRD_CENTER_OFFSET_X = 50
-
     def __init__(self):
         super().__init__(
             Animation.from_assets(
@@ -22,10 +20,13 @@ class Bird(BaseChild):
                 Resources.Surface.get(Graphics.BIRD_F1),
             )
         )
+
+        self.offset.xy = self.rect.center
+
         self.rect.x = (
             Display.width / 2
             - Resources.Surface.get(Graphics.BIRD_F0).get_height() / 2
-            - self.BIRD_CENTER_OFFSET_X
+            - self.offset.x
         )
         self.rect.y = (
             Display.height / 2
@@ -46,7 +47,7 @@ class Bird(BaseChild):
 
         if not GameState.is_paused:
             self.jump_counter += Engine.deltatime
-            
+
             self.rect.y += self.speed.y * Engine.deltatime
 
             if GameState.game_mode == GameMode.START:
