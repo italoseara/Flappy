@@ -14,12 +14,7 @@ class MainScene(BaseScene):
 
         self.bg = (11, 200, 215)
 
-        self.pause_button = PauseButton()
-        self.bird = Bird()
-
-        self.add_children(
-            Clouds(), City(), Bush(), Floor(), self.bird, self.pause_button
-        )
+        self.add_children(Clouds(), City(), Bush(), PauseButton(), Bird(), Floor())
 
     def update(self):
         if Engine.request_quit:

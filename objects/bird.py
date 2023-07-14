@@ -62,16 +62,21 @@ class Bird(BaseChild):
                 self.speed.y = 0
 
             if GameState.game_mode == GameMode.DEAD:
-                ground_line_offset = GameState.Config.ground_line - self.rect.height - 5
+                ground_line_offset = (
+                    GameState.Config.ground_line - self.image.current_frame.get_height()
+                )
                 if self.rect.y > ground_line_offset:
                     self.rect.y = ground_line_offset
                     self.speed.y = 0
 
             elif (
-                self.rect.y >= GameState.Config.ground_line - self.rect.height
+                self.rect.y
+                >= GameState.Config.ground_line - self.image.current_frame.get_height()
                 and GameState.game_mode == GameMode.PLAYING
             ):
-                self.rect.y = GameState.Config.ground_line - self.rect.height
+                self.rect.y = (
+                    GameState.Config.ground_line - self.image.current_frame.get_height()
+                )
                 self.die()
 
             if GameState.game_mode != GameMode.START:

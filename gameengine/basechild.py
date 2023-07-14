@@ -17,7 +17,6 @@ class TransformedChild:
 
         def update(self, surface):
             if self.angle != 0:
-                self.angle %= 360
                 return pygame.transform.rotate(surface, self.angle)
             return surface
 

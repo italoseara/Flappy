@@ -31,7 +31,8 @@ class PauseButton(BaseChild):
         )
 
         if (
-            Keyboard.get_pressed(pygame.K_ESCAPE) or self.pressed
+            Keyboard.get_pressed_in_frame(pygame.KEYDOWN, pygame.K_ESCAPE)
+            or self.pressed
         ) and GameState.game_mode != GameMode.DEAD:
             GameState.is_paused = not GameState.is_paused
 
