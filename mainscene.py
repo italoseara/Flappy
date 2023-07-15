@@ -7,6 +7,7 @@ from objects.background.floor import Floor
 from objects.bird import Bird
 from objects.ui.message.msg_ready import MsgReady
 from objects.ui.pausebutton import PauseButton
+from objects.ui.startertip import StarterTip
 
 
 class MainScene(BaseScene):
@@ -16,7 +17,7 @@ class MainScene(BaseScene):
         self.bg = (11, 200, 215)
 
         bg = [Clouds(), City(), Bush()]
-        ui = [PauseButton(), MsgReady()]
+        ui = [PauseButton(), MsgReady(), StarterTip()]
 
         self.add_children(*bg, Bird(), Floor(), *ui)
 
