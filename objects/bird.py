@@ -45,6 +45,12 @@ class Bird(BaseChild):
         self.jump_counter = 0
 
     def update(self):
+        if GameState.game_mode == GameMode.DEAD:
+            if self.image.fps is not None:
+                self.image.fps = None
+        elif self.image.fps is None:
+            self.image.fps = 5
+
         super().update()
 
         if not GameState.is_paused:
