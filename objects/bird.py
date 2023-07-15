@@ -18,22 +18,16 @@ class Bird(BaseChild):
         super().__init__(
             Animation.from_assets(
                 5,
-                Resources.Surface.get(Graphics.BIRD_F0),
+                bird_f0 := Resources.Surface.get(Graphics.BIRD_F0),
                 Resources.Surface.get(Graphics.BIRD_F1),
             )
         )
 
-        self.offset.xy = self.rect.center
-
+        BIRD_CENTER_OFFSET_X = 50
         self.rect.x = (
-            Display.width / 2
-            - Resources.Surface.get(Graphics.BIRD_F0).get_height() / 2
-            - self.offset.x
+            Display.width / 2 - bird_f0.get_height() / 2 - BIRD_CENTER_OFFSET_X
         )
-        self.rect.y = (
-            Display.height / 2
-            - Resources.Surface.get(Graphics.BIRD_F0).get_height() / 2
-        )
+        self.rect.y = Display.height / 2 - bird_f0.get_height() / 2
 
         self.reset()
 
@@ -69,21 +63,15 @@ class Bird(BaseChild):
                 self.speed.y = 0
 
             if GameState.game_mode == GameMode.DEAD:
-                ground_line_offset = (
-                    GameState.Config.ground_line - self.image.current_frame.get_height()
-                )
-                if self.rect.y > ground_line_offset:
-                    self.rect.y = ground_line_offset
+                if self.rect.bottom > GameState.Config.ground_line:
+                    self.rect.bottom = GameState.Config.ground_line
                     self.speed.y = 0
 
             elif (
-                self.rect.y
-                >= GameState.Config.ground_line - self.image.current_frame.get_height()
+                self.rect.bottom >= GameState.Config.ground_line
                 and GameState.game_mode == GameMode.PLAYING
             ):
-                self.rect.y = (
-                    GameState.Config.ground_line - self.image.current_frame.get_height()
-                )
+                self.rect.bottom = GameState.Config.ground_line
                 self.die()
 
             if GameState.game_mode != GameMode.START:

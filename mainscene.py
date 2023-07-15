@@ -1,5 +1,8 @@
+import pygame
 from gameengine.basescene import BaseScene
+from gameengine.display import Display
 from gameengine.engine import Engine
+from gamestate import GameState
 from objects.background.bush import Bush
 from objects.background.city import City
 from objects.background.clouds import Clouds
@@ -26,3 +29,13 @@ class MainScene(BaseScene):
             Engine.system_exit()
 
         super().update()
+
+    def draw(self):
+        super().draw()
+        pygame.draw.line(
+            Display.surface,
+            (255, 0, 0),
+            (0, GameState.Config.ground_line),
+            (Display.width, GameState.Config.ground_line),
+        )
+        pygame.draw.rect(Display.surface, (255, 0, 0), self.children[3].rect, 1)
