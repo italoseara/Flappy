@@ -5,7 +5,7 @@ from objects.background.city import City
 from objects.background.clouds import Clouds
 from objects.background.floor import Floor
 from objects.bird import Bird
-from objects.pausebutton import PauseButton
+from objects.ui.pausebutton import PauseButton
 
 
 class MainScene(BaseScene):
@@ -14,7 +14,10 @@ class MainScene(BaseScene):
 
         self.bg = (11, 200, 215)
 
-        self.add_children(Clouds(), City(), Bush(), PauseButton(), Bird(), Floor())
+        bg = [Clouds(), City(), Bush()]
+        ui = [PauseButton()]
+
+        self.add_children(*bg, *ui, Bird(), Floor())
 
     def update(self):
         if Engine.request_quit:
