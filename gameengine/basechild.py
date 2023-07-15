@@ -45,7 +45,7 @@ class BaseChild(HierarchicalObject, AnimatedChild, TransformedChild):
     rect = None
     offset = None
     bg = None
-    
+
     active = None
     visible = None
 
@@ -58,7 +58,7 @@ class BaseChild(HierarchicalObject, AnimatedChild, TransformedChild):
         self.surface = AnimatedChild._get_surface(self, image)
         self.rect = self.surface.get_frect()
         self.offset = pygame.Vector2(0, 0)
-        
+
         self.visible = True
         self.active = True
 
@@ -84,5 +84,6 @@ class BaseChild(HierarchicalObject, AnimatedChild, TransformedChild):
                 HierarchicalObject.draw(self)
 
                 self.parent.surface.blit(
-                    self.surface, (self.rect.x - self.offset.x, self.rect.y - self.offset.y)
+                    self.surface,
+                    (self.rect.x - self.offset.x, self.rect.y - self.offset.y),
                 )
