@@ -41,9 +41,13 @@ class AnimatedChild:
 
 class BaseChild(HierarchicalObject, AnimatedChild, TransformedChild):
     image = None
+    surface = None
     rect = None
     offset = None
     bg = None
+    
+    active = None
+    visible = None
 
     def __init__(self, image):
         HierarchicalObject.__init__(self)
@@ -54,25 +58,31 @@ class BaseChild(HierarchicalObject, AnimatedChild, TransformedChild):
         self.surface = AnimatedChild._get_surface(self, image)
         self.rect = self.surface.get_frect()
         self.offset = pygame.Vector2(0, 0)
+        
+        self.visible = True
+        self.active = True
 
     def update_focus(self):
         pass
 
     def update(self):
-        AnimatedChild.update(self, self.image)
-        self.surface = AnimatedChild._get_surface(self, self.image)
-        self.surface = TransformedChild.update(self, self.surface)
+        if self.active:
+            AnimatedChild.update(self, self.image)
+            self.surface = AnimatedChild._get_surface(self, self.image)
+            self.surface = TransformedChild.update(self, self.surface)
 
-        self.rect.size = self.surface.get_size()
+            self.rect.size = self.surface.get_size()
 
-        HierarchicalObject.update(self)
+            HierarchicalObject.update(self)
 
     def draw(self):
-        if self.bg is not None:
-            self.image.fill(self.bg)
+        if self.active:
+            if self.active:
+                if self.bg is not None:
+                    self.image.fill(self.bg)
 
-        HierarchicalObject.draw(self)
+                HierarchicalObject.draw(self)
 
-        self.parent.surface.blit(
-            self.surface, (self.rect.x - self.offset.x, self.rect.y - self.offset.y)
-        )
+                self.parent.surface.blit(
+                    self.surface, (self.rect.x - self.offset.x, self.rect.y - self.offset.y)
+                )

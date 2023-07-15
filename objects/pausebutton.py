@@ -26,6 +26,8 @@ class PauseButton(BaseChild):
         self.pressed = False
 
     def update(self):
+        self.active = GameState.game_mode == GameMode.PLAYING
+        
         self.pressed = self.rect.collidepoint(Mouse.pos) and Mouse.get_pressed_in_frame(
             pygame.BUTTON_LEFT
         )
