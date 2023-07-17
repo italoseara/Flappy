@@ -17,7 +17,6 @@ class HierarchicalObject:
     def kill(self):
         if self.parent is not None:
             self.parent.children.remove(self)
-            self.parent = None
 
     def update(self):
         for child in list(self.children):

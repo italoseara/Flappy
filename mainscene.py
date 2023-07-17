@@ -6,6 +6,7 @@ from objects.background.city import City
 from objects.background.clouds import Clouds
 from objects.background.floor import Floor
 from objects.bird import Bird
+from objects.pipes import PipeGenerator
 from objects.ui.message.msg_ready import MsgReady
 from objects.ui.pausebutton import PauseButton
 from objects.ui.startertip import StarterTip
@@ -21,7 +22,7 @@ class MainScene(BaseScene):
         buttons = [PauseButton()]
         ui = [MsgReady(), StarterTip()]
 
-        self.add_children(*bg, *buttons, Bird(), Floor(), *ui)
+        self.add_children(*bg, PipeGenerator(), *buttons, Bird(), Floor(), *ui)
 
     def update(self):
         if self.program.request_quit:
