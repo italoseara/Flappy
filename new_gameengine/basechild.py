@@ -8,7 +8,7 @@ from .hierarchicalobject import HierarchicalObject
 class HitBox:
     def __init__(self, child, rect):
         self.update(child, rect)
-    
+
     def update(self, surface, rect):
         self.rect = surface.get_bounding_rect()
         self.rect.x += rect.x
@@ -18,7 +18,7 @@ class HitBox:
 class Rotation:
     def __init__(self):
         self.angle = 0
-        
+
     def update(self, target):
         if self.angle != 0:
             target.surface = pygame.transform.rotate(target.surface, self.angle)
@@ -37,10 +37,10 @@ class BaseChild(HierarchicalObject):
     active = None
     visible = None
 
-    def __init__(self, image, program):
+    def __init__(self, program, image):
         HierarchicalObject.__init__(self, program)
 
-        if image.__class__ == Animation:
+        if type(image) is Animation:
             self.animation = image
             self.surface = image.current_frame
         else:
@@ -49,8 +49,7 @@ class BaseChild(HierarchicalObject):
         self.offset = pygame.Vector2(0, 0)
         self.hitbox = HitBox(self.surface, self.rect)
         self.rotation = Rotation()
-        
-        
+
         self.visible = True
         self.active = True
 

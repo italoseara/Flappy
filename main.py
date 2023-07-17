@@ -1,26 +1,21 @@
 import os
 
-import pygame
-
 from constants import DEFAULT_WIN_SIZE, Graphics, Sounds
-from gameengine.display import Display
-from gameengine.engine import Engine
-from gameengine.resources import Resources
-from gameengine.window import Window
+from new_gameengine import resources
 from mainscene import MainScene
+from new_gameengine.engine import Program
+from new_gameengine.window import Window
 
 
-class Program:
-    def __init__(self) -> None:
-        Window.set_title("Flappy Bird Clone")
-        Window.set_size(DEFAULT_WIN_SIZE, True)
+class Flappy(Program):
+    def __init__(self):
+        super().__init__(Window(DEFAULT_WIN_SIZE), 60)
+
+        self.window.set_title("Flappy Bird Clone")
 
         self.load_assets()
 
-        Display.update_display_from_window()
-
-        Engine.set_scene(MainScene())
-        Engine.set_framerate(60)
+        self.set_scene(MainScene(self))
 
     def load_assets(self):
         graphics_data = {
@@ -79,7 +74,7 @@ class Program:
         graphics_path = "assets/images/"
 
         for enum, path in graphics_data.items():
-            Resources.Surface.add_from_file(enum, os.path.join(graphics_path, path))
+            resources.surface.add_from_file(enum, os.path.join(graphics_path, path))
 
         sounds_data = {
             Sounds.WING: "wing.wav",
@@ -90,11 +85,11 @@ class Program:
         sounds_path = "assets/audio/"
 
         for enum, path in sounds_data.items():
-            Resources.Sound.add_from_file(enum, os.path.join(sounds_path, path))
+            resources.sound.add_from_file(enum, os.path.join(sounds_path, path))
 
     def start(self):
-        Engine.start_loop()
+        self.start_loop()
 
 
 if __name__ == "__main__":
-    Program().start()
+    Flappy().start()

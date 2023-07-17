@@ -1,4 +1,3 @@
-
 class HierarchicalObject:
     parent = None
     program = None

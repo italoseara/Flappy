@@ -1,6 +1,3 @@
-from gameengine.engine import Engine
-
-
 class Animation:
     # SPRITESHEET_MODE = enum.auto()
     # ASSETS_MODE = enum.auto()
@@ -19,11 +16,12 @@ class Animation:
         return self.frames[self.frame_index].copy()
 
     @property
-    def paused(self): return self.__pause
+    def paused(self):
+        return self.__pause
 
     def pause(self):
         self.__pause = True
-    
+
     def unpause(self):
         self.__pause = False
 
@@ -33,8 +31,8 @@ class Animation:
             while self.__count_dt >= (static_dt := 1 / self.fps):
                 self.__count_dt -= static_dt
                 self.frame_index += 1
+                self.frame_index %= len(self.frames)
                 child.surface = self.current_frame
-            self.frame_index %= len(self.frames)
 
     @classmethod
     def from_assets(cls, fps, *assets):

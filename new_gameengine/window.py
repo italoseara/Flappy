@@ -66,6 +66,17 @@ class Window(Metrics):
         self.set_size(size, *flags)
         self.display = Display(size, self)
 
+    def update(self):
+        if self.display.size != self.size:
+            pygame.transform.scale(
+                self.display.surface,
+                self.size,
+                self.surface,
+            )
+        else:
+            self.surface.blit(self.display.surface, (0, 0))
+        pygame.display.update()
+
     def set_size(self, size, *flags):
         flag = pygame.SRCALPHA
         for f in flags:
