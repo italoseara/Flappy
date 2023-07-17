@@ -34,14 +34,34 @@ class Pipe(BaseChild):
 
 
 class PipeGenerator(HierarchicalObject):
+    def __init__(self):
+        super().__init__()
+
+        self.bird_inside = False
+        self.pipes_align_bird = []
+
     def update(self):
         if not (state.is_paused or state.game_mode == GameMode.DEAD):
             super().update()
+            self.bird_inside = False
+            self.pipes_align_bird.clear()
+            for i in range(0, len(self.children), 2):
+                r = self.children[i].hitbox.rect.copy()
+                r.y = 0
+                r.height = self.program.window.display.height
+
+                b_r = self.program.scene.bird.hitbox.rect
+                if b_r.colliderect(r):
+                    self.bird_inside = True
+                    self.pipes_align_bird.append(self.children[i])
+                    self.pipes_align_bird.append(self.children[i + 1])
+                    break
+
             if len(self.children) == 0:
                 if state.game_mode == GameMode.PLAYING:
                     self.generate_pipe()
             elif (
-                self.children[-1].rect.right - self.program.window.display.width
+                self.children[-1].rect.x - self.program.window.display.width
             ) <= -state.pipe_x_spacing:
                 self.generate_pipe()
 

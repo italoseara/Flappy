@@ -23,9 +23,9 @@ class Bird(BaseChild):
 
         display = self.program.window.display
         self.rect.x = (
-            display.width / 2 - bird_f0.get_height() / 2 - BIRD_CENTER_OFFSET_X
+            display.rect.centerx - bird_f0.get_height() / 2 - BIRD_CENTER_OFFSET_X
         )
-        self.rect.y = display.height / 2 - bird_f0.get_height() / 2
+        self.rect.centery = display.rect.centery
 
         self.reset()
 
@@ -60,13 +60,16 @@ class Bird(BaseChild):
                 if self.rect.y > ground_line_offset:
                     self.rect.y = ground_line_offset
                     self.speed.y = 0
-
             elif (
                 self.rect.y >= state.config.ground_line - self.hitbox.rect.h
                 and state.game_mode == GameMode.PLAYING
             ):
                 self.rect.y = state.config.ground_line - self.hitbox.rect.h
                 self.die()
+            elif (pipe_generator := self.program.scene.pipe_generator).bird_inside:
+                for pipe in pipe_generator.pipes_align_bird:
+                    if pipe.hitbox.rect.colliderect(self.hitbox.rect):
+                        self.die()
 
             if state.game_mode != GameMode.START:
                 self.angle_target = 30 if self.jump_counter < 0.5 else -45

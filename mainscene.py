@@ -22,7 +22,10 @@ class MainScene(BaseScene):
         buttons = [PauseButton()]
         ui = [MsgReady(), StarterTip()]
 
-        self.add_children(*bg, PipeGenerator(), *buttons, Bird(), Floor(), *ui)
+        self.bird = Bird()
+        self.pipe_generator = PipeGenerator()
+
+        self.add_children(*bg, self.pipe_generator, *buttons, self.bird, Floor(), *ui)
 
     def update(self):
         if self.program.request_quit:
