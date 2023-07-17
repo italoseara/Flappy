@@ -1,7 +1,6 @@
 import pygame
 
 from gameengine.scene import BaseScene
-from gamestate import GameState
 from objects.background.bush import Bush
 from objects.background.city import City
 from objects.background.clouds import Clouds
@@ -19,9 +18,10 @@ class MainScene(BaseScene):
         self.bg = (11, 200, 215)
 
         bg = [Clouds(), City(), Bush()]
-        ui = [PauseButton(), MsgReady(), StarterTip()]
+        buttons = [PauseButton()]
+        ui = [MsgReady(), StarterTip()]
 
-        self.add_children(*bg, *ui, Bird(), Floor())
+        self.add_children(*bg, *buttons, Bird(), Floor(), *ui)
 
     def update(self):
         if self.program.request_quit:
@@ -29,15 +29,3 @@ class MainScene(BaseScene):
             raise SystemExit(0)
 
         super().update()
-
-    def draw(self):
-        super().draw()
-        display = self.program.window.display
-        pygame.draw.line(
-            self.surface,
-            (255, 0, 0),
-            (0, GameState.Config.ground_line),
-            (display.width, GameState.Config.ground_line),
-        )
-        pygame.draw.rect(display.surface, (0, 0, 255), self.children[-2].hitbox.rect, 1)
-        pygame.draw.rect(display.surface, (255, 0, 0), self.children[-2].rect, 1)

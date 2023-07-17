@@ -1,7 +1,7 @@
+import state
 from constants import GameMode, Graphics
 from gameengine import resources
 from gameengine.basechild import BaseChild
-from gamestate import GameState
 
 
 class StarterTip(BaseChild):
@@ -11,6 +11,6 @@ class StarterTip(BaseChild):
         self.rect.y = 200
 
     def update(self):
-        self.active = GameState.game_mode == GameMode.START
+        self.active = state.game_mode == GameMode.START
 
         super().update()

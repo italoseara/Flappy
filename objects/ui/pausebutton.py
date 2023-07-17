@@ -1,10 +1,10 @@
 import pygame
 
+import state
 from constants import GameMode, Graphics
 from gameengine import resources
 from gameengine.animation import Animation
 from gameengine.basechild import BaseChild
-from gamestate import GameState
 
 
 class PauseButton(BaseChild):
@@ -24,7 +24,7 @@ class PauseButton(BaseChild):
         self.pressed = False
 
     def update(self):
-        self.active = GameState.game_mode == GameMode.PLAYING
+        self.active = state.game_mode == GameMode.PLAYING
 
         if self.active:
             self.pressed = (
@@ -34,10 +34,10 @@ class PauseButton(BaseChild):
                 pygame.KEYDOWN, pygame.K_ESCAPE
             )
 
-            if self.pressed and GameState.game_mode != GameMode.DEAD:
-                GameState.is_paused = not GameState.is_paused
+            if self.pressed and state.game_mode != GameMode.DEAD:
+                state.is_paused = not state.is_paused
 
-            if GameState.is_paused:
+            if state.is_paused:
                 self.animation.frame_index = 1
             else:
                 self.animation.frame_index = 0
