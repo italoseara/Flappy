@@ -5,8 +5,8 @@ from gamestate import GameState
 
 
 class MsgReady(BaseChild):
-    def __init__(self, program):
-        super().__init__(program, resources.surface.get(Graphics.MSG_READY))
+    def __init__(self):
+        super().__init__(resources.surface.get(Graphics.MSG_READY))
         self.rect.x = 222
         self.rect.y = 20
 

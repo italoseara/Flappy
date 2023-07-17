@@ -13,15 +13,15 @@ from objects.ui.startertip import StarterTip
 
 
 class MainScene(BaseScene):
-    def __init__(self, program):
-        super().__init__(program)
+    def __init__(self):
+        super().__init__()
 
         self.bg = (11, 200, 215)
 
-        bg = [Clouds(program), City(program), Bush(program)]
-        ui = [PauseButton(program), MsgReady(program), StarterTip(program)]
+        bg = [Clouds(), City(), Bush()]
+        ui = [PauseButton(), MsgReady(), StarterTip()]
 
-        self.add_children(*bg, *ui, Bird(program), Floor(program))
+        self.add_children(*bg, *ui, Bird(), Floor())
 
     def update(self):
         if self.program.request_quit:

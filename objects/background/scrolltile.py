@@ -7,16 +7,14 @@ from gamestate import GameState
 
 
 class ScrollTile(BaseChild):
-    def __init__(self, program, coeff, tile, floor=False):
+    def __init__(self, coeff, tile, floor=False):
         surf = resources.surface.get(tile)
         self.surf_w = surf.get_width()
         surf_h = surf.get_height()
 
-        display = program.window.display
+        display = self.program.window.display
 
-        super().__init__(
-            program, resources.surface.new((display.width + self.surf_w, surf_h))
-        )
+        super().__init__(resources.surface.new((display.width + self.surf_w, surf_h)))
 
         ground_y = GameState.Config.ground_line
         if floor:

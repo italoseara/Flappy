@@ -37,8 +37,8 @@ class BaseChild(HierarchicalObject):
     active = None
     visible = None
 
-    def __init__(self, program, image):
-        HierarchicalObject.__init__(self, program)
+    def __init__(self, image):
+        HierarchicalObject.__init__(self)
 
         if type(image) is Animation:
             self.animation = image

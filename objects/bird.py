@@ -10,9 +10,8 @@ from gamestate import GameState
 
 
 class Bird(BaseChild):
-    def __init__(self, program):
+    def __init__(self):
         super().__init__(
-            program,
             Animation.from_assets(
                 5,
                 bird_f0 := resources.surface.get(Graphics.BIRD_F0),

@@ -8,9 +8,8 @@ from gamestate import GameState
 
 
 class PauseButton(BaseChild):
-    def __init__(self, program):
+    def __init__(self):
         super().__init__(
-            program,
             Animation.from_assets(
                 1,
                 resources.surface.get(Graphics.BTN_PAUSE_NORMAL),

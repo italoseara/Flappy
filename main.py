@@ -15,7 +15,7 @@ class Flappy(Program):
 
         self.load_assets()
 
-        self.set_scene(MainScene(self))
+        self.set_scene(MainScene())
 
     def load_assets(self):
         graphics_data = {

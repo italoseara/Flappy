@@ -1,5 +1,7 @@
 import pygame
 
+from .hierarchicalobject import HierarchicalObject
+
 from .devices import Devices
 from .scene import BaseScene
 from .window import Window
@@ -42,12 +44,14 @@ class Program:
     request_quit = False
 
     def __init__(self, window: Window, framerate=30):
+        HierarchicalObject.program = self
+
         self.window = window
         self.time = TimeManager(framerate)
         self.devices = Devices()
         self.event = EventsManager()
 
-        self.scene = DefaultScene(self)
+        self.scene = DefaultScene()
 
     def set_scene(self, new_scene):
         self.scene = new_scene

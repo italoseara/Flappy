@@ -2,9 +2,8 @@ class HierarchicalObject:
     parent = None
     program = None
 
-    def __init__(self, program) -> None:
+    def __init__(self) -> None:
         self.children = []
-        self.program = program
 
     def add_children(self, *children):
         for child in children:
