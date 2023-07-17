@@ -1,4 +1,5 @@
 import pygame
+
 from gameengine.basescene import BaseScene
 from gameengine.display import Display
 from gameengine.engine import Engine
@@ -39,3 +40,4 @@ class MainScene(BaseScene):
             (Display.width, GameState.Config.ground_line),
         )
         pygame.draw.rect(Display.surface, (255, 0, 0), self.children[3].rect, 1)
+        pygame.draw.rect(Display.surface, (255, 0, 0), self.children[3].hitbox.rect, 1)

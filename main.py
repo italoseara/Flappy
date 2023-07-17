@@ -1,5 +1,7 @@
 import os
 
+import pygame
+
 from constants import DEFAULT_WIN_SIZE, Graphics, Sounds
 from gameengine.display import Display
 from gameengine.engine import Engine
@@ -11,7 +13,7 @@ from mainscene import MainScene
 class Program:
     def __init__(self) -> None:
         Window.set_title("Flappy Bird Clone")
-        Window.set_size(DEFAULT_WIN_SIZE)
+        Window.set_size(DEFAULT_WIN_SIZE, True)
 
         self.load_assets()
 

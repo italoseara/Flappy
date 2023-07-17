@@ -39,15 +39,8 @@ class Bird(BaseChild):
         self.jump_counter = 0
 
     def update(self):
-        if GameState.game_mode == GameMode.DEAD:
-            if self.image.fps is not None:
-                self.image.fps = None
-        elif self.image.fps is None:
-            self.image.fps = 5
-
-        super().update()
-
         if not GameState.is_paused:
+            super().update()
             self.jump_counter += Engine.deltatime
 
             self.rect.y += self.speed.y * Engine.deltatime
@@ -63,15 +56,15 @@ class Bird(BaseChild):
                 self.speed.y = 0
 
             if GameState.game_mode == GameMode.DEAD:
-                if self.rect.bottom > GameState.Config.ground_line:
-                    self.rect.bottom = GameState.Config.ground_line
+                if self.hitbox.rect.bottom > GameState.Config.ground_line:
+                    self.rect.y -= self.hitbox.rect.bottom - GameState.Config.ground_line
                     self.speed.y = 0
 
             elif (
-                self.rect.bottom >= GameState.Config.ground_line
+                self.hitbox.rect.bottom >= GameState.Config.ground_line
                 and GameState.game_mode == GameMode.PLAYING
             ):
-                self.rect.bottom = GameState.Config.ground_line
+                self.rect.y = GameState.Config.ground_line - self.hitbox.rect.h
                 self.die()
 
             if GameState.game_mode != GameMode.START:
@@ -82,9 +75,9 @@ class Bird(BaseChild):
 
             if (
                 Mouse.get_pressed_in_frame(pygame.BUTTON_LEFT)
-                or Keyboard.get_pressed_in_frame(pygame.KEYUP, pygame.K_SPACE)
-                or Keyboard.get_pressed_in_frame(pygame.KEYUP, pygame.K_w)
-                or Keyboard.get_pressed_in_frame(pygame.KEYUP, pygame.K_UP)
+                or Keyboard.get_pressed_in_frame(pygame.KEYDOWN, pygame.K_SPACE)
+                or Keyboard.get_pressed_in_frame(pygame.KEYDOWN, pygame.K_w)
+                or Keyboard.get_pressed_in_frame(pygame.KEYDOWN, pygame.K_UP)
             ):
                 if GameState.game_mode == GameMode.START:
                     GameState.game_mode = GameMode.PLAYING
@@ -96,6 +89,8 @@ class Bird(BaseChild):
         GameState.game_mode = GameMode.DEAD
         pygame.mixer.Channel(2).play(Resources.Sound.get(Sounds.HIT))
         pygame.mixer.Channel(3).play(Resources.Sound.get(Sounds.DIE))
+
+        self.image.pause()
 
         self.jump()
 

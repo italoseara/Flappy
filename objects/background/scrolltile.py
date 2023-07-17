@@ -28,7 +28,7 @@ class ScrollTile(BaseChild):
             self.image.blit(surf, (i * self.surf_w, 0))
 
     def update(self):
-        if GameState.game_mode != GameMode.DEAD:
+        if GameState.game_mode != GameMode.DEAD and not GameState.is_paused:
             super().update()
 
             self.rect.x += self.speed_x * Engine.deltatime

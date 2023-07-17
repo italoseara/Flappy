@@ -23,6 +23,7 @@ class TransformedChild:
 
 class AnimatedChild:
     has_animation = False
+    animation = None
 
     def __init__(self, image):
         self.__check_animation(image)
@@ -37,6 +38,16 @@ class AnimatedChild:
         self.__check_animation(image)
         if self.has_animation:
             image.update()
+
+
+class HitBox:
+    def __init__(self, child, rect):
+        self.update(child, rect)
+    
+    def update(self, surface, rect):
+        self.rect = surface.get_bounding_rect()
+        self.rect.x += rect.x
+        self.rect.y += rect.y
 
 
 class BaseChild(HierarchicalObject, AnimatedChild, TransformedChild):
@@ -58,7 +69,7 @@ class BaseChild(HierarchicalObject, AnimatedChild, TransformedChild):
         self.surface = AnimatedChild._get_surface(self, image)
         self.rect = self.surface.get_frect()
         self.offset = pygame.Vector2(0, 0)
-
+        self.hitbox = HitBox(self.surface, self.rect)
         self.visible = True
         self.active = True
 
@@ -70,14 +81,13 @@ class BaseChild(HierarchicalObject, AnimatedChild, TransformedChild):
             AnimatedChild.update(self, self.image)
             self.surface = AnimatedChild._get_surface(self, self.image)
             self.surface = TransformedChild.update(self, self.surface)
-
             self.rect.size = self.surface.get_size()
-
             HierarchicalObject.update(self)
 
     def draw(self):
         if self.active:
-            if self.active:
+            if self.visible:
+                self.hitbox.update(self.surface, self.rect)
                 if self.bg is not None:
                     self.image.fill(self.bg)
 

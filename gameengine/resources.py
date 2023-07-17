@@ -5,20 +5,6 @@ import pygame
 
 
 class Resources:
-    class Scenes:
-        scenes = {}
-
-        @classmethod
-        def add(cls, name, pygame_group, *args, **kwargs):
-            def call():
-                return pygame_group(*args, **kwargs)
-
-            cls.scenes[name] = call
-
-        @classmethod
-        def get(cls, name):
-            return cls.scenes[name]()
-
     class Surface:
         surfaces = {}
 
