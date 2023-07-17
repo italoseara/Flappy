@@ -3,9 +3,9 @@ from math import sin
 import pygame
 
 from constants import GameMode, Graphics, Sounds
-from new_gameengine.animation import Animation
-from new_gameengine.basechild import BaseChild
-from new_gameengine import resources
+from gameengine import resources
+from gameengine.animation import Animation
+from gameengine.basechild import BaseChild
 from gamestate import GameState
 
 

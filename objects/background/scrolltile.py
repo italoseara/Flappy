@@ -1,8 +1,8 @@
 from math import ceil
 
 from constants import GameMode
-from new_gameengine.basechild import BaseChild
-from new_gameengine import resources
+from gameengine import resources
+from gameengine.basechild import BaseChild
 from gamestate import GameState
 
 

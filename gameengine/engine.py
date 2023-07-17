@@ -1,8 +1,7 @@
 import pygame
 
-from .hierarchicalobject import HierarchicalObject
-
 from .devices import Devices
+from .hierarchicalobject import HierarchicalObject
 from .scene import BaseScene
 from .window import Window
 

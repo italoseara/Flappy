@@ -1,10 +1,10 @@
 import os
 
 from constants import DEFAULT_WIN_SIZE, Graphics, Sounds
-from new_gameengine import resources
+from gameengine import resources
+from gameengine.engine import Program
+from gameengine.window import Window
 from mainscene import MainScene
-from new_gameengine.engine import Program
-from new_gameengine.window import Window
 
 
 class Flappy(Program):

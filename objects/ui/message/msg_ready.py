@@ -1,6 +1,6 @@
 from constants import GameMode, Graphics
-from new_gameengine.basechild import BaseChild
-from new_gameengine import resources
+from gameengine import resources
+from gameengine.basechild import BaseChild
 from gamestate import GameState
 
 

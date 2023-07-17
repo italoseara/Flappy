@@ -1,6 +1,6 @@
 import pygame
 
-from new_gameengine.animation import Animation
+from gameengine.animation import Animation
 
 from .hierarchicalobject import HierarchicalObject
 
@@ -62,6 +62,7 @@ class BaseChild(HierarchicalObject):
                 self.animation.update(self)
                 self.surface = self.animation.current_frame
             self.rotation.update(self)
+            self.rect.size = self.surface.get_size()
             HierarchicalObject.update(self)
 
     def draw(self):

@@ -1,6 +1,6 @@
 import pygame
 
-from new_gameengine.scene import BaseScene
+from gameengine.scene import BaseScene
 from gamestate import GameState
 from objects.background.bush import Bush
 from objects.background.city import City
@@ -39,5 +39,5 @@ class MainScene(BaseScene):
             (0, GameState.Config.ground_line),
             (display.width, GameState.Config.ground_line),
         )
+        pygame.draw.rect(display.surface, (0, 0, 255), self.children[-2].hitbox.rect, 1)
         pygame.draw.rect(display.surface, (255, 0, 0), self.children[-2].rect, 1)
-        pygame.draw.rect(display.surface, (255, 0, 0), self.children[-2].hitbox.rect, 1)
