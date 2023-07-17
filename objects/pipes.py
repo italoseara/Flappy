@@ -43,7 +43,6 @@ class PipeGenerator(HierarchicalObject):
     def update(self):
         if not (state.is_paused or state.game_mode == GameMode.DEAD):
             super().update()
-            self.bird_inside = False
             self.pipes_align_bird.clear()
             for i in range(0, len(self.children), 2):
                 r = self.children[i].hitbox.rect.copy()
@@ -51,10 +50,15 @@ class PipeGenerator(HierarchicalObject):
                 r.height = self.program.window.display.height
 
                 b_r = self.program.scene.bird.hitbox.rect
-                if b_r.colliderect(r):
-                    self.bird_inside = True
+                old_bird_inside = self.bird_inside
+                self.bird_inside = b_r.colliderect(r)
+                if self.bird_inside:
                     self.pipes_align_bird.append(self.children[i])
                     self.pipes_align_bird.append(self.children[i + 1])
+                    break
+                elif old_bird_inside:
+                    big_font = self.program.scene.big_font
+                    big_font.set_text(int(big_font.text) + 1)
                     break
 
             if len(self.children) == 0:

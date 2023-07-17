@@ -93,6 +93,8 @@ class Bird(BaseChild):
             ):
                 if state.game_mode == GameMode.START:
                     state.game_mode = GameMode.PLAYING
+                    big_font = self.program.scene.big_font
+                    big_font.set_text("0")
 
                 if state.game_mode == GameMode.PLAYING:
                     self.jump()
