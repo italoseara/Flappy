@@ -1,8 +1,10 @@
 import enum
 import random
 
+import pygame
+
 import state
-from constants import GameMode, Graphics
+from constants import GameMode, Graphics, Sounds
 from gameengine import resources
 from gameengine.basechild import BaseChild
 from gameengine.hierarchicalobject import HierarchicalObject
@@ -37,28 +39,33 @@ class PipeGenerator(HierarchicalObject):
     def __init__(self):
         super().__init__()
 
-        self.bird_inside = False
         self.pipes_align_bird = []
+        self.bird_inside = False
+        self.last_pipe_punctuated = None
 
     def update(self):
         if not (state.is_paused or state.game_mode == GameMode.DEAD):
             super().update()
             self.pipes_align_bird.clear()
             for i in range(0, len(self.children), 2):
-                r = self.children[i].hitbox.rect.copy()
+                r = (next_last_pipe := self.children[i]).hitbox.rect.copy()
                 r.y = 0
                 r.height = self.program.window.display.height
 
                 b_r = self.program.scene.bird.hitbox.rect
-                old_bird_inside = self.bird_inside
                 self.bird_inside = b_r.colliderect(r)
                 if self.bird_inside:
                     self.pipes_align_bird.append(self.children[i])
                     self.pipes_align_bird.append(self.children[i + 1])
-                    break
-                elif old_bird_inside:
-                    big_font = self.program.scene.big_font
-                    big_font.set_text(int(big_font.text) + 1)
+                    if len(self.pipes_align_bird) > 0:
+                        if self.last_pipe_punctuated not in self.pipes_align_bird:
+                            if b_r.right > r.right:
+                                big_font = self.program.scene.big_font
+                                big_font.set_text(int(big_font.text) + 1)
+                                pygame.mixer.Channel(1).play(
+                                    resources.sound.get(Sounds.POINT)
+                                )
+                                self.last_pipe_punctuated = next_last_pipe
                     break
 
             if len(self.children) == 0:

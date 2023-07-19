@@ -24,21 +24,23 @@ class MainScene(BaseScene):
         bg = [Clouds(), City(), Bush()]
         buttons = [PauseButton()]
         ui = [MsgReady(), StarterTip()]
-        
 
-        self.big_font = BigFont(font_dict={
-                str(i): resources.surface.surfaces.get(eval(f"Graphics.CHAR_B{i}")) for i in range(10)
+        self.big_font = BigFont(
+            font_dict={
+                str(i): resources.surface.get(eval(f"Graphics.CHAR_B{i}"))
+                for i in range(10)
             },
-            padding_px=3)
+            padding_px=3,
+        )
 
-        labels = [
-            self.big_font,
-        ]
+        labels = [self.big_font]
 
         self.bird = Bird()
         self.pipe_generator = PipeGenerator()
 
-        self.add_children(*bg, self.pipe_generator, *buttons, self.bird, Floor(), *ui, *labels)
+        self.add_children(
+            *bg, self.pipe_generator, *buttons, self.bird, Floor(), *ui, *labels
+        )
 
     def update(self):
         if self.program.request_quit:
