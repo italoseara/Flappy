@@ -1,8 +1,0 @@
-# Arquivos gerados pelo python
-**/__pycache__
-**/.mypy_cache
-src/save
-
-# Arquivos de IDEs
-.idea
-.vscode
