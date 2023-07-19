@@ -12,8 +12,8 @@ class Flappy(Program):
         super().__init__(Window(DEFAULT_WIN_SIZE), 60)
 
         self.window.set_title("Flappy Bird Clone")
-
         self.load_assets()
+        self.window.set_icon(resources.surface.get(Graphics.ICON))
 
         self.set_scene(MainScene())
 

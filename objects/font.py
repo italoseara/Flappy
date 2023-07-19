@@ -59,15 +59,17 @@ class SpriteFont(HierarchicalObject):
         self.update_size()
 
 
-class BigFontScore(SpriteFont):
+class ScoreLabel(SpriteFont):
+    @property
+    def score(self):
+        return int(self.text)
+
+
+class BigFontScore(ScoreLabel):
     def __init__(self, font_dict, padding_px, scale=1):
         super().__init__(font_dict, padding_px, scale)
 
         self.set_text("0")
-
-    @property
-    def score(self):
-        return int(self.text)
 
     def increase_score(self):
         self.set_text(self.score + 1)
