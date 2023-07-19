@@ -10,6 +10,7 @@ from objects.background.floor import Floor
 from objects.bird import Bird
 from objects.font import BigFontScore
 from objects.pipes import PipeGenerator
+from objects.ui.end import End
 from objects.ui.message.msg_ready import MsgReady
 from objects.ui.pausebutton import PauseButton
 from objects.ui.startertip import StarterTip
@@ -21,10 +22,6 @@ class MainScene(BaseScene):
 
         self.bg = (11, 200, 215)
 
-        bg = [Clouds(), City(), Bush()]
-        buttons = [PauseButton()]
-        ui = [MsgReady(), StarterTip()]
-
         self.big_font = BigFontScore(
             font_dict={
                 str(i): resources.surface.get(Graphics.__dict__[f"CHAR_B{i}"])
@@ -33,10 +30,13 @@ class MainScene(BaseScene):
             padding_px=3,
         )
 
-        labels = [self.big_font]
-
         self.bird = Bird()
         self.pipe_generator = PipeGenerator()
+
+        bg = [Clouds(), City(), Bush()]
+        buttons = [PauseButton()]
+        ui = [MsgReady(), StarterTip(), End()]
+        labels = [self.big_font]
 
         self.add_children(
             *bg, self.pipe_generator, *buttons, self.bird, Floor(), *ui, *labels

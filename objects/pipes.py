@@ -76,10 +76,6 @@ class PipeGenerator(HierarchicalObject):
             return True
         return False
 
-    @property
-    def surface(self):
-        return self.parent.surface
-
     def generate_pipe(self):
         top = Pipe(Pipe.TOP)
         bot = Pipe(Pipe.BOT)

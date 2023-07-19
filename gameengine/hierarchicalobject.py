@@ -26,3 +26,25 @@ class HierarchicalObject:
     def draw(self):
         for child in self.children:
             child.draw()
+
+    @property
+    def surface(self):
+        return self.parent.surface
+
+    @property
+    def active(self):
+        return bool(sum(child.active for child in self.children))
+
+    @active.setter
+    def active(self, value):
+        for child in self.children:
+            child.active = value
+
+    @property
+    def visible(self):
+        return bool(sum(child.visible for child in self.children))
+
+    @visible.setter
+    def visible(self, value):
+        for child in self.children:
+            child.active = value

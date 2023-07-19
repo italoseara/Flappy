@@ -6,8 +6,7 @@ class BaseScene(HierarchicalObject):
 
     def __init__(self):
         super().__init__()
-        self.parent = self
-        self.surface = self.program.window.display.surface
+        self.parent = self.program.window.display
 
     def draw(self):
         self.surface.fill(self.bg)

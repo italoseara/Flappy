@@ -36,19 +36,6 @@ class SpriteFont(HierarchicalObject):
         self.scale = scale
         self.text = ""
 
-    @property
-    def surface(self):
-        return self.parent.surface
-
-    @property
-    def visible(self):
-        return self.children[0].visible
-
-    @visible.setter
-    def visible(self, value):
-        for d in self.children:
-            d.visible = value
-
     def update(self):
         super().update()
 
@@ -78,8 +65,12 @@ class BigFontScore(SpriteFont):
 
         self.set_text("0")
 
+    @property
+    def score(self):
+        return int(self.text)
+
     def increase_score(self):
-        self.set_text(int(self.text) + 1)
+        self.set_text(self.score + 1)
         pygame.mixer.Channel(1).play(resources.sound.get(Sounds.POINT))
 
     def update(self):
