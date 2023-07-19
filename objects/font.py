@@ -1,3 +1,6 @@
+import os
+import pickle
+
 import pygame
 
 import state
@@ -63,6 +66,26 @@ class ScoreLabel(SpriteFont):
     @property
     def score(self):
         return int(self.text)
+
+
+class MaxScore(ScoreLabel):
+    def __init__(self, font_dict, padding_px, scale=1):
+        super().__init__(font_dict, padding_px, scale)
+        self.path = os.path.abspath(".\\save.flappy")
+        if not os.path.exists(self.path):
+            self.file = open(self.path, "xb+")
+        else:
+            self.file = open(self.path, "rb+")
+
+        try:
+            stater_text = pickle.load(self.file)
+        except EOFError:
+            stater_text = 0
+        self.set_text(stater_text)
+
+    def save_score(self):
+        pickle.dump(self.score, self.file)
+        self.file.flush()
 
 
 class BigFontScore(ScoreLabel):

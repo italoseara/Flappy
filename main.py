@@ -11,6 +11,8 @@ class Flappy(Program):
     def __init__(self):
         super().__init__(Window(DEFAULT_WIN_SIZE), 60)
 
+        self.globals = {}
+
         self.window.set_title("Flappy Birds")
         self.load_assets()
         self.window.set_icon(resources.surface.get(Graphics.ICON))

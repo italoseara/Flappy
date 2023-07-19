@@ -6,7 +6,7 @@ from gameengine import resources
 from gameengine.basechild import BaseChild
 from gameengine.hierarchicalobject import HierarchicalObject
 from gameengine.timer import Timer
-from objects.font import ScoreLabel
+from objects.font import MaxScore, ScoreLabel
 
 
 class MsgGameOver(BaseChild):
@@ -35,6 +35,7 @@ class ButtonPlay(BaseChild):
         if self.hitbox.rect.collidepoint(
             self.program.devices.mouse.pos
         ) and self.program.devices.mouse.get_pressed_in_frame(pygame.BUTTON_LEFT):
+            self.parent.max_small_font.save_score()
             self.program.scene.reset()
 
 
@@ -76,13 +77,18 @@ class EndScreen(HierarchicalObject):
             },
             padding_px=2,
         )
-        self.max_small_font = ScoreLabel(
+        self.max_small_font = MaxScore(
             font_dict={
                 str(i): resources.surface.get(Graphics.__dict__[f"CHAR_S{i}"])
                 for i in range(10)
             },
             padding_px=2,
         )
+        # refatorar depois
+        if "scores" not in self.program.globals.keys():
+            self.global_scores = self.program.globals["scores"] = []
+        else:
+            self.global_scores = self.program.globals["scores"]
         self.timer = Timer(1.12)
         self.add_children(
             self.timer,
@@ -101,11 +107,13 @@ class EndScreen(HierarchicalObject):
         if state.game_mode == GameMode.DEAD:
             super().update()
             if self.timer.reached:
-                self.small_font.set_text(score := self.program.scene.big_font.text)
+                self.small_font.set_text(score := self.program.scene.big_font.score)
                 self.small_font.rect.right = 660
                 self.small_font.rect.bottom = 235
 
-                self.max_small_font.set_text(score)
+                self.global_scores.append(score)
+
+                self.max_small_font.set_text(max(self.max_small_font.score, score))
                 self.max_small_font.rect.right = 660
                 self.max_small_font.rect.bottom = 320
                 self.active = True
