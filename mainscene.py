@@ -1,4 +1,5 @@
-from constants import Graphics
+import state
+from constants import GameMode, Graphics
 from gameengine import resources
 from gameengine.scene import BaseScene
 from objects.background.bush import Bush
@@ -20,6 +21,13 @@ class MainScene(BaseScene):
 
         self.bg = (11, 200, 215)
 
+        self.reset()
+
+    def reset(self):
+        self.children.clear()
+
+        state.game_mode = GameMode.START
+
         self.big_font = BigFontScore(
             font_dict={
                 str(i): resources.surface.get(Graphics.__dict__[f"CHAR_B{i}"])
@@ -27,13 +35,7 @@ class MainScene(BaseScene):
             },
             padding_px=3,
         )
-        self.big_font = BigFontScore(
-            font_dict={
-                str(i): resources.surface.get(Graphics.__dict__[f"CHAR_B{i}"])
-                for i in range(10)
-            },
-            padding_px=3,
-        )
+
         self.bird = Bird()
         self.pipe_generator = PipeGenerator()
 

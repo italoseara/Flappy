@@ -70,6 +70,7 @@ class BigFontScore(ScoreLabel):
         super().__init__(font_dict, padding_px, scale)
 
         self.set_text("0")
+        self.visible = False
 
     def increase_score(self):
         self.set_text(self.score + 1)

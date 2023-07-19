@@ -1,3 +1,5 @@
+import pygame
+
 import state
 from constants import GameMode, Graphics
 from gameengine import resources
@@ -26,6 +28,14 @@ class ButtonPlay(BaseChild):
         super().__init__(resources.surface.get(Graphics.BTN_PLAY))
         self.rect.x = 280
         self.rect.y = 405
+
+    def update(self):
+        super().update()
+
+        if self.hitbox.rect.collidepoint(
+            self.program.devices.mouse.pos
+        ) and self.program.devices.mouse.get_pressed_in_frame(pygame.BUTTON_LEFT):
+            self.program.scene.reset()
 
 
 class ButtonScoreboard(BaseChild):
@@ -82,7 +92,7 @@ class EndScreen(HierarchicalObject):
             ButtonScoreboard(),
             Medal(),
             self.small_font,
-            self.max_small_font
+            self.max_small_font,
         )
 
         self.active = False

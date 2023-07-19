@@ -10,9 +10,9 @@ class HierarchicalObject:
             self.children.append(child)
             child.parent = self
 
-    def remove_child(self, *children):
+    def remove_children(self, *children):
         for child in children:
-            self.children.remove(child)
+            child.kill()
 
     def kill(self):
         if self.parent is not None:
