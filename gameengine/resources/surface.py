@@ -32,7 +32,7 @@ def slice(name, *rects):
     return [surface.subsurface(rect).copy() for rect in rects]
 
 
-def get(name, copy=True) -> pygame.Surface:
+def get(name, copy=True):
     surface = surfaces[name]
     if copy:
         return surface.copy()

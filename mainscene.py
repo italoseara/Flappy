@@ -8,7 +8,7 @@ from objects.background.city import City
 from objects.background.clouds import Clouds
 from objects.background.floor import Floor
 from objects.bird import Bird
-from objects.font import BigFont
+from objects.font import BigFontScore
 from objects.pipes import PipeGenerator
 from objects.ui.message.msg_ready import MsgReady
 from objects.ui.pausebutton import PauseButton
@@ -25,9 +25,9 @@ class MainScene(BaseScene):
         buttons = [PauseButton()]
         ui = [MsgReady(), StarterTip()]
 
-        self.big_font = BigFont(
+        self.big_font = BigFontScore(
             font_dict={
-                str(i): resources.surface.get(eval(f"Graphics.CHAR_B{i}"))
+                str(i): resources.surface.get(Graphics.__dict__[f"CHAR_B{i}"])
                 for i in range(10)
             },
             padding_px=3,
@@ -41,10 +41,3 @@ class MainScene(BaseScene):
         self.add_children(
             *bg, self.pipe_generator, *buttons, self.bird, Floor(), *ui, *labels
         )
-
-    def update(self):
-        if self.program.request_quit:
-            pygame.quit()
-            raise SystemExit(0)
-
-        super().update()

@@ -87,9 +87,6 @@ class Flappy(Program):
         for enum, path in sounds_data.items():
             resources.sound.add_from_file(enum, os.path.join(sounds_path, path))
 
-    def start(self):
-        self.start_loop()
-
 
 if __name__ == "__main__":
-    Flappy().start()
+    Flappy().start_loop()

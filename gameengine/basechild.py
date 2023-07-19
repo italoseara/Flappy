@@ -10,7 +10,7 @@ class HitBox:
         self.update(child, rect)
 
     def update(self, surface, rect):
-        self.rect = surface.get_bounding_rect()
+        self.rect = pygame.FRect(surface.get_bounding_rect())
         self.rect.x += rect.x
         self.rect.y += rect.y
 
@@ -52,9 +52,6 @@ class BaseChild(HierarchicalObject):
 
         self.visible = True
         self.active = True
-
-    def update_focus(self):
-        pass
 
     def update(self):
         if self.active:

@@ -1,7 +1,8 @@
 import pygame
 
 import state
-from constants import GameMode
+from constants import GameMode, Sounds
+from gameengine import resources
 from gameengine.basechild import BaseChild
 from gameengine.hierarchicalobject import HierarchicalObject
 
@@ -13,6 +14,10 @@ class Digit(BaseChild):
         self.column_offset = col_offset
         self.font = font
         self.index = index
+        self.update_pos()
+
+    def update(self):
+        super().update()
         self.update_pos()
 
     def update_pos(self):
@@ -45,11 +50,7 @@ class SpriteFont(HierarchicalObject):
             d.visible = value
 
     def update(self):
-        self.update_pos()
-
-    def update_pos(self):
-        for d in self.children:
-            d.update_pos()
+        super().update()
 
     def update_size(self):
         if len(self.children) > 0:
@@ -71,12 +72,19 @@ class SpriteFont(HierarchicalObject):
         self.update_size()
 
 
-class BigFont(SpriteFont):
-    def update(self):
-        super().update()
-        self.visible = state.game_mode == GameMode.PLAYING
+class BigFontScore(SpriteFont):
+    def __init__(self, font_dict, padding_px, scale=1):
+        super().__init__(font_dict, padding_px, scale)
+
+        self.set_text("0")
+
+    def increase_score(self):
+        self.set_text(int(self.text) + 1)
+        pygame.mixer.Channel(1).play(resources.sound.get(Sounds.POINT))
 
     def update(self):
-        self.rect.y = 15
-        self.rect.centerx = self.program.window.display.rect.centerx
-        super().update()
+        self.visible = state.game_mode == GameMode.PLAYING
+        if self.visible:
+            self.rect.y = 15
+            self.rect.centerx = self.program.window.display.rect.centerx
+            super().update()

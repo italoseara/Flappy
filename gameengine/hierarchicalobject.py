@@ -2,7 +2,7 @@ class HierarchicalObject:
     parent = None
     program = None
 
-    def __init__(self) -> None:
+    def __init__(self):
         self.children = []
 
     def add_children(self, *children):
@@ -19,8 +19,9 @@ class HierarchicalObject:
             self.parent.children.remove(self)
 
     def update(self):
-        for child in list(self.children):
-            child.update()
+        if not self.program.request_quit:
+            for child in list(self.children):
+                child.update()
 
     def draw(self):
         for child in self.children:

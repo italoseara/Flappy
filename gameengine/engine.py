@@ -44,7 +44,7 @@ class Program:
 
     def __init__(self, window: Window, framerate=30):
         HierarchicalObject.program = self
-
+        pygame.register_quit(self.quit)
         self.window = window
         self.time = TimeManager(framerate)
         self.devices = Devices()
@@ -61,12 +61,17 @@ class Program:
         self.event.update()
 
         self.scene.update()
-        self.scene.draw()
+        if not self.request_quit:
+            self.scene.draw()
 
-        self.window.update()
+            self.window.update()
 
-        self.time.update()
+            self.time.update()
+
+    def quit(self):
+        pass
 
     def start_loop(self):
-        while True:
+        while not self.request_quit:
             self.update()
+        pygame.quit()
