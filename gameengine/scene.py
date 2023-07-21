@@ -1,7 +1,7 @@
-from .hierarchicalobject import HierarchicalObject
+from .basenode import BaseNode
 
 
-class BaseScene(HierarchicalObject):
+class BaseScene(BaseNode):
     bg = (0, 0, 0)
 
     def __init__(self):

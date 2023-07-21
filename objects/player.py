@@ -6,29 +6,34 @@ import state
 from constants import GameMode, Graphics, Sounds
 from gameengine import resources
 from gameengine.animation import Animation
-from gameengine.basechild import BaseChild
+from gameengine.graphicnode import GraphicNode
 
 
-class Bird(BaseChild):
+class Bird(GraphicNode):
     def __init__(self):
         super().__init__(
             Animation.from_assets(
                 5,
-                resources.surface.get(Graphics.BIRD_F0),
-                resources.surface.get(Graphics.BIRD_F1),
+                resources.surface.get(Graphics.PLAYER_F0),
+                resources.surface.get(Graphics.PLAYER_F1),
             ),
         )
+
+
+class Player(Bird):
+    def __init__(self):
+        super().__init__()
 
         self.reset()
 
     def reset(self):
-        BIRD_CENTER_OFFSET_X = 50
+        PLAYER_CENTER_OFFSET_X = 50
 
         display = self.program.window.display
         self.rect.x = (
             display.rect.centerx
-            - resources.surface.get(Graphics.BIRD_F0).get_height() / 2
-            - BIRD_CENTER_OFFSET_X
+            - resources.surface.get(Graphics.PLAYER_F0).get_height() / 2
+            - PLAYER_CENTER_OFFSET_X
         )
         self.rect.centery = display.rect.centery
 
@@ -37,7 +42,6 @@ class Bird(BaseChild):
         self.angle_target = 0
         self.health = 0
         self.jump_counter = 0
-        self.between_pipes = False
 
     def update(self):
         if not state.is_paused:
@@ -69,8 +73,6 @@ class Bird(BaseChild):
             ):
                 self.rect.y = state.config.ground_line - self.hitbox.rect.h
                 self.die()
-            elif self.between_pipes:
-                self.check_pipe_collision()
 
             if state.game_mode != GameMode.START:
                 self.angle_target = 30 if self.jump_counter < 0.5 else -45
@@ -97,14 +99,6 @@ class Bird(BaseChild):
 
                 if state.game_mode == GameMode.PLAYING:
                     self.jump()
-
-    def check_in_between_pipes(self, pair_pipe_rect):
-        self.between_pipes = self.hitbox.rect.colliderect(pair_pipe_rect)
-
-    def check_pipe_collision(self):
-        for pipe in self.program.scene.pipe_generator.aligned_to_bird:
-            if pipe.hitbox.rect.colliderect(self.hitbox.rect):
-                self.die()
 
     def die(self):
         state.game_mode = GameMode.DEAD

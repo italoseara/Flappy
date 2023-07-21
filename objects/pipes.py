@@ -4,11 +4,11 @@ import random
 import state
 from constants import GameMode, Graphics
 from gameengine import resources
-from gameengine.basechild import BaseChild
-from gameengine.hierarchicalobject import HierarchicalObject
+from gameengine.basenode import BaseNode
+from gameengine.graphicnode import GraphicNode
 
 
-class Pipe(BaseChild):
+class Pipe(GraphicNode):
     TOP = enum.auto()
     BOT = enum.auto()
 
@@ -33,53 +33,48 @@ class Pipe(BaseChild):
             self.kill()
 
 
-class PipeGenerator(HierarchicalObject):
+class PipeSet(BaseNode):
     def __init__(self):
-        super().__init__()
+        self.top = Pipe(Pipe.TOP)
+        self.bot = Pipe(Pipe.BOT)
 
-        self.aligned_to_bird = []
-        self.bird_inside = False
-        self.last_pipe = None
+        super().__init__(self.top, self.bot)
+
+        self.top.rect.y = random.randint(*state.pipe_y_offset_range)
+        self.bot.rect.y = self.top.rect.bottom + state.pipe_y_spacing
+
+        self.rect = self.top.rect.copy()
+        self.rect.height *= 2
+        self.rect.height + state.pipe_y_spacing
+
+        self.incresead = False
 
     def update(self):
-        if not (state.is_paused or state.game_mode == GameMode.DEAD):
+        super().update()
+
+        self.rect.x = self.top.rect.x
+
+        player = self.program.scene.game.player
+
+        if player.hitbox.rect.colliderect(self.rect):
+            if player.hitbox.rect.collidelist((self.top.rect, self.bot.rect)) != -1:
+                player.die()
+            elif player.hitbox.rect.right >= self.rect.right and not self.incresead:
+                self.incresead = True
+                self.program.scene.score.increase()
+
+
+class Pipes(BaseNode):
+    def generate_pipes(self):
+        self.add_children(PipeSet())
+
+    def update(self):
+        if state.game_mode == GameMode.PLAYING and not state.is_paused:
+            if (
+                len(self.children) == 0
+                or self.children[-1].top.rect.x - self.program.window.display.width
+                <= -state.pipe_x_spacing
+            ):
+                self.generate_pipes()
+
             super().update()
-            self.check_bird_collision()
-
-            if len(self.children) == 0:
-                if state.game_mode == GameMode.PLAYING:
-                    self.generate_pipe()
-            elif (
-                self.children[-1].rect.x - self.program.window.display.width
-            ) <= -state.pipe_x_spacing:
-                self.generate_pipe()
-
-    def check_bird_collision(self):
-        self.aligned_to_bird.clear()
-        for i in range(0, len(self.children), 2):
-            pair_pipe_rect = (next_last_pipe := self.children[i]).hitbox.rect.copy()
-            pair_pipe_rect.y = 0
-            pair_pipe_rect.height = self.program.window.display.height
-
-            self.program.scene.bird.check_in_between_pipes(pair_pipe_rect)
-
-            if self.program.scene.bird.between_pipes:
-                self.aligned_to_bird = [self.children[i], self.children[i + 1]]
-                if self.last_pipe not in self.aligned_to_bird:
-                    if self.check_point(pair_pipe_rect):
-                        self.last_pipe = next_last_pipe
-                break
-
-    def check_point(self, pair_pipe_rect):
-        if self.program.scene.bird.hitbox.rect.right > pair_pipe_rect.right:
-            self.program.scene.big_font.increase_score()
-            return True
-        return False
-
-    def generate_pipe(self):
-        top = Pipe(Pipe.TOP)
-        bot = Pipe(Pipe.BOT)
-        self.add_children(top, bot)
-
-        top.rect.bottom = random.randint(*state.pipe_y_offset_range) + top.rect.height
-        bot.rect.top = top.rect.bottom + state.pipe_y_spacing
