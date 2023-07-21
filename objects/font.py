@@ -1,16 +1,10 @@
-import os
-import pickle
-
 import pygame
 
-import state
-from constants import GameMode, Sounds
-from gameengine import resources
-from gameengine.basechild import BaseChild
-from gameengine.hierarchicalobject import HierarchicalObject
+from gameengine.basenode import BaseNode
+from gameengine.graphicnode import GraphicNode
 
 
-class Digit(BaseChild):
+class Digit(GraphicNode):
     def __init__(self, digit, col_offset, index, font):
         super().__init__(font.font_dict[digit])
         self.digit = digit
@@ -30,7 +24,7 @@ class Digit(BaseChild):
         self.rect.y = self.font.rect.y + self.font.padding_px
 
 
-class SpriteFont(HierarchicalObject):
+class SpriteFont(BaseNode):
     def __init__(self, font_dict, padding_px, scale=1):
         super().__init__()
         self.rect = pygame.FRect(0, 0, 0, 0)
@@ -61,47 +55,5 @@ class SpriteFont(HierarchicalObject):
             col += self.font_dict[digit].get_width()
         self.update_size()
 
-
-class ScoreLabel(SpriteFont):
-    @property
-    def score(self):
-        return int(self.text)
-
-
-class MaxScore(ScoreLabel):
-    def __init__(self, font_dict, padding_px, scale=1):
-        super().__init__(font_dict, padding_px, scale)
-        self.path = os.path.abspath(".\\save.flappy")
-        if not os.path.exists(self.path):
-            self.file = open(self.path, "xb+")
-        else:
-            self.file = open(self.path, "rb+")
-
-        try:
-            stater_text = pickle.load(self.file)
-        except EOFError:
-            stater_text = 0
-        self.set_text(stater_text)
-
-    def save_score(self):
-        pickle.dump(self.score, self.file)
-        self.file.flush()
-
-
-class BigFontScore(ScoreLabel):
-    def __init__(self, font_dict, padding_px, scale=1):
-        super().__init__(font_dict, padding_px, scale)
-
-        self.set_text("0")
-        self.visible = False
-
-    def increase_score(self):
-        self.set_text(self.score + 1)
-        pygame.mixer.Channel(1).play(resources.sound.get(Sounds.POINT))
-
-    def update(self):
-        self.visible = state.game_mode == GameMode.PLAYING
-        if self.visible:
-            self.rect.y = 15
-            self.rect.centerx = self.program.window.display.rect.centerx
-            super().update()
+    def draw(self):
+        return super().draw()

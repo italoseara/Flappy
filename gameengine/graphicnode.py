@@ -2,7 +2,7 @@ import pygame
 
 from gameengine.animation import Animation
 
-from .hierarchicalobject import HierarchicalObject
+from .basenode import BaseNode
 
 
 class HitBox:
@@ -24,7 +24,7 @@ class Rotation:
             target.surface = pygame.transform.rotate(target.surface, self.angle)
 
 
-class BaseChild(HierarchicalObject):
+class GraphicNode(BaseNode):
     surface = None
     rect = None
     offset = None
@@ -38,7 +38,7 @@ class BaseChild(HierarchicalObject):
     visible = None
 
     def __init__(self, image):
-        HierarchicalObject.__init__(self)
+        BaseNode.__init__(self)
 
         if type(image) is Animation:
             self.animation = image
@@ -60,7 +60,7 @@ class BaseChild(HierarchicalObject):
                 self.surface = self.animation.current_frame
             self.rotation.update(self)
             self.rect.size = self.surface.get_size()
-            HierarchicalObject.update(self)
+            BaseNode.update(self)
 
     def draw(self):
         if self.active and self.visible:
@@ -68,7 +68,7 @@ class BaseChild(HierarchicalObject):
             if self.bg is not None:
                 self.surface.fill(self.bg)
 
-            HierarchicalObject.draw(self)
+            BaseNode.draw(self)
 
             self.parent.surface.blit(
                 self.surface,
