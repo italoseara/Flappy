@@ -37,8 +37,8 @@ class Graphics(IntEnum):
     PIPE_TOP = auto()
     PIPE_BOT = auto()
 
-    BIRD_F0 = auto()
-    BIRD_F1 = auto()
+    PLAYER_F0 = auto()
+    PLAYER_F1 = auto()
 
     MSG_GAME_OVER = auto()
     MSG_FLAPPY = auto()

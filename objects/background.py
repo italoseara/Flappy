@@ -1,20 +1,21 @@
 from math import ceil
 
 import state
-from constants import GameMode
+from constants import GameMode, Graphics
 from gameengine import resources
-from gameengine.basechild import BaseChild
+from gameengine.graphicnode import GraphicNode
 
 
-class ScrollTile(BaseChild):
+class BatchTile(GraphicNode):
     def __init__(self, coeff, tile, floor=False):
         surf = resources.surface.get(tile)
         self.surf_w = surf.get_width()
-        surf_h = surf.get_height()
 
         display = self.program.window.display
 
-        super().__init__(resources.surface.new((display.width + self.surf_w, surf_h)))
+        super().__init__(
+            resources.surface.new((display.width + self.surf_w, surf.get_height()))
+        )
 
         ground_y = state.config.ground_line
         if floor:
@@ -33,3 +34,23 @@ class ScrollTile(BaseChild):
 
             self.rect.x += self.speed_x * self.program.time.delta
             self.rect.x %= -self.surf_w
+
+
+class Bush(BatchTile):
+    def __init__(self):
+        super().__init__(state.config.bush_parallax_coeff, Graphics.BG_BUSH)
+
+
+class City(BatchTile):
+    def __init__(self):
+        super().__init__(state.config.city_parallax_coeff, Graphics.BG_CITY)
+
+
+class Clouds(BatchTile):
+    def __init__(self):
+        super().__init__(state.config.clouds_parallax_coeff, Graphics.BG_CLOUDS)
+
+
+class Floor(BatchTile):
+    def __init__(self):
+        super().__init__(state.config.floor_parallax_coeff, Graphics.FLOOR, True)

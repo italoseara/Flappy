@@ -1,9 +1,10 @@
-class HierarchicalObject:
+class BaseNode:
     parent = None
     program = None
 
-    def __init__(self):
+    def __init__(self, *children):
         self.children = []
+        self.add_children(*children)
 
     def add_children(self, *children):
         for child in children:

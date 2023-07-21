@@ -4,10 +4,10 @@ import state
 from constants import GameMode, Graphics
 from gameengine import resources
 from gameengine.animation import Animation
-from gameengine.basechild import BaseChild
+from gameengine.graphicnode import GraphicNode
 
 
-class PauseButton(BaseChild):
+class BtnPause(GraphicNode):
     def __init__(self):
         super().__init__(
             Animation.from_assets(
@@ -24,9 +24,8 @@ class PauseButton(BaseChild):
         self.pressed = False
 
     def update(self):
-        self.active = state.game_mode == GameMode.PLAYING
-
-        if self.active:
+        self.visible = state.game_mode == GameMode.PLAYING
+        if self.visible:
             self.pressed = (
                 self.rect.collidepoint(self.program.devices.mouse.pos)
                 and self.program.devices.mouse.get_pressed_in_frame(pygame.BUTTON_LEFT)
@@ -42,4 +41,24 @@ class PauseButton(BaseChild):
             else:
                 self.animation.frame_index = 0
 
-            super().update()
+
+class BtnPlay(GraphicNode):
+    def __init__(self):
+        super().__init__(resources.surface.get(Graphics.BTN_PLAY))
+        self.rect.x = 280
+        self.rect.y = 405
+
+    def update(self):
+        super().update()
+
+        if self.hitbox.rect.collidepoint(
+            self.program.devices.mouse.pos
+        ) and self.program.devices.mouse.get_pressed_in_frame(pygame.BUTTON_LEFT):
+            self.program.scene.reset()
+
+
+class BtnScoreboard(GraphicNode):
+    def __init__(self):
+        super().__init__(resources.surface.get(Graphics.BTN_SCOREBOARD))
+        self.rect.x = 520
+        self.rect.y = 405

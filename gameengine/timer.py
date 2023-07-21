@@ -1,7 +1,7 @@
-from .hierarchicalobject import HierarchicalObject
+from .basenode import BaseNode
 
 
-class Timer(HierarchicalObject):
+class Timer(BaseNode):
     def __init__(self, target_time, auto_pause=True):
         super().__init__()
         self.auto_pause = auto_pause
