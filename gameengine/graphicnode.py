@@ -56,7 +56,7 @@ class GraphicNode(BaseNode):
     def update(self):
         if self.active:
             if self.animation is not None:
-                self.animation.update(self)
+                self.animation.update()
                 self.surface = self.animation.current_frame
             self.rotation.update(self)
             self.rect.size = self.surface.get_size()

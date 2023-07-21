@@ -3,20 +3,14 @@ import pygame
 import state
 from constants import GameMode, Graphics
 from gameengine import resources
-from gameengine.animation import Animation
 from gameengine.graphicnode import GraphicNode
 
 
 class BtnPause(GraphicNode):
     def __init__(self):
-        super().__init__(
-            Animation.from_assets(
-                1,
-                resources.surface.get(Graphics.BTN_PAUSE_NORMAL),
-                resources.surface.get(Graphics.BTN_PAUSE_PAUSED),
-            ),
-        )
-        self.animation.pause()
+        self.surf_normal = resources.surface.get(Graphics.BTN_PAUSE_NORMAL)
+        self.surf_paused = resources.surface.get(Graphics.BTN_PAUSE_PAUSED)
+        super().__init__(self.surf_normal)
 
         self.rect.right = self.program.window.display.width - 10
         self.rect.y = 10
@@ -36,10 +30,7 @@ class BtnPause(GraphicNode):
             if self.pressed and state.game_mode != GameMode.DEAD:
                 state.is_paused = not state.is_paused
 
-            if state.is_paused:
-                self.animation.frame_index = 1
-            else:
-                self.animation.frame_index = 0
+            self.surface = self.surf_paused if state.is_paused else self.surf_normal
 
 
 class BtnPlay(GraphicNode):
