@@ -2,12 +2,16 @@ from .timer import Timer
 
 
 class Animation(Timer):
-    # SPRITESHEET_MODE = enum.auto()
-    # ASSETS_MODE = enum.auto()
-
     animations = {}
 
     def __init__(self, fps, *frames):
+        """
+        Animation object, responsible for handling animations
+        being fully compatible with GraphicNode.
+
+        Args:
+            fps (int): animation frame per second
+        """
         super().__init__(1 / fps, False)
         self.frames = frames
         self.fps = fps
@@ -16,6 +20,12 @@ class Animation(Timer):
 
     @property
     def current_frame(self):
+        """
+        current animation frame.
+
+        Returns:
+            surface: a pygame Surface
+        """
         return self.frames[self.frame_index].copy()
 
     def update(self, child):
@@ -27,4 +37,7 @@ class Animation(Timer):
 
     @classmethod
     def from_assets(cls, fps, *assets):
+        """
+        Build an animation from some assets files.
+        """
         return cls(fps, *assets)

@@ -3,19 +3,40 @@ class BaseNode:
     program = None
 
     def __init__(self, *children):
+        """
+        BaseNode is the base class for all objects in the scenes.
+
+        Args:
+            children (Iterable): Optional initial child nodes
+        """
         self.children = []
         self.add_children(*children)
 
     def add_children(self, *children):
+        """
+        Add children to node.
+
+        Args:
+            children (Iterable): child nodes
+        """
         for child in children:
             self.children.append(child)
             child.parent = self
 
     def remove_children(self, *children):
+        """
+        Remove children from node.
+
+        Args:
+            children (Iterable): child nodes
+        """
         for child in children:
             child.kill()
 
     def kill(self):
+        """
+        Kill yourself. Killing a node removes it from its parent.
+        """
         if self.parent is not None:
             self.parent.children.remove(self)
 
